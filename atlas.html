@@ -403,14 +403,10 @@
       </div>
 
       <!-- Кнопки действий -->
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <button onclick="randomLocation()" class="btn-primary text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           Сюрприз
-        </button>
-        <button onclick="downloadGeoJSON()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          GeoJSON
         </button>
         <button onclick="copyShareLink()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -2297,32 +2293,6 @@ window.copyShareLink = function() {
   );
 };
 
-window.downloadGeoJSON = function() {
-  const filtered = getFilteredLocations();
-  const geojson = {
-    type: "FeatureCollection",
-    features: filtered.map(loc => ({
-      type: "Feature",
-      properties: {
-        name: loc.name,
-        country: loc.country,
-        category_id: loc.category,
-        category_name: catConfig[loc.category].label,
-        emoji: catConfig[loc.category].emoji
-      },
-      geometry: { type: "Point", coordinates: [loc.lng, loc.lat] }
-    }))
-  };
-  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `wonders_${filtered.length}.geojson`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast(`Скачано: ${filtered.length} точек`);
-};
-
 // ═══════════════════════════════════════════════════════════════════════
 //   ТЁМНАЯ ТЕМА
 // ═══════════════════════════════════════════════════════════════════════
@@ -2364,17 +2334,51 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+function applyInitialUrlFilters() {
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get('category');
+  const tag = params.get('tag');
+  const search = params.get('q');
+
+  const categorySelect = document.getElementById('categoryFilter');
+  const tagSelect = document.getElementById('tagFilter');
+  const searchInput = document.getElementById('searchInput');
+
+  if (category && [...categorySelect.options].some(o => o.value === category)) categorySelect.value = category;
+  if (tag && [...tagSelect.options].some(o => o.value === tag)) tagSelect.value = tag;
+  if (search) searchInput.value = search;
+}
+
+function syncUrlFilters() {
+  const params = new URLSearchParams();
+  const category = document.getElementById('categoryFilter').value;
+  const tag = document.getElementById('tagFilter').value;
+  const search = document.getElementById('searchInput').value.trim();
+
+  if (category !== 'all') params.set('category', category);
+  if (tag !== 'all') params.set('tag', tag);
+  if (search) params.set('q', search);
+
+  const next = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
+  window.history.replaceState(null, '', next);
+}
+
+function renderAndSync() {
+  syncUrlFilters();
+  renderEverything();
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 //   ОБРАБОТЧИКИ
 // ═══════════════════════════════════════════════════════════════════════
 let searchTimer;
 document.getElementById('searchInput').addEventListener('input', () => {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(renderEverything, 150);
+  searchTimer = setTimeout(renderAndSync, 150);
 });
-document.getElementById('categoryFilter').addEventListener('change', renderEverything);
+document.getElementById('categoryFilter').addEventListener('change', renderAndSync);
 document.getElementById('sortSelect').addEventListener('change', renderEverything);
-document.getElementById('tagFilter').addEventListener('change', renderEverything);
+document.getElementById('tagFilter').addEventListener('change', renderAndSync);
 document.getElementById('visitedFilter').addEventListener('change', renderEverything);
 document.getElementById('clearFilters').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
@@ -2382,7 +2386,7 @@ document.getElementById('clearFilters').addEventListener('click', () => {
   document.getElementById('sortSelect').value = 'name';
   document.getElementById('tagFilter').value = 'all';
   document.getElementById('visitedFilter').value = 'all';
-  renderEverything();
+  renderAndSync();
   toast('Фильтры сброшены');
 });
 document.getElementById('resetVisited').addEventListener('click', () => {
@@ -2415,6 +2419,7 @@ document.getElementById('galleryModal').addEventListener('click', (e) => {
 initMap();
 renderStats();
 document.getElementById('visitedTotal').textContent = locations.length;
+applyInitialUrlFilters();
 renderEverything();
 updateProgress();
 
