@@ -1,0 +1,450 @@
+status,en,name,country,lat,lng,source,note
+updated-existing,Tassili n'Ajjer,Плато Тассилин-Аджер,Algeria,,,,Tassili n'Ajjer
+added,Península Valdés,Полуостров Вальдес,Argentina,-42.5,-64,input,
+added,Los Alerces National Park,Los Alerces National Park,Argentina,-42.8528,-71.8728,input,
+added,Willandra Lakes Region,Озерный район Уилландра,Australia,-34,143,input,
+added,Gondwana Rainforests of Australia,Дождевые леса восточного побережья,Australia,-28.25,150.05,input,
+added,Uluru-Kata Tjuta National Park (Национальный парк Улуру-Катаюта,Айерс-Рок – Маунт-Олга,Australia,-25.333333,131,input,
+added,Heard and McDonald Islands,Острова Херд и Макдональд,Australia,-53.1,73.5,input,
+added,"Shark Bay, Western Australia","Залив Шарк, Западная Австралия",Australia,-25.486111,113.436111,input,
+added,Macquarie Island,Остров Маккуори,Australia,-54.594722,158.895556,input,
+updated-existing,K’gari (Fraser Island),Остров Фрейзера,Australia,,,,K'gari / Fraser Island
+added,Australian Fossil Mammal Sites (Riversleigh / Naracoorte) (Ископаемые останки австралийских млекопитающих,Риверслей и Наракорт,Australia,-19.083333,138.716667,input,
+updated-existing,Purnululu National Park,Национальный парк Пурнулулу,Australia,,,,Bungle Bungle Range
+added,Ningaloo Coast,Побережье Нингалу,Australia,-22.5625,113.810278,input,
+added,Noel Kempff Mercado National Park,Национальный парк Ноэль-Кемпфф-Меркадо,Bolivia (Plurinational State of),-14.26667,-60.86667,input,
+added,"Vjetrenica Cave, Ravno","Пещера Ветреница, Равно",Bosnia and Herzegovina,42.8361,17.9836,input,
+added,Central Amazon Conservation Complex,Комплекс резерватов Центральной Амазонии,Brazil,-2.333333,-62.008333,input,
+added,Pantanal Conservation Area,Охраняемая область Пантанал,Brazil,-17.71667,-57.38333,input,
+added,Brazilian Atlantic Islands: Fernando de Noronha and Atol das Rocas Reserves,Бразильские острова в Атлантике: Фернанду-ди-Норонья и атолл Рокас,Brazil,-3.857944,-32.425111,input,
+added,Paraty and Ilha Grande – Culture and Biodiversity,Парати и Илья-Гранди – культура и биоразнообразие,Brazil,-23.018606,-44.685369,input,
+unresolved-coordinates,Peruaçu River Canyon,Национальный парк Кавернас-ду-Перуасу,Brazil,,,,no coordinates found
+added,Srebarna Nature Reserve,Природный резерват Сребырна,Bulgaria,44.11444,27.07806,input,
+added,Pirin National Park,Национальный парк Пирин,Bulgaria,41.742722,23.430472,input,
+added,Dja Faunal Reserve,Фаунистический резерват Джа,Cameroon,3,13,input,
+added,Nahanni National Park,Национальный парк Наханни,Canada,61.547222,-125.589444,input,
+added,Dinosaur Provincial Park,Провинциальный парк Дайносор,Canada,50.767778,-111.492222,input,
+added,Wood Buffalo National Park,Национальный парк Вуд-Баффало,Canada,59.358333,-112.293333,input,
+added,Canadian Rocky Mountain Parks,Парки Канадских Скалистых гор,Canada,51.424722,-116.479722,input,
+added,Miguasha National Park,Провинциальный парк Мигуаша,Canada,48.105,-66.353056,input,
+added,Joggins Fossil Cliffs,Скалы с окаменелостями в Джоггинсе,Canada,45.709722,-64.435833,input,
+added,Pimachiowin Aki,Пимачиовин Аки,Canada,51.826417,-95.411278,input,
+added,Mistaken Point,Мистейкен Пойнт,Canada,46.635,-53.211111,input,
+added,Anticosti,Антикости,Canada,49.5,-63,ru.wikipedia:coordinates,
+added,Manovo-Gounda St Floris National Park,Национальный парк Маново-Гоунда–Сен-Флорис,Central African Republic,9,21.5,input,
+added,Lakes of Ounianga,Lakes of Ounianga,Chad,19.055,20.505556,input,
+added,Ennedi Massif: Natural and Cultural Landscape,Природно-культурный ландшафт горного плато Эннеди,Chad,17.041667,21.862778,input,
+updated-existing,Mount Taishan,Гора Тайшань,China,,,,Mount Tai
+updated-existing,Huanglong Scenic and Historic Interest Area,Пейзажная достопримечательная зона Хуанлун,China,,,,Huanglong
+added,Mount Wuyi,Горы Уишань,China,27.71667,117.68333,input,
+added,Three Parallel Rivers of Yunnan Protected Areas,"Национальный парк «Три параллельные реки», провинция Юньнань",China,27.895,98.406389,input,
+added,"Sichuan Giant Panda Sanctuaries - Wolong, Mt Siguniang and Jiajin Mountains",Резерваты гигантской панды в провинции Сычуань,China,30.833333,103,input,
+added,South China Karst,South China Karst,China,24.923333,110.354444,input,
+added,Mount Sanqingshan National Park,Национальный парк горы Саньциншань,China,28.915833,118.064444,input,
+added,China Danxia,"Данься, Китай",China,28.421944,106.0425,input,
+added,Chengjiang Fossil Site,Chengjiang Fossil Site,China,24.668889,102.977222,input,
+added,Xinjiang Tianshan,Xinjiang Tianshan,China,41.968333,80.354167,input,
+added,Hubei Shennongjia,Шэньнунцзя в провинции Хубэй,China,31.469722,110.243889,input,
+added,Qinghai Hoh Xil,Qinghai Hoh Xil,China,35.380278,92.439167,input,
+added,Fanjingshan,Фаньцзиншань,China,27.895556,108.68,input,
+added,Migratory Bird Sanctuaries along the Coast of Yellow Sea-Bohai Gulf of China,Ареалы обитания перелетных птиц вдоль побережья Желтого моря и Бохайского залива,China,32.931944,121.016814,input,
+unresolved-coordinates,Badain Jaran Desert - Towers of Sand and Lakes,Пустыня Бадын-Джаран — песчаные дюны и озера,China,,,,no coordinates found
+added,Los Katíos National Park,Национальный парк Лос-Катиос,Colombia,7.666667,-77,input,
+added,Chiribiquete National Park – “The Maloca of the Jaguar”,Национальный парк Чирибикете - «Малока клана Ягуара»,Colombia,0.525278,-72.797222,input,
+added,Malpelo Fauna and Flora Sanctuary,Фаунистический и флористический резерват Мальпело,Colombia,3.966667,-81.616667,input,
+unresolved-coordinates,Forest Massif of Odzala-Kokoua,Лесной массив Одзала-Кокуа,Congo,,,,no coordinates found
+added,Cocos Island National Park,Национальный парк Остров Кокос,Costa Rica,5.533333,-87.066667,input,
+added,Area de Conservación Guanacaste,Охраняемая область Гуанакасте,Costa Rica,10.85,-85.616667,input,
+added,Taï National Park,Национальный парк Таи,Côte d'Ivoire,5.75,-7.66667,input,
+added,Comoé National Park,Национальный парк Комоэ,Côte d'Ivoire,9,-4,input,
+added,Alejandro de Humboldt National Park,Национальный парк Алехандро-де-Гумбольдт,Cuba,20.45,-75,input,
+added,Desembarco del Granma National Park,Национальный парк Десембарко-дель-Гранма,Cuba,19.88333,-77.63333,input,
+unresolved-coordinates,Mount Kumgang – Diamond Mountain from the Sea,Гора Кымгансан — Алмазная гора моря,Democratic People's Republic of Korea,,,,no coordinates found
+added,Garamba National Park,Национальный парк Гарамба,Democratic Republic of the Congo,4,29.25,input,
+added,Kahuzi-Biega National Park,Национальный парк Кахузи-Биега,Democratic Republic of the Congo,-2.5,28.75,input,
+added,Salonga National Park,Национальный парк Салонга,Democratic Republic of the Congo,-2,21,input,
+added,Okapi Wildlife Reserve,Фаунистический резерват Окапи,Democratic Republic of the Congo,2,28.5,input,
+updated-existing,Ilulissat Icefjord (Ледниковый фьорд Илулиссат,Гренландия,Denmark,,,,Ilulissat Icefjord
+added,Stevns Klint,Stevns Klint,Denmark,55.267222,12.423333,input,
+added,Møns Klint,Мёнс Клинт,Denmark,54.96416667,12.55222222,en.wikipedia:coordinates,
+added,Morne Trois Pitons National Park,Национальный парк Морн-Труа-Питон,Dominica,15.266667,-61.283333,input,
+added,Wadi Al-Hitan (Whale Valley) (Вади-аль-Хитан,«Долина китов») - местонахождение окаменелостей,Egypt,29.33333,30.18333,input,
+added,Simien National Park,Национальный парк Сымен,Ethiopia,13.183333,38.066667,input,
+added,Bale Mountains National Park,Национальный парк Горы Бале,Ethiopia,6.66666667,39.66666667,en.wikipedia:coordinates,
+added,"Gulf of Porto: Calanche of Piana, Gulf of Girolata, Scandola Reserve (Мысы Жиролата и Порто, природный резерват Скандола и скалистые бухты «каланки» у города Пьяна",остров Корсика,France,42.325194,8.628833,input,
+added,Lagoons of New Caledonia: Reef Diversity and Associated Ecosystems,"Лагуны Новой Каледонии, разнообразие коралловых рифов и их экосистем",France,-20.411944,164.566389,input,
+added,"Pitons, cirques and remparts of Reunion Island","Пики, кратеры и валы на острове Реюньон",France,-21.099444,55.48,input,
+added,Chaîne des Puys - Limagne fault tectonic arena,Тектоно-вулканическая формация горной цепи Шен-де-Пюи и разлома Лимань,France,45.779389,2.965111,input,
+added,French Austral Lands and Seas,Французские Южные территории и моря,France,-49.380361,69.352806,input,
+unresolved-coordinates,Volcanoes and Forests of Mount Pelée and the Pitons of Northern Martinique,Вулканы и леса Мон-Пеле и горные вершины северной Мартиники,France,,,,no coordinates found
+added,Ecosystem and Relict Cultural Landscape of Lopé-Okanda,Экосистема и реликтовый культурный пейзаж Лопе-Оканда,Gabon,-0.5,11.5,input,
+added,Ivindo National Park,Национальный парк Ивиндо,Gabon,0.088,12.63,en.wikipedia:coordinates,
+added,Colchic Rainforests and Wetlands,Колхидские тропические леса и водно-болотные угодья,Georgia,41.70222222,41.95111111,en.wikipedia:coordinates,
+added,Messel Pit Fossil Site,Messel Pit Fossil Site,Germany,49.91667,8.75389,input,
+added,Mount Athos (Духовный центр православия Гора Афон,«Святая Гора»,Greece,40.26667,24.21667,input,
+added,Tikal National Park,Национальный парк Тикаль,Guatemala,17.216667,-89.616667,input,
+unresolved-coordinates,Coastal and Marine Ecosystems of the Bijagós Archipelago – Omatí Minhô,Прибрежные и морские экосистемы архипелага Бижагош — Омати Миньо,Guinea-Bissau,,,,no coordinates found
+added,Río Plátano Biosphere Reserve,Биосферный резерват Рио-Платано,Honduras,15.744444,-84.675,input,
+added,Surtsey,Суртсей,Iceland,63.303056,-20.602222,input,
+added,Vatnajökull National Park - Dynamic Nature of Fire and Ice,Национальный парк Ватнайёкюдль – динамичная природа льда и огня,Iceland,64.577363,-16.88154,input,
+added,Nanda Devi and Valley of Flowers National Parks,Национальные парки Нанда-Деви и «Долина цветов»,India,30.71667,79.66667,input,
+added,Kaziranga National Park,Национальный парк Казиранга,India,26.666667,93.416667,input,
+added,Manas Wildlife Sanctuary,Убежище дикой фауны Манас,India,26.725,91.030556,input,
+added,Keoladeo National Park,Национальный парк Кеоладео,India,27.158889,77.508611,input,
+added,Western Ghats,Western Ghats,India,8.529722,77.249722,input,
+added,Great Himalayan National Park Conservation Area,Great Himalayan National Park Conservation Area,India,31.833333,77.583333,input,
+added,Khangchendzonga National Park,Национальный парк Канченджанга,India,27.764722,88.377222,input,
+added,Ujung Kulon National Park,Национальный парк Уджунг-Кулон и вулкан Кракатау,Indonesia,-6.75,105.333333,input,
+updated-existing,Komodo National Park,Национальный парк Комодо,Indonesia,,,,Komodo National Park
+added,Lorentz National Park,Национальный парк Лоренц,Indonesia,-4.75,137.83333,input,
+added,Tropical Rainforest Heritage of Sumatra,Девственные влажно-тропические леса Суматры,Indonesia,-2.5,101.5,input,
+added,Lut Desert,Пустыня Лут,Iran (Islamic Republic of),30.216111,58.838889,input,
+added,The Ahwar of Southern Iraq: Refuge of Biodiversity and the Relict Landscape of the Mesopotamian Cities,Месопотамские болота на юге Ирака: центр биоразнообразия и реликтовые ландшафты городов Месопотамии,Iraq,31.562222,47.657778,input,
+added,Isole Eolie (Aeolian Islands) (Эоловые,Липарские) острова,Italy,38.487861,14.945583,input,
+added,The Dolomites,The Dolomites,Italy,46.613056,12.163056,input,
+updated-existing,Mount Etna,Mount Etna,Italy,,,,Mount Etna
+unresolved-coordinates,Evaporitic Karst and Caves of Northern Apennines,Эвапоритовый карст и пещеры Северных Апеннин,Italy,,,,no coordinates found
+added,Blue and John Crow Mountains,Голубые горы и горы Джона Кроу,Jamaica,18.0775,-76.571111,input,
+added,Shirakami-Sanchi,Горы Сираками,Japan,40.47,140.13,input,
+added,Shiretoko (Полуостров Сиретоко,остров Хоккайдо,Japan,43.94944,144.96583,input,
+added,Ogasawara Islands,Острова Огасавара,Japan,27.718333,142.099722,input,
+unresolved-coordinates,"Amami-Oshima Island, Tokunoshima Island, Northern part of Okinawa Island, and Iriomote Island","Остров Амами-Осима, остров Токуносима, северная часть острова Окинава и остров Ириомотэ",Japan,,,,no coordinates found
+added,Saryarka – Steppe and Lakes of Northern Kazakhstan,Сары-Арка – степь и озера северного Казахстана,Kazakhstan,50.433333,69.188889,input,
+added,Mount Kenya National Park/Natural Forest,Mount Kenya National Park/Natural Forest,Kenya,-0.155,37.315556,input,
+added,Lake Turkana National Parks,Национальные парки на озере Туркана,Kenya,3.051306,36.503667,input,
+added,Kenya Lake System in the Great Rift Valley,Система озер в Великой рифтовой долине,Kenya,-0.4425,36.24,input,
+added,Phoenix Islands Protected Area,Заповедная территория островов Феникса,Kiribati,-3.649722,-172.8575,input,
+added,Andrefana Dry Forests,Сухие леса Андрефана,Madagascar,-18.66667,44.75,input,
+added,Rainforests of the Atsinanana,Влажные тропические леса Атсинананы,Madagascar,-14.459722,49.7025,input,
+added,Gunung Mulu National Park (Национальный парк Гунунг-Мулу,"штат Саравак, остров Борнео",Malaysia,4.13333,114.91667,input,
+added,Cliff of Bandiagara (Land of the Dogons) (Нагорье Бандиагара,земля догонов,Mali,14.33333,-3.41667,input,
+added,Banc d'Arguin National Park,Национальный парк Банк д`Арген,Mauritania,20.23472,-16.10889,input,
+added,Sian Ka'an,Биосферный резерват Сиан-Каан,Mexico,19.38333,-87.79167,input,
+added,Whale Sanctuary of El Vizcaino,Резерват китов Эль-Вискаино,Mexico,27.79222,-114.22778,input,
+added,"Ancient Maya City and Protected Tropical Forests of Calakmul, Campeche","Ancient Maya City and Protected Tropical Forests of Calakmul, Campeche",Mexico,18.053028,-89.737283,input,
+added,Islands and Protected Areas of the Gulf of California,Острова и охраняемые природные территории в районе Калифорнийского залива,Mexico,27.62667,-112.54583,input,
+added,Monarch Butterfly Biosphere Reserve,Биосферный заповедник бабочки Монарх,Mexico,19.606389,-100.241667,input,
+added,El Pinacate and Gran Desierto de Altar Biosphere Reserve,El Pinacate and Gran Desierto de Altar Biosphere Reserve,Mexico,32,-113.916667,input,
+added,Archipiélago de Revillagigedo,Архипелаг Ревилья-Хихедо,Mexico,18.788056,-110.975278,input,
+added,Tehuacán-Cuicatlán Valley: originary habitat of Mesoamerica,Долина Техуакан-Куйкатлан: Мезоамериканская естественная среда обитания,Mexico,17.989961,-97.187153,input,
+added,Sagarmatha National Park (Национальный парк Сагарматха,район горы Эверест,Nepal,27.96528,86.91306,input,
+added,Chitwan National Park,Национальный парк Ройал-Читаван,Nepal,27.5,84.33333,input,
+added,Tongariro National Park,Национальный парк Тонгариро,New Zealand,-39.290833,175.562222,input,
+added,New Zealand Sub-Antarctic Islands,Субантарктические острова,New Zealand,-50.75,166.104444,input,
+added,Air and Ténéré Natural Reserves,Природные резерваты Аир и Тенере,Niger,18,9,input,
+added,Darien National Park,Национальный парк Дарьен,Panama,7.736111,-77.547222,input,
+added,Coiba National Park and its Special Zone of Marine Protection,Национальный парк Койба и его особо охраняемая акватория,Panama,7.433,-81.766,input,
+added,Historic Sanctuary of Machu Picchu,Руины древнего города Мачу-Пикчу,Peru,-13.116667,-72.583333,input,
+added,Manú National Park,Национальный парк Ману,Peru,-12.25,-71.75,input,
+added,Río Abiseo National Park,Национальный парк Рио-Абисео,Peru,-7.75,-77.25,input,
+added,Mount Hamiguitan Range Wildlife Sanctuary,Mount Hamiguitan Range Wildlife Sanctuary,Philippines,6.717169,126.173431,input,
+added,Jeju Volcanic Island and Lava Tubes,Вулканический остров Джеджу с его лавовыми туннелями,Republic of Korea,33.468889,126.720278,input,
+added,"Getbol, Korean Tidal Flats","Гетбол, приливно-отливные равнины в Корее",Republic of Korea,34.82882222222222,126.10444444444444,wikidata:P625,
+added,Danube Delta,Дельта Дуная,Romania,45.08333,29.5,input,
+added,Virgin Komi Forests,Девственные леса Коми,Russian Federation,63.625833,58.9525,input,
+added,Volcanoes of Kamchatka,Вулканы Камчатки,Russian Federation,56.333333,158.5,input,
+added,Golden Mountains of Altai,«Золотые горы Алтая»,Russian Federation,50.466667,86,input,
+added,Western Caucasus,Западный Кавказ,Russian Federation,44,40,input,
+added,Natural System of Wrangel Island Reserve,Природный комплекс заповедника Остров Врангеля,Russian Federation,71.188889,-179.715278,input,
+added,Putorana Plateau,Плато Путорана,Russian Federation,69.046944,94.158056,input,
+added,Lena Pillars Nature Park,Природный парк «Ленские столбы»,Russian Federation,60.666667,127,input,
+unresolved-coordinates,Nyungwe National Park,Национальный парк Ньюнгве,Rwanda,,,,no coordinates found
+added,Pitons Management Area,Охраняемый природный район Питон,Saint Lucia,13.807083,-61.070361,input,
+unresolved-coordinates,‘Uruq Bani Ma’arid,Урук Бани Маарид,Saudi Arabia,,,,no coordinates found
+added,Djoudj National Bird Sanctuary,Орнитологический резерват Джудж,Senegal,16.5,-16.16667,input,
+added,Niokolo-Koba National Park,Национальный парк Ниоколо-Коба,Senegal,13.06667,-12.71667,input,
+added,Aldabra Atoll,Атолл Альдабра,Seychelles,-9.416667,46.416667,input,
+unresolved-coordinates,Gola-Tiwai Complex,Комплекс Гола-Тиваи,Sierra Leone,,,,no coordinates found
+added,East Rennell,Восточная часть острова Реннелл,Solomon Islands,-11.68333,160.33333,input,
+added,Cape Floral Region Protected Areas,Охраняемые территории Капской флористической области,South Africa,-34.361111,18.475,input,
+added,Vredefort Dome,Астроблема Вредефорт,South Africa,-26.86,27.26,input,
+added,Barberton Makhonjwa Mountains,"Горная местность Барбертон, или горы Макхонджва",South Africa,-25.973889,31.013889,input,
+added,"Ibiza, Biodiversity and Culture (Остров Ибиса: биоразнообразие и культура",Балеарские острова,Spain,38.911139,1.435194,input,
+added,Doñana National Park,Национальный парк Доньяна,Spain,36.9477,-6.358861,input,
+added,Central Highlands of Sri Lanka,Высокогорье в центральной части Шри Ланки,Sri Lanka,7.45245,80.8021,input,
+added,Sanganeb Marine National Park and Dungonab Bay – Mukkawar Island Marine National Park,Национальные морские заповедники «Санганеб» и «Бухта Дунгонаб – остров Мековар»,Sudan,19.736111,37.443056,input,
+added,Central Suriname Nature Reserve,Природный резерват Центрального Суринама,Suriname,4,-56.5,input,
+added,Laponian Area,Лапландия,Sweden,67.33333,17.58333,input,
+added,Swiss Alps Jungfrau-Aletsch (Юнгфрау-Алеч-Бичхорн,Бернские Альпы,Switzerland,46.5,8.033333,input,
+added,Swiss Tectonic Arena Sardona,Горная тектоническая группа Сардона,Switzerland,46.916667,9.25,input,
+unresolved-coordinates,Tugay forests of the Tigrovaya Balka Nature Reserve,Тугайные леса заповедника Тигровая Балка,Tajikistan,,,,no coordinates found
+added,Dong Phayayen-Khao Yai Forest Complex,Лесной комплекс Донгфаяйен-Кхауяй,Thailand,14.33,102.05,input,
+added,Thungyai-Huai Kha Khaeng Wildlife Sanctuaries,Резерваты дикой природы Тхунгъяй и Хуайкхакхэнг,Thailand,15.33333,98.91667,input,
+added,Kaeng Krachan Forest Complex,Лесной комплекс Каенг Крачан,Thailand,12.86566694,99.40016694,en.wikipedia:coordinates,
+added,Ichkeul National Park,Национальный парк Ишкёль,Tunisia,37.16361,9.67472,input,
+added,Hierapolis-Pamukkale,Древний город Иерополис и источники Памуккале,Türkiye,37.92389,29.12333,input,
+added,Bwindi Impenetrable National Park (Национальный парк Бвинди-Импенитрейбл,«Непроходимый лес Бвинди»,Uganda,-1.080556,29.661389,input,
+added,Giant's Causeway and Causeway Coast,Побережье Козвэй-Кост (,United Kingdom of Great Britain and Northern Ireland,55.25,-6.485278,input,
+added,St Kilda,Острова Сент-Килда,United Kingdom of Great Britain and Northern Ireland,57.817222,-8.576667,input,
+added,Henderson Island (Остров Хендерсон,Южная Океания,United Kingdom of Great Britain and Northern Ireland,-24.366667,-128.333333,input,
+added,Gough and Inaccessible Islands (Острова Гоф и Инаксессибл,Южная Атлантика,United Kingdom of Great Britain and Northern Ireland,-40.324722,-9.928611,input,
+added,Dorset and East Devon Coast,Побережье Дорсетшира и Восточного Девоншира,United Kingdom of Great Britain and Northern Ireland,50.705556,-2.989889,input,
+unresolved-coordinates,The Flow Country,Флоу-Кантри,United Kingdom of Great Britain and Northern Ireland,,,,no coordinates found
+added,Selous Game Reserve,Охотничий резерват Селус,United Republic of Tanzania,-9,37.4,input,
+added,Kilimanjaro National Park,Национальный парк Килиманджаро,United Republic of Tanzania,-3.06667,37.36667,input,
+added,Papahānaumokuākea,Национальный морской парк «Папаханаумокуакеа»,United States of America,25.34907,-170.14582,input,
+added,Canaima National Park,Национальный парк Канайма,Venezuela (Bolivarian Republic of),5.33333,-61.5,input,
+added,Trang An Landscape Complex,Trang An Landscape Complex,Viet Nam,20.256667,105.896389,input,
+added,"Mana Pools National Park, Sapi and Chewore Safari Areas","Национальный парк Мана-Пулс, охотничьи резерваты Сапи и Чеворе",Zimbabwe,-15.819444,29.408056,input,
+added,Ancient and Primeval Beech Forests of the Carpathians and Other Regions of Europe,Древние и первобытные буковые леса Карпат и других регионов Европы,"Albania,Austria,Belgium,Bosnia and Herzegovina,Bulgaria,Croatia,Czechia,France,Germany,Italy,North Macedonia,Poland,Romania,Slovakia,Slovenia,Spain,Switzerland,Ukraine",49.009722,22.338889,input,
+added,W-Arly-Pendjari Complex,W-Arly-Pendjari Complex,"Benin,Burkina Faso,Niger",11.884167,2.487778,input,
+added,Sangha Trinational,Sangha Trinational,"Cameroon,Central African Republic,Congo",2.609444,16.554167,input,
+added,Kluane / Wrangell-St. Elias / Glacier Bay / Tatshenshini-Alsek,"Парки и резерваты Клуэйн, Врангеля-Св.Ильи, Глейшер-Бей, Татшеншини-Алсек","Canada,United States of America",61.197583,-140.991972,input,
+added,Waterton Glacier International Peace Park,Международный Парк Мира Уотертон-Лейкс–Глейшер,"Canada,United States of America",48.996056,-113.904167,input,
+added,Talamanca Range-La Amistad Reserves / La Amistad National Park,Резерваты Таламанка-Рейндж и Ла-Амистад,"Costa Rica,Panama",9.407083,-82.938806,input,
+added,Mount Nimba Strict Nature Reserve,Природный резерват Маунт-Нимба,"Côte d'Ivoire,Guinea",7.60318,-8.39097,input,
+added,Wadden Sea,Wadden Sea,"Denmark,Germany,Netherlands (Kingdom of the)",53.528611,8.556111,input,
+added,High Coast / Kvarken Archipelago (Архипелаг Кваркен / «Высокий берег»,Ботнический залив,"Finland,Sweden",63.3,21.3,input,
+added,Pyrénées - Mont Perdu,Район горы Мон-Пердю в Пиренеях,"France,Spain",42.68542,-0.0005,input,
+added,Caves of Aggtelek Karst and Slovak Karst,Пещерный район Аггтелек – Словацкий карст,"Hungary,Slovakia",48.47573,20.48687,input,
+added,Monte San Giorgio,Гора Сан Джиорджио,"Italy,Switzerland",45.888889,8.913889,input,
+added,Western Tien-Shan,Западный Тянь-Шань,"Kazakhstan,Kyrgyzstan,Uzbekistan",42.5,74.58333333,ru.wikipedia:coordinates,
+unresolved-coordinates,Cold Winter Deserts of Turan,Туранские пустыни умеренного пояса,"Kazakhstan,Turkmenistan,Uzbekistan",,,,no coordinates found
+added,Maloti-Drakensberg Park,Maloti-Drakensberg Park,"Lesotho,South Africa",-29.765278,29.123056,input,
+added,Uvs Nuur Basin,Убсунурская котловина,"Mongolia,Russian Federation",50.275,92.719722,input,
+added,Landscapes of Dauria,Landscapes of Dauria,"Mongolia,Russian Federation",49.930222,115.425444,input,
+added,iSimangaliso Wetland Park – Maputo National Park,Водно-болотный район Cент-Лусия — Национальный парк Мапуто,"Mozambique,South Africa",-27.83889,32.55,input,
+added,Band-e Amir National Park,Национальный парк Банд-е-Амир,Afghanistan,34.83972222,67.23083333,en.wikipedia:coordinates,
+added,Wakhan Corridor,Ваханский коридор,Afghanistan,37,73,en.wikipedia:coordinates,
+unresolved-coordinates,Theth National Park,Национальный парк Тет,Albania,,,,no coordinates found
+unresolved-coordinates,Ahaggar Mountains,Горы Ахаггар,Algeria,,,,no coordinates found
+added,El Kala National Park,Национальный парк Эль-Кала,Algeria,36.81666667,8.41666667,en.wikipedia:coordinates,
+added,Kalandula Falls,Водопад Каландула,Angola,-9.07583333,16.00333333,en.wikipedia:coordinates,
+added,Tundavala Gap,Провал Тундавала,Angola,-14.81767,13.38144,en.wikipedia:coordinates,
+unresolved-coordinates,Barbuda Pink Sand Beach,Розовый пляж Барбуды,Antigua and Barbuda,,,,no coordinates found
+updated-existing,Perito Moreno Glacier,Ледник Перито-Морено,Argentina,,,,Perito Moreno Glacier
+unresolved-coordinates,Esteros del Iberá,Болота Ибера,Argentina,,,,no coordinates found
+added,Garni Gorge,Ущелье Гарни,Armenia,40.11944444,44.72305556,en.wikipedia:coordinates,
+unresolved-coordinates,Ningaloo Reef,Риф Нингалу,Australia,,,,no coordinates found
+updated-existing,Bungle Bungle Range,Хребет Бангл-Бангл,Australia,,,,Bungle Bungle Range
+unresolved-coordinates,Blue Lake / Mount Gambier,Голубое озеро Маунт-Гамбьер,Australia,,,,no coordinates found
+unresolved-coordinates,Eisriesenwelt Ice Cave,Ледяная пещера Айсризенвельт,Austria,,,,no coordinates found
+unresolved-coordinates,Gobustan Mud Volcanoes,Грязевые вулканы Гобустана,Azerbaijan,,,,no coordinates found
+added,Exuma Cays Land and Sea Park,Парк Эксума-Кейс,Bahamas,24.42,-76.69,en.wikipedia:coordinates,
+added,Hawar Islands,Острова Хавар,Bahrain,25.647,50.776,en.wikipedia:coordinates,
+added,Ratargul Swamp Forest,Болотный лес Ратаргул,Bangladesh,25.0176,91.9317,wikidata:P625,
+added,Animal Flower Cave,Пещера Энимал-Флауэр,Barbados,13.3346,-59.6131,en.wikipedia:coordinates,
+unresolved-coordinates,Braslav Lakes National Park,Национальный парк Браславские озёра,Belarus,,,,no coordinates found
+added,High Fens,Высокие Фенны,Belgium,50.54444444,6.07777778,en.wikipedia:coordinates,
+added,Cockscomb Basin Wildlife Sanctuary,Заповедник Кокскомб-Бейсин,Belize,16.7162,-88.6608,en.wikipedia:coordinates,
+added,Pendjari National Park,Национальный парк Пенджари,Benin,11.05,1.51666667,en.wikipedia:coordinates,
+added,Phobjikha Valley,Долина Пхобджикха,Bhutan,27.45833333,90.18055556,en.wikipedia:coordinates,
+added,Madidi National Park,Национальный парк Мадиди,Bolivia,-13.8,-67.63333333,en.wikipedia:coordinates,
+added,Sajama National Park,Национальный парк Сахама,Bolivia,-18.08333333,-68.91666667,en.wikipedia:coordinates,
+added,Una National Park,Национальный парк Уна,Bosnia and Herzegovina,44.49526667,16.13498889,en.wikipedia:coordinates,
+added,Central Kalahari Game Reserve,Заповедник Центральная Калахари,Botswana,-21.8895,23.7565,en.wikipedia:coordinates,
+updated-existing,Chapada Diamantina,Шапада-Диамантина,Brazil,,,,Chapada Diamantina
+added,Jalapão State Park,Парк Жалопан,Brazil,-10.359,-46.699,en.wikipedia:coordinates,
+added,Ulu Temburong National Park,Национальный парк Улу-Тембуронг,Brunei,4.478,115.2077,en.wikipedia:coordinates,
+unresolved-coordinates,Prohodna Cave,Пещера Проходна,Bulgaria,,,,no coordinates found
+unresolved-coordinates,Sindou Peaks,Пики Синду,Burkina Faso,,,,no coordinates found
+added,Arli National Park,Национальный парк Арли,Burkina Faso,11.58333333,1.46666667,en.wikipedia:coordinates,
+added,Kibira National Park,Национальный парк Кибира,Burundi,-2.91466389,29.43361111,en.wikipedia:coordinates,
+added,Pico do Fogo,Вулкан Пику-ду-Фогу,Cabo Verde,14.95,-24.34166667,en.wikipedia:coordinates,
+added,Cardamom Mountains,Кардамоновы горы,Cambodia,12,103.25,en.wikipedia:coordinates,
+added,Mount Cameroon,Гора Камерун,Cameroon,4.21666667,9.1725,en.wikipedia:coordinates,
+added,Korup National Park,Национальный парк Коруп,Cameroon,5.08333333,8.83333333,en.wikipedia:coordinates,
+added,Torngat Mountains National Park,Национальный парк Торнгат-Маунтинс,Canada,59.43583333,-63.69638889,en.wikipedia:coordinates,
+unresolved-coordinates,Dzanga-Sangha Reserve,Заповедник Дзанга-Санга,Central African Republic,,,,no coordinates found
+added,Ennedi Plateau,Плато Эннеди,Chad,17.04166667,21.86277778,en.wikipedia:coordinates,
+added,Zakouma National Park,Национальный парк Закума,Chad,10.84777778,19.64777778,en.wikipedia:coordinates,
+unresolved-coordinates,Marble Caves of General Carrera Lake,Мраморные пещеры озера Хенераль-Каррера,Chile,,,,no coordinates found
+added,Lauca National Park,Национальный парк Лаука,Chile,-18.24444444,-69.35388889,en.wikipedia:coordinates,
+unresolved-coordinates,Three Gorges of the Yangtze,Три ущелья Янцзы,China,,,,no coordinates found
+added,Mount Siguniang,Гора Сыгунян,China,31.10666667,102.90166667,en.wikipedia:coordinates,
+unresolved-coordinates,Hailuogou Glacier Park,Ледник Хайлогоу,China,,,,no coordinates found
+added,Cocora Valley,Долина Кокора,Colombia,4.63333333,-75.48333333,en.wikipedia:coordinates,
+added,Tayrona National Natural Park,Национальный парк Тайрона,Colombia,11.26666667,-74.05,en.wikipedia:coordinates,
+added,Mount Karthala,Вулкан Картала,Comoros,-11.76028,43.35306,en.wikipedia:coordinates,
+added,Corcovado National Park,Национальный парк Корковадо,Costa Rica,8.55,-83.58333333,en.wikipedia:coordinates,
+unresolved-coordinates,Kornati Islands,Острова Корнати,Croatia,,,,no coordinates found
+unresolved-coordinates,Akamas Peninsula,Полуостров Акамас,Cyprus,,,,no coordinates found
+unresolved-coordinates,Bohemian Switzerland National Park,Национальный парк Чешская Швейцария,Czechia,,,,no coordinates found
+unresolved-coordinates,Mount Stanley / Margherita Peak,Гора Стэнли / пик Маргерита,Democratic Republic of the Congo,,,,no coordinates found
+unresolved-coordinates,Lake Assal,Озеро Ассаль,Djibouti,,,,no coordinates found
+added,Boiling Lake,Кипящее озеро Доминики,Dominica,15.31833333,-61.29416667,en.wikipedia:coordinates,
+added,Los Haitises National Park,Национальный парк Лос-Айтисес,Dominican Republic,19.00666667,-69.64194444,en.wikipedia:coordinates,
+added,Cotopaxi National Park,Национальный парк Котопахи,Ecuador,-0.68416667,-78.43722222,en.wikipedia:coordinates,
+unresolved-coordinates,Ras Mohammed National Park,Национальный парк Рас-Мохаммед,Egypt,,,,no coordinates found
+added,Santa Ana Volcano,Вулкан Санта-Ана,El Salvador,13.853,-89.63,en.wikipedia:coordinates,
+added,Pico Basilé,Пико-Басиле,Equatorial Guinea,3.58777778,8.76166667,en.wikipedia:coordinates,
+added,Dahlak Archipelago,Архипелаг Дахлак,Eritrea,15.83333333,40.2,en.wikipedia:coordinates,
+added,Lahemaa National Park,Национальный парк Лахемаа,Estonia,59.57111111,25.80027778,en.wikipedia:coordinates,
+unresolved-coordinates,Malolotja Nature Reserve,Заповедник Малолотжа,Eswatini,,,,no coordinates found
+added,Blue Nile Falls,Водопад Голубого Нила,Ethiopia,11.4905,37.5878,en.wikipedia:coordinates,
+unresolved-coordinates,Bouma National Heritage Park,Парк природного наследия Боума,Fiji,,,,no coordinates found
+added,Koli National Park,Национальный парк Коли,Finland,63.0575,29.88722222,en.wikipedia:coordinates,
+unresolved-coordinates,Saimaa Lake District,Озёрный край Сайма,Finland,,,,no coordinates found
+added,Calanques National Park,Национальный парк Каланки,France,43.21666667,5.46666667,en.wikipedia:coordinates,
+updated-existing,Dune du Pilat,Дюна Пила,France,,,,Dune of Pilat
+added,Loango National Park,Национальный парк Лоанго,Gabon,-2.16666667,9.56666667,en.wikipedia:coordinates,
+added,Lopé National Park,Национальный парк Лопе,Gabon,-0.5,11.5,en.wikipedia:coordinates,
+added,Abuko Nature Reserve,Заповедник Абуко,Gambia,13.39583333,-16.64555556,en.wikipedia:coordinates,
+added,Vashlovani National Park,Национальный парк Вашловани,Georgia,41.2,46.38333333,en.wikipedia:coordinates,
+added,Saxon Switzerland National Park,Национальный парк Саксонская Швейцария,Germany,50.91416667,14.27833333,en.wikipedia:coordinates,
+unresolved-coordinates,Wli Waterfalls,Водопады Вли,Ghana,,,,no coordinates found
+updated-existing,Samaria Gorge,Самарийское ущелье,Greece,,,,Samaria Gorge
+unresolved-coordinates,Grand Etang National Park,Национальный парк Гранд-Этанг,Grenada,,,,no coordinates found
+added,Lake Atitlán,Озеро Атитлан,Guatemala,14.7,-91.2,en.wikipedia:coordinates,
+unresolved-coordinates,Fouta Djallon Highlands,Плато Фута-Джаллон,Guinea,,,,no coordinates found
+unresolved-coordinates,Orango Islands National Park,Национальный парк островов Оранго,Guinea-Bissau,,,,no coordinates found
+updated-existing,Kaieteur Falls,Водопад Кайетур,Guyana,,,,Kaieteur Falls
+unresolved-coordinates,Bassin Bleu,Бассен-Блё,Haiti,,,,no coordinates found
+added,Pico Bonito National Park,Национальный парк Пико-Бонито,Honduras,15.60972222,-86.87222222,en.wikipedia:coordinates,
+added,Lake Hévíz,Озеро Хевиз,Hungary,46.78722222,17.19305556,en.wikipedia:coordinates,
+unresolved-coordinates,Jökulsárlón Glacier Lagoon,Ледниковая лагуна Йёкюльсаурлоун,Iceland,,,,no coordinates found
+added,Rann of Kutch,Ранн-оф-Кач,India,24.08638889,70.63777778,en.wikipedia:coordinates,
+added,Loktak Lake,Озеро Локтак,India,24.55,93.78333333,en.wikipedia:coordinates,
+added,Andaman Islands,Андаманские острова,India,12.5,92.75,en.wikipedia:coordinates,
+updated-existing,Kelimutu Lakes,Озёра Келимуту,Indonesia,,,,Kelimutu Lakes
+updated-existing,Lake Toba,Озеро Тоба,Indonesia,,,,Lake Toba
+unresolved-coordinates,Bunaken Marine Park,Морской парк Бунакен,Indonesia,,,,no coordinates found
+unresolved-coordinates,Hormuz Island Rainbow Valley,Радужная долина острова Ормуз,Iran,,,,no coordinates found
+added,Zagros Mountains,Горы Загрос,Iran,33.66666667,47,en.wikipedia:coordinates,
+added,Mesopotamian Marshes,Месопотамские болота,Iraq,31,47,en.wikipedia:coordinates,
+unresolved-coordinates,Rawanduz Canyon,Каньон Равандуз,Iraq,,,,no coordinates found
+added,Killarney National Park,Национальный парк Килларни,Ireland,52.02099,-9.50664,en.wikipedia:coordinates,
+updated-existing,Makhtesh Ramon,Кратер Махтеш-Рамон,Israel,,,,Makhtesh Ramon
+added,Gran Paradiso National Park,Национальный парк Гран-Парадизо,Italy,45.50277778,7.31,en.wikipedia:coordinates,
+added,Dana Biosphere Reserve,Биосферный резерват Дана,Jordan,30.6875,35.5725,en.wikipedia:coordinates,
+added,Altyn-Emel National Park,Национальный парк Алтын-Эмель,Kazakhstan,44.33333333,78.43333333,en.wikipedia:coordinates,
+unresolved-coordinates,Bozzhyra Tract,Урочище Бозжыра,Kazakhstan,,,,no coordinates found
+added,Aksu-Zhabagly Nature Reserve,Заповедник Аксу-Жабаглы,Kazakhstan,42.37888889,70.60972222,en.wikipedia:coordinates,
+added,Amboseli National Park,Национальный парк Амбосели,Kenya,-2.64138889,37.24805556,en.wikipedia:coordinates,
+added,Samburu National Reserve,Национальный заповедник Самбуру,Kenya,0.61805556,37.53,en.wikipedia:coordinates,
+added,Rugova Canyon,Каньон Ругово,Kosovo,42.692222,20.168611,en.wikipedia:coordinates,
+added,Kubbar Island,Остров Куббар,Kuwait,29.0718,48.4925,en.wikipedia:coordinates,
+unresolved-coordinates,Song-Köl Lake,Озеро Сон-Кёль,Kyrgyzstan,,,,no coordinates found
+updated-existing,Kuang Si Falls,Водопад Куанг-Си,Laos,,,,Kuang Si Falls
+added,Gauja National Park,Национальный парк Гауя,Latvia,57.41666667,25.41666667,en.wikipedia:coordinates,
+unresolved-coordinates,Baatara Gorge Waterfall,Водопад Баатара,Lebanon,,,,no coordinates found
+added,Maletsunyane Falls,Водопад Малецуньяне,Lesotho,-29.86861111,28.05166667,en.wikipedia:coordinates,
+added,Sapo National Park,Национальный парк Сапо,Liberia,5.41111389,-8.414625,en.wikipedia:coordinates,
+added,Acacus Mountains,Горы Акакус,Libya,24.83333333,10.33333333,en.wikipedia:coordinates,
+unresolved-coordinates,Ubari Lakes,Озёра Убари,Libya,,,,no coordinates found
+added,Waw an Namus,Вау-ан-Намус,Libya,24.9175,17.76277778,en.wikipedia:coordinates,
+unresolved-coordinates,Malbun Alpine Valley,Альпийская долина Мальбун,Liechtenstein,,,,no coordinates found
+added,Aukštaitija National Park,Национальный парк Аукштайтия,Lithuania,55.344,26.057,en.wikipedia:coordinates,
+unresolved-coordinates,Mullerthal Region,Регион Мюллерталь,Luxembourg,,,,no coordinates found
+updated-existing,Avenue of the Baobabs,Аллея баобабов,Madagascar,,,,Avenue of the Baobabs
+added,Isalo National Park,Национальный парк Исалу,Madagascar,-22.55833333,45.4,en.wikipedia:coordinates,
+unresolved-coordinates,Mulu Pinnacles,Пиннаклы Мулу,Malaysia,,,,no coordinates found
+added,Perhentian Islands,Перхентианские острова,Malaysia,5.91666667,102.73333333,en.wikipedia:coordinates,
+added,Baa Atoll Biosphere Reserve,Биосферный резерват атолла Баа,Maldives,5.1333,72.95,en.wikipedia:coordinates,
+added,Bandiagara Escarpment,Скалы Бандиагара,Mali,14.33333333,-3.41666667,en.wikipedia:coordinates,
+unresolved-coordinates,Gourma Elephant Reserve,Резерват слонов Гурма,Mali,,,,no coordinates found
+unresolved-coordinates,Dingli Cliffs,Утёсы Дингли,Malta,,,,no coordinates found
+unresolved-coordinates,Majuro Atoll Lagoon,Лагуна атолла Маджуро,Marshall Islands,,,,no coordinates found
+added,Richat Structure,Структура Ришат,Mauritania,21.1147,-11.3943,en.wikipedia:coordinates,
+added,Black River Gorges National Park,Национальный парк ущелья Блэк-Ривер,Mauritius,-20.41666667,57.41666667,en.wikipedia:coordinates,
+updated-existing,Hierve el Agua,Иерве-эль-Агуа,Mexico,,,,Hierve el Agua
+updated-existing,Sumidero Canyon,Каньон Сумидеро,Mexico,,,,Sumidero Canyon
+unresolved-coordinates,Marietas Islands,Острова Мариетас,Mexico,,,,no coordinates found
+unresolved-coordinates,Pohnpei Waterfalls,Водопады Понпеи,Micronesia,,,,no coordinates found
+unresolved-coordinates,Orheiul Vechi Landscape,Ландшафт Старый Орхей,Moldova,,,,no coordinates found
+unresolved-coordinates,Larvotto Marine Reserve,Морской заповедник Ларвотто,Monaco,,,,no coordinates found
+unresolved-coordinates,Khuvsgul Lake,Озеро Хубсугул,Mongolia,,,,no coordinates found
+unresolved-coordinates,Flaming Cliffs / Bayanzag,Пылающие скалы Баянзаг,Mongolia,,,,no coordinates found
+unresolved-coordinates,Orkhon Waterfall,Водопад Орхон,Mongolia,,,,no coordinates found
+added,Lake Skadar,Скадарское озеро,Montenegro,42.16666667,19.31666667,en.wikipedia:coordinates,
+unresolved-coordinates,Todra Gorge,Ущелье Тодра,Morocco,,,,no coordinates found
+added,Ouzoud Falls,Водопады Узуд,Morocco,32.0152,-6.7189,en.wikipedia:coordinates,
+added,Bazaruto Archipelago,Архипелаг Базаруто,Mozambique,-21.75,35.45,en.wikipedia:coordinates,
+added,Gorongosa National Park,Национальный парк Горонгоса,Mozambique,-18.766,34.5,en.wikipedia:coordinates,
+added,Inle Lake,Озеро Инле,Myanmar,20.55,96.91666667,en.wikipedia:coordinates,
+added,Mergui Archipelago,Архипелаг Мергуи,Myanmar,11.5,98.21666667,en.wikipedia:coordinates,
+updated-existing,Spitzkoppe,Шпицкоппе,Namibia,,,,Spitzkoppe
+added,Etosha Pan,Солончак Этоша,Namibia,-18.78527778,16.26388889,en.wikipedia:coordinates,
+added,Buada Lagoon,Лагуна Буада,Nauru,-0.53527778,166.92222222,en.wikipedia:coordinates,
+added,Annapurna Sanctuary,Аннапурна-Санкчуари,Nepal,28.53,83.878,en.wikipedia:coordinates,
+unresolved-coordinates,Hoge Veluwe National Park,Национальный парк Хоге-Велюве,Netherlands,,,,no coordinates found
+updated-existing,Tongariro Alpine Crossing,Альпийский переход Тонгариро,New Zealand,,,,Tongariro Alpine Crossing
+added,Abel Tasman National Park,Национальный парк Абель-Тасман,New Zealand,-40.9,172.971,en.wikipedia:coordinates,
+added,Masaya Volcano,Вулкан Масая,Nicaragua,11.98277778,-86.16194444,en.wikipedia:coordinates,
+added,Aïr Mountains,Горы Аир,Niger,18.27666667,8,en.wikipedia:coordinates,
+added,Termit Massif,Массив Термит,Niger,16.05,11.35,en.wikipedia:coordinates,
+added,Yankari Game Reserve,Заповедник Янкари,Nigeria,9.7544,10.5103,en.wikipedia:coordinates,
+added,Obudu Plateau,Плато Обуду,Nigeria,6.41666667,9.36666667,en.wikipedia:coordinates,
+unresolved-coordinates,Myohyang Mountains,Горы Мёхян,North Korea,,,,no coordinates found
+added,Mavrovo National Park,Национальный парк Маврово,North Macedonia,41.68333333,20.7,en.wikipedia:coordinates,
+updated-existing,Trolltunga,Тролльтунга,Norway,,,,Trolltunga
+added,Jotunheimen National Park,Национальный парк Ютунхеймен,Norway,61.5,8.36666667,en.wikipedia:coordinates,
+updated-existing,Wadi Shab,Вади-Шаб,Oman,,,,Wadi Shab
+added,Hunza Valley,Долина Хунза,Pakistan,36.316942,74.6499,en.wikipedia:coordinates,
+added,Deosai National Park,Национальный парк Деосай,Pakistan,34.96666667,75.4,en.wikipedia:coordinates,
+unresolved-coordinates,Ngardmau Waterfall,Водопад Нгардмау,Palau,,,,no coordinates found
+added,Wadi Qelt,Вади-Кельт,Palestine,31.844316,35.414257,en.wikipedia:coordinates,
+added,Mount Wilhelm,Гора Вильгельм,Papua New Guinea,-5.8,145.03333333,en.wikipedia:coordinates,
+unresolved-coordinates,Tufi Fjords,Фьорды Туфи,Papua New Guinea,,,,no coordinates found
+added,Cerro Corá National Park,Национальный парк Серро-Кора,Paraguay,-22.65,-56.18333333,en.wikipedia:coordinates,
+updated-existing,Gocta Waterfall,Водопад Гокта,Peru,,,,Gocta Waterfall
+unresolved-coordinates,Batanes Islands,Острова Батанес,Philippines,,,,no coordinates found
+added,Bieszczady National Park,Национальный парк Бещады,Poland,49.288,22.497,en.wikipedia:coordinates,
+unresolved-coordinates,Słowiński National Park,Словинский национальный парк,Poland,,,,no coordinates found
+unresolved-coordinates,Sete Cidades Caldera,Кальдера Сети-Сидадиш,Portugal,,,,no coordinates found
+added,Khor Al Adaid,Хор-аль-Адаид / Внутреннее море,Qatar,24.63,51.296,en.wikipedia:coordinates,
+added,Nouabalé-Ndoki National Park,Национальный парк Нуабале-Ндоки,Republic of the Congo,2.46666667,16.45,en.wikipedia:coordinates,
+added,Retezat National Park,Национальный парк Ретезат,Romania,45.34,22.83,en.wikipedia:coordinates,
+updated-existing,Altai Mountains,Алтайские горы,Russia,,,,Altai Mountains
+added,Mount Liamuiga,Гора Лиамуига,Saint Kitts and Nevis,17.37,-62.8,en.wikipedia:coordinates,
+added,Tobago Cays,Рифы Тобаго-Кейс,Saint Vincent and the Grenadines,12.63166667,-61.355,en.wikipedia:coordinates,
+added,Alofaaga Blowholes,Блоухолы Алофаага,Samoa,-13.8022,-172.5197,en.wikipedia:coordinates,
+added,Monte Titano,Гора Титано,San Marino,43.935,12.45,en.wikipedia:coordinates,
+added,Farasan Islands,Фарасанские острова,Saudi Arabia,16.8,41.85,en.wikipedia:coordinates,
+unresolved-coordinates,Al Wahbah Crater,Кратер Аль-Вахба,Saudi Arabia,,,,no coordinates found
+unresolved-coordinates,Hisma Desert,Пустыня Хисма,Saudi Arabia,,,,no coordinates found
+unresolved-coordinates,Uvac Canyon,Каньон Увац,Serbia,,,,no coordinates found
+unresolved-coordinates,Tiwai Island Wildlife Sanctuary,Островной заповедник Тивай,Sierra Leone,,,,no coordinates found
+added,Sungei Buloh Wetland Reserve,Болотный заповедник Сунгей-Булох,Singapore,1.44611111,103.72888889,en.wikipedia:coordinates,
+added,Slovak Paradise National Park,Национальный парк Словацкий рай,Slovakia,48.90833333,20.4,en.wikipedia:coordinates,
+unresolved-coordinates,Logar Valley,Логарская долина,Slovenia,,,,no coordinates found
+added,Marovo Lagoon,Лагуна Марово,Solomon Islands,-8.48,158.07,en.wikipedia:coordinates,
+unresolved-coordinates,Cal Madow Mountains,Горы Кал-Мадоу,Somalia,,,,no coordinates found
+added,Lag Badana National Park,Национальный парк Лаг-Бадана,Somalia,-1.39,41.59,en.wikipedia:coordinates,
+unresolved-coordinates,Drakensberg Amphitheatre,Амфитеатр Дракенсберга,South Africa,,,,no coordinates found
+unresolved-coordinates,Cederberg Mountains,Горы Седерберг,South Africa,,,,no coordinates found
+added,Seoraksan National Park,Национальный парк Сораксан,South Korea,38.125,128.416,en.wikipedia:coordinates,
+added,Boma National Park,Национальный парк Бома,South Sudan,6.49,33.91,en.wikipedia:coordinates,
+unresolved-coordinates,Sudd Wetland,Болота Судд,South Sudan,,,,no coordinates found
+added,Picos de Europa,Пикос-де-Эуропа,Spain,43.2,-4.8,en.wikipedia:coordinates,
+added,Knuckles Mountain Range,Горный хребет Наклс,Sri Lanka,7.45,80.8,en.wikipedia:coordinates,
+added,Dinder National Park,Национальный парк Диндер,Sudan,12.29,35.48,en.wikipedia:coordinates,
+added,Bayuda Desert,Пустыня Байуда,Sudan,18,33,en.wikipedia:coordinates,
+added,Abisko National Park,Национальный парк Абиску,Sweden,68.31666667,18.68333333,en.wikipedia:coordinates,
+added,High Coast / Höga Kusten,Высокий берег,Sweden,63,18.5,ru.wikipedia:coordinates,
+updated-existing,Aletsch Glacier,Алетчский ледник,Switzerland,,,,Aletsch Glacier
+unresolved-coordinates,Jabal Abdulaziz Nature Reserve,Заповедник Джабаль-Абдулазиз,Syria,,,,no coordinates found
+unresolved-coordinates,Ôbo Natural Park,Природный парк Обо,São Tomé and Príncipe,,,,no coordinates found
+added,Fann Mountains,Фанские горы,Tajikistan,39,68,en.wikipedia:coordinates,
+updated-existing,Mount Kilimanjaro,Гора Килиманджаро,Tanzania,,,,Mount Kilimanjaro
+added,Nyerere National Park,Национальный парк Ньерере,Tanzania,-9,37.4,en.wikipedia:coordinates,
+updated-existing,Erawan Falls,Водопад Эраван,Thailand,,,,Erawan Falls
+added,Jaco Island,Остров Жако,Timor-Leste,-8.425,127.325,en.wikipedia:coordinates,
+unresolved-coordinates,Fazao-Malfakassa National Park,Национальный парк Фазао-Мальфакасса,Togo,,,,no coordinates found
+unresolved-coordinates,Mapuʻa Vaea Blowholes,Блоухолы Мапуа-Ваеа,Tonga,,,,no coordinates found
+added,Pitch Lake,Озеро Питч-Лейк,Trinidad and Tobago,10.2325,-61.62805556,en.wikipedia:coordinates,
+unresolved-coordinates,Pamukkale Travertines,Травертины Памуккале,Turkey,,,,no coordinates found
+updated-existing,Mount Ararat,Гора Арарат,Turkey,,,,Mount Ararat
+added,Yangykala Canyon,Каньон Янгыкала,Turkmenistan,40.63222222,54.92666667,en.wikipedia:coordinates,
+unresolved-coordinates,Köw Ata Underground Lake,Подземное озеро Ков-Ата,Turkmenistan,,,,no coordinates found
+added,Funafuti Conservation Area,Заповедная зона Фунафути,Tuvalu,-8.51666667,179.05,en.wikipedia:coordinates,
+added,Murchison Falls,Водопад Мерчисон,Uganda,2.2782,31.6853,en.wikipedia:coordinates,
+unresolved-coordinates,Synevyr Lake,Озеро Синевир,Ukraine,,,,no coordinates found
+added,Oleshky Sands,Олешковские пески,Ukraine,46.58333333,33.05,en.wikipedia:coordinates,
+added,Jebel Jais,Джебель-Джаис,United Arab Emirates,25.95305556,56.18416667,en.wikipedia:coordinates,
+added,Jurassic Coast,Юрское побережье,United Kingdom,50.70555556,-2.99,en.wikipedia:coordinates,
+added,Dry Tortugas National Park,Национальный парк Драй-Тортугас,United States,24.63333333,-82.92,en.wikipedia:coordinates,
+added,North Cascades National Park,Национальный парк Норт-Каскейдс,United States,48.83277778,-121.3475,en.wikipedia:coordinates,
+added,Kenai Fjords National Park,Национальный парк Кенай-Фьордс,United States,59.91777778,-149.9875,en.wikipedia:coordinates,
+added,Cabo Polonio,Кабо-Полонио,Uruguay,-34.3975,-53.78916667,en.wikipedia:coordinates,
+added,Nuratau Mountains,Горы Нуратау,Uzbekistan,40.5,66.7,en.wikipedia:coordinates,
+unresolved-coordinates,Chatkal Biosphere Reserve,Чаткальский биосферный заповедник,Uzbekistan,,,,no coordinates found
+unresolved-coordinates,Blue Holes of Espiritu Santo,Голубые дыры Эспириту-Санто,Vanuatu,,,,no coordinates found
+added,Vatican Gardens,Ватиканские сады,Vatican City,41.902893,12.449392,ru.wikipedia:coordinates,
+updated-existing,Mount Roraima,Гора Рорайма,Venezuela,,,,Mount Roraima
+added,Los Roques Archipelago,Архипелаг Лос-Рокес,Venezuela,11.8575,-66.7575,en.wikipedia:coordinates,
+unresolved-coordinates,Ban Gioc Waterfall,Водопад Банзёк,Vietnam,,,,no coordinates found
+unresolved-coordinates,Haraz Mountains,Горы Хараз,Yemen,,,,no coordinates found
+unresolved-coordinates,Al Mahrah Coast,Побережье Аль-Махра,Yemen,,,,no coordinates found
+added,Lower Zambezi National Park,Национальный парк Нижняя Замбези,Zambia,-15.6,29.56666667,en.wikipedia:coordinates,
+added,Liuwa Plain National Park,Национальный парк Лиува-Плейн,Zambia,-14.5,22.48333333,en.wikipedia:coordinates,
