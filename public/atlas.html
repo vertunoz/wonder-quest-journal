@@ -1869,14 +1869,12 @@ function showMobileTab(which) {
 }
 tabList.addEventListener('click', () => showMobileTab('list'));
 tabMap.addEventListener('click', () => showMobileTab('map'));
-// При клике по карточке на мобильных — открываем карту
-const _origFly = window.flyToLocation;
-if (typeof _origFly === 'function') {
-  window.flyToLocation = function(...args) {
-    if (window.innerWidth <= 768) showMobileTab('map');
-    return _origFly.apply(this, args);
-  };
-}
+// При клике по карточке/маркеру на мобильных — открываем карту
+const _origFly = flyToAndOpen;
+flyToAndOpen = function(...args) {
+  if (window.innerWidth <= 768) showMobileTab('map');
+  return _origFly.apply(this, args);
+};
 
 // Лог
 console.log(`%c✦ Atlas Naturae`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
