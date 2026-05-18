@@ -180,9 +180,36 @@
   }
   .btn-ghost:hover { background: var(--bg-2); border-color: var(--ink-mute); }
 
-  /* Адаптивность: drawer-стиль на мобильных */
+  /* Адаптивность: мобильные — табы во весь экран */
   @media (max-width: 768px) {
-    aside { max-height: 50dvh; }
+    body { height: 100dvh; }
+    aside.mobile-list { height: calc(100dvh - 52px); max-height: none; }
+    main.mobile-map  { height: calc(100dvh - 52px); }
+    .mobile-hidden { display: none !important; }
+    .mobile-tabs {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+      height: 52px; display: flex;
+      background: var(--bg); border-top: 1px solid var(--line);
+      box-shadow: 0 -4px 16px -8px rgba(0,0,0,.18);
+    }
+    .mobile-tabs button {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-mute);
+      font-family: var(--sans);
+    }
+    .mobile-tabs button.active { color: var(--accent); }
+    .mobile-tabs button.active svg { stroke: var(--accent); }
+    /* Модалка занимает весь экран */
+    #galleryModal { padding: 0 !important; }
+    #modalContent { max-height: 100dvh !important; height: 100dvh; border-radius: 0 !important; }
+    .modal-hero { aspect-ratio: 16/10; }
+    #modalTitle { font-size: 24px !important; }
+    /* Уменьшим лишние отступы в шапке списка */
+    aside .p-5 { padding: 16px; }
+    .layer-btn { padding: 6px 10px !important; font-size: 10px !important; }
+  }
+  @media (min-width: 769px) {
+    .mobile-tabs { display: none; }
   }
 
   /* ───── v3: теги, чекбоксы, превью, описание ───── */
