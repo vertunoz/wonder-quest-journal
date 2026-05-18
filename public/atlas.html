@@ -252,12 +252,25 @@
     }
     /* Уменьшим лишние отступы в шапке списка */
     aside .p-5 { padding: 16px; }
+    #sidePanel > .p-5 {
+      padding: 14px 14px 10px !important;
+    }
     #sidePanel h1 {
-      font-size: clamp(30px, 9vw, 36px) !important;
-      max-width: 12ch;
+      font-size: clamp(26px, 7.6vw, 34px) !important;
+      max-width: none;
+      line-height: 1;
+    }
+    #sidePanel h1 span {
+      display: block;
+      font-size: 0.78em;
+      line-height: 1.05;
     }
     #sidePanel .p-5 > .flex {
       gap: 12px;
+      margin-bottom: 10px !important;
+    }
+    #sidePanel .p-5 > p {
+      display: none;
     }
     .lang-toggle {
       height: 34px;
@@ -270,6 +283,29 @@
     #location-list {
       padding: 10px !important;
       scroll-padding-bottom: 18px;
+    }
+    #sidePanel > .px-5.py-3 {
+      padding: 8px 14px !important;
+    }
+    #progressLabel {
+      max-width: 64%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #statsBar {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 8px 14px !important;
+      gap: 12px !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    #statsBar button {
+      flex: 0 0 auto;
+    }
+    #location-list + * {
+      display: none;
     }
     .loc-card {
       border-radius: 8px !important;
@@ -289,7 +325,7 @@
       padding: 14px;
     }
     #sidePanel h1 {
-      font-size: clamp(28px, 8.6vw, 34px) !important;
+      font-size: clamp(24px, 7.2vw, 31px) !important;
     }
     #sidePanel .p-5 > .flex {
       align-items: flex-start;
@@ -298,18 +334,22 @@
       min-width: 0;
     }
     #sidePanel .grid.grid-cols-2 {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
     }
     #sidePanel select,
     #sidePanel input {
-      min-height: 42px;
-      font-size: 13px !important;
+      min-height: 40px;
+      font-size: 12px !important;
     }
-    #sidePanel .grid.grid-cols-2:last-child {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    #sidePanel .relative.mb-3 {
+      margin-bottom: 8px !important;
+    }
+    #sidePanel .grid.mb-3 {
+      margin-bottom: 8px !important;
     }
     #statsBar {
-      padding: 10px 14px !important;
+      padding: 8px 14px !important;
       gap: 8px 12px !important;
     }
     #location-list {
@@ -328,6 +368,10 @@
     .visit-check {
       width: 20px;
       height: 20px;
+    }
+    #progressLabel,
+    #resetVisited {
+      display: none;
     }
     #layerSwitcher {
       top: 10px;
@@ -601,7 +645,7 @@
   </aside>
 
   <!-- ───────── КАРТА ───────── -->
-  <main id="mapPanel" class="mobile-map mobile-hidden w-full md:flex-1 h-full md:h-full relative">
+  <main id="mapPanel" class="mobile-map w-full md:flex-1 h-full md:h-full relative">
     <div id="map"></div>
 
     <!-- Переключатель стилей карты -->
@@ -620,11 +664,11 @@
 
   <!-- ───────── МОБИЛЬНЫЕ ТАБЫ ───────── -->
   <nav class="mobile-tabs">
-    <button id="tabList" class="active" type="button">
+    <button id="tabList" type="button">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       Список
     </button>
-    <button id="tabMap" type="button">
+    <button id="tabMap" class="active" type="button">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       Карта
     </button>
@@ -2575,6 +2619,13 @@ const tabList = document.getElementById('tabList');
 const tabMap = document.getElementById('tabMap');
 const sidePanel = document.getElementById('sidePanel');
 const mapPanel = document.getElementById('mapPanel');
+if (window.innerWidth <= 768) {
+  sidePanel.classList.add('mobile-hidden');
+  mapPanel.classList.remove('mobile-hidden');
+  tabMap.classList.add('active');
+  tabList.classList.remove('active');
+  setTimeout(() => map && map.invalidateSize(), 80);
+}
 function showMobileTab(which) {
   if (which === 'map') {
     sidePanel.classList.add('mobile-hidden');
