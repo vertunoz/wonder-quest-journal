@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Naturae — 400 Чудес Природы</title>
+
+<!-- Шрифты с характером (editorial / cartographer feel) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Leaflet + кластеризация (необходимо для 400 точек) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+          sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          paper: { 50:'#FAF8F4', 100:'#F4F1EA', 200:'#EAE5D9', 300:'#D9D2BF', 400:'#A8A088' },
+          ink:   { 50:'#F6F5F2', 700:'#3D3A33', 800:'#26241F', 900:'#16140F' },
+          accent:{ DEFAULT:'#A85A2A', 600:'#8E4A22', 700:'#6F3A1B' },
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F4F1EA;
+    --line: #E5E0D2;
+    --ink: #16140F;
+    --ink-mute: #6E6856;
+    --accent: #A85A2A;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+  html.dark {
+    --bg: #0F0E0B;
+    --bg-2: #18160F;
+    --line: #2E2A20;
+    --ink: #F4F1EA;
+    --ink-mute: #A8A088;
+    --accent: #E6A574;
+  }
+
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); }
+  body { font-feature-settings: "ss01","ss02","cv11"; }
+  .font-display { font-family: var(--serif); font-optical-sizing: auto; font-variation-settings: "SOFT" 50, "WONK" 0; }
+
+  /* Карта */
+  #map { height: 100%; width: 100%; z-index: 10; background: var(--bg-2); }
+  .leaflet-container { font-family: var(--sans) !important; background: var(--bg-2) !important; }
+
+  /* Popup стиль */
+  .leaflet-popup-content-wrapper {
+    border-radius: 14px !important;
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,.18), 0 0 0 1px var(--line) !important;
+    background: var(--bg) !important;
+    color: var(--ink) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content { margin: 0 !important; min-width: 220px; }
+  .leaflet-popup-tip { background: var(--bg) !important; box-shadow: 0 0 0 1px var(--line) !important; }
+  .leaflet-popup-close-button { color: var(--ink-mute) !important; padding: 6px !important; }
+
+  /* Кастомные эмодзи-маркеры */
+  .emoji-marker {
+    background: var(--bg);
+    border: 2px solid var(--accent-color, #A85A2A);
+    border-radius: 50%;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,.18);
+    transition: transform .15s ease;
+  }
+  .emoji-marker:hover { transform: scale(1.15); }
+  html.dark .emoji-marker { background: var(--bg-2); }
+
+  /* Кластеры */
+  .marker-cluster {
+    background: rgba(168, 90, 42, 0.22) !important;
+    border: 2px solid rgba(168, 90, 42, 0.55) !important;
+  }
+  .marker-cluster div {
+    background: var(--accent) !important;
+    color: #FAF8F4 !important;
+    font-family: var(--mono) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    width: 32px !important; height: 32px !important;
+    margin: 4px !important;
+    border-radius: 50% !important;
+    line-height: 32px !important;
+  }
+  html.dark .marker-cluster { background: rgba(230,165,116,.20) !important; border-color: rgba(230,165,116,.55) !important; }
+  html.dark .marker-cluster div { background: #E6A574 !important; color: #16140F !important; }
+
+  /* Скроллбар */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-mute); }
+
+  /* Атмосфера */
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* Анимации */
+  @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-in { animation: fade-up .35s ease forwards; }
+
+  /* Карточки списка */
+  .loc-card { background: var(--bg); border: 1px solid var(--line); transition: all .18s ease; }
+  .loc-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 14px -8px rgba(0,0,0,.12); }
+  html.dark .loc-card:hover { box-shadow: 0 6px 14px -8px rgba(0,0,0,.5); }
+
+  /* Тоnal элементы */
+  .pill { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+  input, select { background: var(--bg) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+  input::placeholder { color: var(--ink-mute); opacity: .7; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); padding: 12px 20px; border-radius: 12px;
+    font-size: 13px; font-weight: 500; z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    opacity: 0; transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Скелетон загрузки */
+  .skel { background: linear-gradient(90deg, var(--bg-2) 25%, var(--line) 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* Лейаут списка локаций */
+  .list-cat-header { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--ink-mute); font-size: 11px; letter-spacing: .08em; }
+
+  /* Поверх карты — контролы */
+  .map-control {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 4px 12px -4px rgba(0,0,0,.12);
+  }
+
+  /* Кнопки */
+  .btn-primary {
+    background: var(--ink); color: var(--bg); font-weight: 600;
+    transition: all .15s ease;
+  }
+  .btn-primary:hover { background: var(--accent); }
+
+  .btn-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+    transition: all .15s ease;
+  }
+  .btn-ghost:hover { background: var(--bg-2); border-color: var(--ink-mute); }
+
+  /* Адаптивность: drawer-стиль на мобильных */
+  @media (max-width: 768px) {
+    aside { max-height: 50dvh; }
+  }
+
+  /* ───── v3: теги, чекбоксы, превью, описание ───── */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: .05em;
+    text-transform: uppercase; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px;
+    border: 1px solid currentColor;
+    line-height: 1.4;
+  }
+  .tag.tag-iconic     { color: #B8860B; background: #B8860B14; }
+  .tag.tag-7nat       { color: #A85A2A; background: #A85A2A18; }
+  .tag.tag-new7       { color: #2F7A4A; background: #2F7A4A18; }
+  .tag.tag-unesco     { color: #1E6F9F; background: #1E6F9F18; }
+  .tag.tag-underrated { color: #6E4E8C; background: #6E4E8C18; }
+  .tag.tag-extreme    { color: #C0382E; background: #C0382E14; }
+  html.dark .tag.tag-iconic     { color: #E8C26B; }
+  html.dark .tag.tag-7nat       { color: #E6A574; }
+  html.dark .tag.tag-new7       { color: #6FBD8E; }
+  html.dark .tag.tag-unesco     { color: #6FB6D8; }
+  html.dark .tag.tag-underrated { color: #B59BD0; }
+  html.dark .tag.tag-extreme    { color: #E87A6F; }
+
+  /* Чекбокс «был тут» */
+  .visit-check {
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--line); border-radius: 5px;
+    background: var(--bg); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .15s ease; flex-shrink: 0;
+  }
+  .visit-check:hover { border-color: var(--accent); }
+  .visit-check:checked {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .visit-check:checked::after {
+    content: ""; width: 10px; height: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-size: contain; background-repeat: no-repeat;
+  }
+  .loc-card.visited {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 6%, var(--bg)), var(--bg));
+    border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
+  }
+  .loc-card.visited h4 { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 1px; }
+
+  /* Превью в карточке списка */
+  .card-thumb {
+    width: 56px; height: 56px; border-radius: 8px; overflow: hidden;
+    background: var(--bg-2); flex-shrink: 0; position: relative;
+  }
+  .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-thumb .ph {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; opacity: .35;
+  }
+
+  /* Прогресс «посещено» */
+  .progress-track { height: 4px; background: var(--bg-2); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width .4s ease; }
+
+  /* Hero в модалке */
+  .modal-hero {
+    width: 100%; aspect-ratio: 21/9; background: var(--bg-2);
+    border-radius: 12px; overflow: hidden; position: relative;
+  }
+  .modal-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .modal-hero .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 48px; opacity: .25; }
+
+  /* Описание и факты */
+  .desc-text {
+    font-family: var(--serif); font-size: 16px; line-height: 1.65;
+    color: var(--ink); font-weight: 400;
+  }
+  .desc-text p + p { margin-top: .85em; }
+  .facts-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .facts-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 12px 14px; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 10px;
+    font-size: 13px; line-height: 1.5; color: var(--ink);
+  }
+  .facts-list li::before {
+    content: "✦"; color: var(--accent); font-size: 14px;
+    flex-shrink: 0; line-height: 1.5;
+  }
+  .section-title {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-mute); margin-bottom: 10px;
+  }
+  .visit-btn-modal {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--bg);
+    color: var(--ink); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .visit-btn-modal:hover { border-color: var(--accent); color: var(--accent); }
+  .visit-btn-modal.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .visit-btn-modal.on:hover { color: var(--bg); }
+</style>
+</head>
+
+<body class="h-screen w-screen overflow-hidden flex flex-col md:flex-row">
+
+  <!-- ───────── БОКОВАЯ ПАНЕЛЬ ───────── -->
+  <aside class="w-full md:w-[400px] h-[50vh] md:h-full flex flex-col z-20 border-b md:border-b-0 md:border-r relative"
+         style="background: var(--bg); border-color: var(--line);">
+    <div class="absolute inset-0 grain opacity-50"></div>
+
+    <!-- Шапка -->
+    <div class="p-5 border-b flex-shrink-0 relative" style="border-color: var(--line);">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="pill text-[10px] font-semibold mb-1" style="color: var(--accent);">ATLAS · MMXXVI</div>
+          <h1 class="font-display text-3xl md:text-[36px] font-light leading-[1.05] tracking-tight" style="color: var(--ink);">
+            400 Чудес<br>
+            <span class="italic" style="color: var(--accent);">Природы</span>
+          </h1>
+        </div>
+        <button id="darkToggle" class="map-control p-2 hover:scale-105 transition-transform" title="Тема">
+          <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg id="iconMoon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+      <p class="text-[12px] leading-relaxed mb-4" style="color: var(--ink-mute);">
+        Кураторский путеводитель по местам, которые меняют представление о Земле — от полярных льдов до экваториальных джунглей.
+      </p>
+
+      <!-- Поиск -->
+      <div class="relative mb-3">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="color: var(--ink-mute);" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Поиск по названию или стране..."
+               class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border outline-none focus:ring-2 transition-all"
+               style="--tw-ring-color: rgba(168,90,42,.25);">
+      </div>
+
+      <!-- Фильтр + Сортировка -->
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <select id="categoryFilter" class="text-xs rounded-lg border px-2.5 py-2 outline-none focus:ring-2" style="--tw-ring-color: rgba(168,90,42,.25);">
+          <option value="all">🌍 Все категории</option>
+          <option value="water">🌊 Воды и берега</option>
+          <option value="mountain">🏔️ Горы и скалы</option>
+          <option value="forest">🌲 Леса и парки</option>
+          <option value="desert">🏜️ Пустыни / каньоны</option>
+          <option value="volcano">🌋 Вулканы / гейзеры</option>
+          <option value="ice_cave">🧊 Льды / пещеры</option>
+        </select>
+        <select id="sortSelect" class="text-xs rounded-lg border px-2.5 py-2 outline-none focus:ring-2" style="--tw-ring-color: rgba(168,90,42,.25);">
+          <option value="name">↕ По алфавиту</option>
+          <option value="country">↕ По стране</option>
+          <option value="category">↕ По категории</option>
+          <option value="lat-desc">↕ С севера на юг</option>
+          <option value="lat-asc">↕ С юга на север</option>
+        </select>
+      </div>
+
+      <!-- Доп. фильтры: теги + посещённость -->
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <select id="tagFilter" class="text-xs rounded-lg border px-2.5 py-2 outline-none focus:ring-2" style="--tw-ring-color: rgba(168,90,42,.25);">
+          <option value="all">🏷️ Все ярлыки</option>
+          <option value="iconic">⭐ Иконы планеты</option>
+          <option value="7nat">🏛️ 7 чудес природы</option>
+          <option value="new7">🌿 Новые 7 чудес</option>
+          <option value="unesco">🏺 ЮНЕСКО</option>
+          <option value="underrated">💎 Недооценённые</option>
+          <option value="extreme">🔥 Экстремальные</option>
+        </select>
+        <select id="visitedFilter" class="text-xs rounded-lg border px-2.5 py-2 outline-none focus:ring-2" style="--tw-ring-color: rgba(168,90,42,.25);">
+          <option value="all">✦ Все места</option>
+          <option value="visited">✓ Я там был</option>
+          <option value="unvisited">○ Ещё не был</option>
+        </select>
+      </div>
+
+      <!-- Кнопки действий -->
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="randomLocation()" class="btn-primary text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          Сюрприз
+        </button>
+        <button onclick="downloadGeoJSON()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          GeoJSON
+        </button>
+        <button onclick="copyShareLink()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Поделиться
+        </button>
+      </div>
+    </div>
+
+    <!-- Прогресс «посещено» -->
+    <div class="px-5 py-3 border-b flex-shrink-0" style="border-color: var(--line); background: var(--bg);">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="pill" style="color: var(--accent);">Мой атлас</span>
+        <span class="text-[11px] font-mono" style="color: var(--ink-mute);">
+          <span id="visitedCount" style="color: var(--accent); font-weight: 700;">0</span> / <span id="visitedTotal">400</span> посещено
+        </span>
+      </div>
+      <div class="progress-track"><div id="progressFill" class="progress-fill" style="width: 0%"></div></div>
+      <div class="flex items-center justify-between mt-1.5">
+        <span class="text-[10px]" style="color: var(--ink-mute);" id="progressLabel">Начните отмечать места, где уже побывали</span>
+        <button id="resetVisited" class="text-[10px] hover:underline" style="color: var(--ink-mute);">Сбросить</button>
+      </div>
+    </div>
+
+    <!-- Статистика по категориям -->
+    <div id="statsBar" class="px-5 py-3 border-b flex-shrink-0 flex flex-wrap gap-x-3 gap-y-2 text-[10px]" style="border-color: var(--line); background: var(--bg-2);">
+      <!-- генерируется JS -->
+    </div>
+
+    <!-- Хедер списка -->
+    <div class="px-5 py-2 flex-shrink-0 flex items-center justify-between" style="background: var(--bg-2);">
+      <span class="pill" style="color: var(--ink-mute);"><span id="visibleCount">0</span> из <span id="totalCount">0</span></span>
+      <button id="clearFilters" class="text-[10px] hover:underline" style="color: var(--accent);">Сбросить</button>
+    </div>
+
+    <!-- Список локаций -->
+    <div id="location-list" class="flex-1 overflow-y-auto p-3 space-y-2" style="background: var(--bg-2);">
+      <!-- генерируется JS -->
+    </div>
+  </aside>
+
+  <!-- ───────── КАРТА ───────── -->
+  <main class="w-full md:flex-1 h-[50vh] md:h-full relative">
+    <div id="map"></div>
+
+    <!-- Переключатель стилей карты -->
+    <div class="absolute top-4 right-4 z-[400] map-control flex p-1 gap-0.5" id="layerSwitcher">
+      <button data-layer="voyager" class="layer-btn active px-3 py-1.5 text-[11px] font-medium rounded-md transition-all">Vintage</button>
+      <button data-layer="dark" class="layer-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-all">Noir</button>
+      <button data-layer="terrain" class="layer-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-all">Рельеф</button>
+      <button data-layer="satellite" class="layer-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-all">Спутник</button>
+    </div>
+
+    <!-- Подсказка / атрибуция в углу -->
+    <div class="absolute bottom-4 left-4 z-[400] map-control px-3 py-2 text-[10px] font-mono hidden md:block" style="color: var(--ink-mute);">
+      <span id="coordsDisplay">—</span>
+    </div>
+  </main>
+
+  <!-- ───────── МОДАЛЬНОЕ ОКНО ГАЛЕРЕИ ───────── -->
+  <div id="galleryModal" class="fixed inset-0 z-[1000] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 md:p-8"
+       style="background: rgba(22,20,15,.75); backdrop-filter: blur(6px);">
+    <div class="rounded-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col relative shadow-2xl transform scale-95 transition-transform duration-300"
+         id="modalContent" style="background: var(--bg);">
+
+      <div class="p-5 md:p-7 border-b flex justify-between items-start sticky top-0 z-10" style="background: var(--bg); border-color: var(--line);">
+        <div class="pr-4 flex-1">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            <div id="modalCategory" class="pill inline-block px-2.5 py-1 rounded-full font-semibold"></div>
+            <div id="modalTags" class="flex gap-1.5 flex-wrap"></div>
+          </div>
+          <h2 id="modalTitle" class="font-display text-3xl md:text-4xl font-light leading-tight tracking-tight" style="color: var(--ink);"></h2>
+          <p id="modalCountry" class="text-sm mt-1.5 italic font-display" style="color: var(--ink-mute);"></p>
+          <p id="modalCoords" class="font-mono text-[10px] mt-2" style="color: var(--ink-mute);"></p>
+          <button id="modalVisitBtn" class="visit-btn-modal mt-4">
+            <span id="modalVisitIcon">○</span>
+            <span id="modalVisitLabel">Отметить как посещённое</span>
+          </button>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button id="modalOpenMap" class="btn-ghost p-2 rounded-full" title="Показать на карте">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          </button>
+          <button id="modalWiki" class="btn-ghost p-2 rounded-full" title="Открыть в Википедии">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </button>
+          <button onclick="closeGallery()" class="btn-ghost p-2 rounded-full" title="Закрыть (Esc)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-5 md:p-7 overflow-y-auto flex-1" style="background: var(--bg-2);">
+        <!-- Hero изображение -->
+        <div id="modalHero" class="modal-hero mb-6">
+          <div class="ph">🏞️</div>
+        </div>
+
+        <!-- Описание + факты в две колонки -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-7">
+          <div class="lg:col-span-3">
+            <div class="section-title">О месте</div>
+            <div id="modalDesc" class="desc-text">
+              <p style="color: var(--ink-mute); font-style: italic;">Загружаем описание из Википедии…</p>
+            </div>
+          </div>
+          <div class="lg:col-span-2">
+            <div class="section-title">Почему это чудо</div>
+            <ul id="modalFacts" class="facts-list">
+              <li style="color: var(--ink-mute); font-style: italic;">Подбираем интересные факты…</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Галерея -->
+        <div class="section-title">Галерея</div>
+        <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        <p class="text-[10px] mt-4 text-center font-mono" style="color: var(--ink-mute);">
+          Источник текста и изображений — Wikipedia / Wikimedia Commons. Лицензии у источников.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//   КАТЕГОРИИ
+// ═══════════════════════════════════════════════════════════════════════
+const catConfig = {
+  water:    { label: "Воды и берега",     color: "#1E6F9F", emoji: "🌊", hex: "#1E6F9F" },
+  mountain: { label: "Горы и скалы",      color: "#6E4E8C", emoji: "🏔️", hex: "#6E4E8C" },
+  forest:   { label: "Леса и парки",      color: "#2F7A4A", emoji: "🌲", hex: "#2F7A4A" },
+  desert:   { label: "Пустыни и каньоны", color: "#C97C2E", emoji: "🏜️", hex: "#C97C2E" },
+  volcano:  { label: "Вулканы и гейзеры", color: "#C0382E", emoji: "🌋", hex: "#C0382E" },
+  ice_cave: { label: "Льды и пещеры",     color: "#3B9CB1", emoji: "🧊", hex: "#3B9CB1" }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ЯРЛЫКИ / КЛАССИФИКАЦИИ
+// ═══════════════════════════════════════════════════════════════════════
+const tagConfig = {
+  iconic:     { label: "Икона планеты",   short: "Икона",     emoji: "⭐" },
+  '7nat':     { label: "7 чудес природы", short: "7 чудес",   emoji: "🏛️" },
+  new7:       { label: "Новые 7 чудес",   short: "Новые 7",   emoji: "🌿" },
+  unesco:     { label: "Объект ЮНЕСКО",   short: "ЮНЕСКО",    emoji: "🏺" },
+  underrated: { label: "Недооценённое",   short: "Скрытое",   emoji: "💎" },
+  extreme:    { label: "Экстремальное",   short: "Экстрим",   emoji: "🔥" }
+};
+
+// Известные эталонные списки. Ключи — английские имена статей (loc.en).
+const TAGS_BY_EN = (() => {
+  const map = {};
+  const add = (en, ...tags) => { (map[en] = map[en] || new Set()); tags.forEach(t => map[en].add(t)); };
+
+  // Семь природных чудес света (CNN, 1997)
+  ["Grand Canyon","Great Barrier Reef","Mount Everest","Aurora","Victoria Falls",
+   "Paricutin","Guanabara Bay"].forEach(n => add(n, '7nat','iconic'));
+
+  // New 7 Wonders of Nature (2011)
+  ["Iguazu Falls","Ha Long Bay","Jeju Island","Komodo National Park",
+   "Puerto Princesa Subterranean River National Park","Table Mountain","Amazon River"]
+    .forEach(n => add(n, 'new7','iconic'));
+
+  // Безусловные иконы
+  ["Niagara Falls","Yellowstone National Park","Sahara","Mount Fuji","Mount Kilimanjaro",
+   "Bora Bora","Maldives","Galápagos Islands","Salar de Uyuni","Bryce Canyon National Park",
+   "Antelope Canyon","Monument Valley","Yosemite Falls","Plitvice Lakes National Park",
+   "Lake Baikal","Cliffs of Moher","Angel Falls","Dead Sea","Mount Kilauea","Banff National Park",
+   "Milford Sound","Halong Bay","Amalfi Coast","Bali","Easter Island","Lake Bled",
+   "Great Blue Hole","Geirangerfjord","Sognefjord","Cappadocia","Pamukkale","Atacama Desert",
+   "Patagonia","Torres del Paine National Park","Perito Moreno Glacier","Mount Roraima",
+   "Mount Bromo","Zhangjiajie National Forest Park","Jiuzhaigou","Avenue of the Baobabs",
+   "Sahara desert","Wadi Rum","Mount Sinai","Petra"].forEach(n => add(n, 'iconic'));
+
+  // ЮНЕСКО — выборочные природные объекты
+  ["Great Barrier Reef","Galápagos Islands","Iguazu Falls","Ha Long Bay","Plitvice Lakes National Park",
+   "Yellowstone National Park","Grand Canyon","Yosemite Falls","Komodo National Park",
+   "Puerto Princesa Subterranean River National Park","Sagarmatha National Park",
+   "Mount Kilimanjaro","Lake Baikal","Banff National Park","Te Wahipounamu",
+   "Socotra","Wadi Rum","Cappadocia","Pamukkale","Mount Fuji","Jiuzhaigou","Huanglong",
+   "Mount Wuyi","Mount Huang","Mount Tai","Mount Emei","Zhangjiajie National Forest Park",
+   "Sagarmatha","Sundarbans","Manas National Park","Kaziranga National Park","Nanda Devi National Park",
+   "Lake Malawi","Lake Turkana","Serengeti","Ngorongoro Conservation Area","Okavango Delta",
+   "Namib Sand Sea","Salonga National Park","Virunga National Park","Tassili n'Ajjer",
+   "Madagascar dry deciduous forests","Lençóis Maranhenses National Park","Iguaçu National Park",
+   "Pantanal","Chitwan National Park","Wood Buffalo National Park","Nahanni National Park Reserve",
+   "Gros Morne National Park","Waterton-Glacier International Peace Park","Olympic National Park",
+   "Hawaii Volcanoes National Park","Redwood National and State Parks","Mammoth Cave National Park",
+   "Carlsbad Caverns National Park","Everglades National Park","Dolomites","Mount Etna",
+   "Pyrénées – Mont Perdu","Doñana National Park","Garajonay National Park","Teide National Park",
+   "Laurisilva of Madeira","Pitons Management Area","Belize Barrier Reef","Cocos Island",
+   "Darién National Park","Manú National Park","Huascarán National Park","Los Glaciares National Park",
+   "Talamanca Range","Tikal National Park"].forEach(n => add(n, 'unesco'));
+
+  // Недооценённые / редкие места
+  ["Caño Cristales","Lake Hillier","Socotra","Marble Caves","Marble Caves of Patagonia",
+   "Lençóis Maranhenses National Park","Lake Natron","Wakatobi Regency","Sipadan",
+   "Raja Ampat Islands","Faroe Islands","Tianzi Mountains","Tsingy de Bemaraha","Danxia",
+   "Zhangye Danxia","Spotted Lake","Vaadhoo Island","Reynisfjara","Diamond Beach (Iceland)",
+   "Vatnajökull","Skaftafell","Landmannalaugar","Þórsmörk","Hverir","Námafjall",
+   "Hverir geothermal area","Goðafoss","Skógafoss","Seljalandsfoss","Studlagil","Stuðlagil",
+   "Stokksnes","Vestrahorn","Kirkjufell","Sólheimasandur","Mýrdalsjökull","Snæfellsnes",
+   "Latrabjarg","Tristan da Cunha","Saint Helena","Kerguelen Islands","Lord Howe Island",
+   "Lugu Lake","Heaven Lake","Pamukkale","Plitvice Lakes National Park","Lake Bled",
+   "Lake Matheson","Peyto Lake","Moraine Lake","Lake McKenzie (Queensland)","Whitehaven Beach",
+   "Pulpit Rock","Trolltunga","Romsdalseggen","Senja","Lofoten","Vesterålen",
+   "Bagan","Lijiang","Yading","Khövsgöl Nuur","Altai Tavan Bogd","Gobi Desert",
+   "Wulingyuan","Hailuogou Glacier","Mount Kailash","Manaslu","Annapurna","Khumbu",
+   "Ennedi Plateau","Tibesti Mountains","Bandiagara Escarpment","Lake Assal","Erta Ale",
+   "Danakil Depression","Lake Abbe","Mont aux Sources","Drakensberg","Cederberg",
+   "Garden Route","Marakele National Park","Fish River Canyon","Sossusvlei","Deadvlei",
+   "Caprivi Strip","Spitzkoppe","Aïr Mountains","Tassili n'Ajjer","Hoggar Mountains",
+   "Erg Chebbi","Erg Chigaga","Lake Manyara","Selous Game Reserve","Loango National Park",
+   "Bwindi Impenetrable National Park","Volcanoes National Park","Nyiragongo",
+   "Marojejy National Park","Ranomafana National Park","Ankarafantsika National Park",
+   "Avenue of the Baobabs","Nosy Be","Sainte Marie","Aldabra Atoll","Vallée de Mai",
+   "Aldabra","Mauritius","Réunion","Mafia Island","Pemba Island","Zanzibar Archipelago",
+   "Bazaruto Archipelago","Quirimbas Archipelago","Aldabra Group","Aldabra giant tortoise",
+   "Aysén","Marble Caverns","Carrera Lake","General Carrera Lake","Chiloé Archipelago",
+   "Easter Island","Juan Fernández Islands","Salar de Tara","Atacama Desert","El Tatio",
+   "Valle de la Luna","Laguna Verde","Lagoa do Fogo","Furnas","Sete Cidades","Pico Island",
+   "Capelinhos","Cabo Verde","Boa Vista","Sal Island","Fogo (volcano)"]
+    .forEach(n => add(n, 'underrated'));
+
+  // Экстремальные / опасные
+  ["Mount Everest","K2","Annapurna","Nanga Parbat","Danakil Depression","Erta Ale",
+   "Lake Natron","Dallol","Death Valley","Atacama Desert","Sahara","Antarctica",
+   "Aurora","Mount Nyiragongo","Nyiragongo","Mariana Trench","Mount Kilauea","Stromboli",
+   "Mount Etna","Mount Vesuvius","Krakatoa","Mount Bromo","Sakurajima","Mount Merapi",
+   "Mauna Loa","Yellowstone Caldera","Greenland ice sheet","Vatnajökull","Vinson Massif",
+   "Blood Falls","McMurdo Dry Valleys","South Pole","North Pole","Mount Logan",
+   "Denali","Aconcagua","Mount Vinson","Mount Kosciuszko","Carstensz Pyramid"]
+    .forEach(n => add(n, 'extreme'));
+
+  return Object.fromEntries(Object.entries(map).map(([k,v]) => [k, [...v]]));
+})();
+
+function getTags(loc) {
+  if (!loc.en) return [];
+  return TAGS_BY_EN[loc.en] || [];
+}
+function hasTag(loc, tag) { return getTags(loc).includes(tag); }
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ПОСЕЩЁННЫЕ — localStorage
+// ═══════════════════════════════════════════════════════════════════════
+const VISIT_KEY = 'atlas-naturae:visited';
+const visited = new Set(JSON.parse(localStorage.getItem(VISIT_KEY) || '[]'));
+function visitKey(loc) { return loc.en || loc.name; }
+function isVisited(loc) { return visited.has(visitKey(loc)); }
+function toggleVisited(loc) {
+  const k = visitKey(loc);
+  if (visited.has(k)) visited.delete(k); else visited.add(k);
+  localStorage.setItem(VISIT_KEY, JSON.stringify([...visited]));
+  updateProgress();
+}
+function updateProgress() {
+  const n = locations.filter(isVisited).length;
+  const total = locations.length;
+  const pct = (n / total) * 100;
+  const cnt = document.getElementById('visitedCount');
+  const fill = document.getElementById('progressFill');
+  const lbl = document.getElementById('progressLabel');
+  if (cnt) cnt.textContent = n;
+  if (fill) fill.style.width = pct.toFixed(2) + '%';
+  if (lbl) {
+    if (n === 0) lbl.textContent = 'Начните отмечать места, где уже побывали';
+    else if (n < 10) lbl.textContent = 'Отличный старт! ' + pct.toFixed(1) + '% планеты';
+    else if (n < 50) lbl.textContent = 'Бывалый путешественник — ' + pct.toFixed(1) + '%';
+    else if (n < 100) lbl.textContent = 'Серьёзный коллекционер чудес';
+    else lbl.textContent = 'Легенда. ' + pct.toFixed(1) + '% мирового атласа';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   WIKIPEDIA — краткое описание + thumbnail (REST summary)
+// ═══════════════════════════════════════════════════════════════════════
+const summaryCache = new Map();
+async function fetchSummary(loc) {
+  const key = loc.en || loc.name;
+  if (summaryCache.has(key)) return summaryCache.get(key);
+  const tryLang = async (lang, title) => {
+    try {
+      const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}?redirect=true`);
+      if (!r.ok) return null;
+      const d = await r.json();
+      if (d.type === 'disambiguation' || !d.extract) return null;
+      return {
+        extract: d.extract,
+        thumb: d.thumbnail?.source || null,
+        thumbWide: d.originalimage?.source || d.thumbnail?.source || null,
+        lang
+      };
+    } catch { return null; }
+  };
+  let res = null;
+  if (loc.en) res = await tryLang('en', loc.en);
+  if (!res) res = await tryLang('ru', loc.name.replace(/\(.*?\)/g,'').trim());
+  summaryCache.set(key, res);
+  return res;
+}
+
+// Извлекаем 3-5 «фактов» — самые содержательные предложения из extract
+function extractFacts(text) {
+  if (!text) return [];
+  // Разбиваем на предложения, бережно к сокращениям
+  const sentences = text
+    .replace(/\s+/g,' ')
+    .split(/(?<=[.!?])\s+(?=[А-ЯA-Z«"])/)
+    .map(s => s.trim())
+    .filter(s => s.length > 40 && s.length < 240);
+  // Сигнальные слова — приоритет «интересным» предложениям
+  const signals = /(самый|самая|самое|крупнейш|глубочайш|высочайш|единственн|уникальн|более \d|свыше \d|около \d|\d{2,}\s?(м|км|метр|год|лет|видов)|объект всемирного|ЮНЕСКО|UNESCO|largest|deepest|highest|tallest|longest|only|unique|over \d|more than \d|\d{2,}\s?(m|km|meters|years|species)|World Heritage)/i;
+  const scored = sentences.map((s, i) => ({
+    s,
+    score: (signals.test(s) ? 3 : 0) + (i === 0 ? 1 : 0) + (s.length > 90 && s.length < 180 ? 1 : 0)
+  })).sort((a,b) => b.score - a.score);
+  const picked = scored.slice(0, 5).map(x => x.s);
+  // Возвращаем в исходном порядке
+  return sentences.filter(s => picked.includes(s)).slice(0, 5);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   БАЗА ДАННЫХ — 400 ЧУДЕС ПРИРОДЫ
+// ═══════════════════════════════════════════════════════════════════════
+const locations = [
+  // ────────────────────── ВОДЫ И ПОБЕРЕЖЬЯ ──────────────────────
+  { name: "Водопады Игуасу", lat: -25.6953, lng: -54.4367, country: "Аргентина / Бразилия", category: "water", en: "Iguazu Falls" },
+  { name: "Большой Барьерный риф", lat: -18.2871, lng: 147.6992, country: "Австралия", category: "water", en: "Great Barrier Reef" },
+  { name: "Бухта Халонг", lat: 20.9101, lng: 107.1839, country: "Вьетнам", category: "water", en: "Ha Long Bay" },
+  { name: "Подземная река Пуэрто-Принсеса", lat: 10.1926, lng: 118.9266, country: "Филиппины", category: "water", en: "Puerto Princesa Subterranean River National Park" },
+  { name: "Водопад Виктория", lat: -17.9243, lng: 25.8560, country: "Замбия / Зимбабве", category: "water", en: "Victoria Falls" },
+  { name: "Архипелаг Палаван", lat: 11.1784, lng: 119.3991, country: "Филиппины", category: "water", en: "Palawan" },
+  { name: "Милфорд-Саунд", lat: -44.6716, lng: 167.9256, country: "Новая Зеландия", category: "water", en: "Milford Sound" },
+  { name: "Атоллы Мальдив", lat: 3.2028, lng: 73.2207, country: "Мальдивы", category: "water", en: "Maldives" },
+  { name: "Галапагосские острова", lat: -0.9538, lng: -90.9656, country: "Эквадор", category: "water", en: "Galápagos Islands" },
+  { name: "Архипелаг Фиджи", lat: -17.7134, lng: 178.0650, country: "Фиджи", category: "water", en: "Fiji" },
+  { name: "Плитвицкие озёра", lat: 44.8654, lng: 15.5820, country: "Хорватия", category: "water", en: "Plitvice Lakes National Park" },
+  { name: "Водопад Анхель", lat: 5.9675, lng: -62.5356, country: "Венесуэла", category: "water", en: "Angel Falls" },
+  { name: "Скалы Мохер", lat: 52.9715, lng: -9.4265, country: "Ирландия", category: "water", en: "Cliffs of Moher" },
+  { name: "Ниагарский водопад", lat: 43.0962, lng: -79.0377, country: "США / Канада", category: "water", en: "Niagara Falls" },
+  { name: "Озеро Байкал", lat: 53.5587, lng: 108.1650, country: "Россия", category: "water", en: "Lake Baikal" },
+  { name: "Озеро Морейн", lat: 51.3217, lng: -116.1860, country: "Канада", category: "water", en: "Moraine Lake" },
+  { name: "Большая голубая дыра", lat: 17.3160, lng: -87.5351, country: "Белиз", category: "water", en: "Great Blue Hole" },
+  { name: "Мёртвое море", lat: 31.5590, lng: 35.4732, country: "Израиль / Иордания", category: "water", en: "Dead Sea" },
+  { name: "Побережье Амальфи", lat: 40.6333, lng: 14.6029, country: "Италия", category: "water", en: "Amalfi Coast" },
+  { name: "Бора-Бора", lat: -16.5004, lng: -151.7415, country: "Французская Полинезия", category: "water", en: "Bora Bora" },
+  { name: "Озеро Комо", lat: 46.0160, lng: 9.2572, country: "Италия", category: "water", en: "Lake Como" },
+  { name: "Пляж Навагио (Закинф)", lat: 37.8595, lng: 20.6249, country: "Греция", category: "water", en: "Navagio" },
+  { name: "Кратерное озеро", lat: 42.9446, lng: -122.1090, country: "США", category: "water", en: "Crater Lake" },
+  { name: "Озеро Тахо", lat: 39.0968, lng: -120.0324, country: "США", category: "water", en: "Lake Tahoe" },
+  { name: "Озеро Блед", lat: 46.3625, lng: 14.0938, country: "Словения", category: "water", en: "Lake Bled" },
+  { name: "Пляж Уайтхейвен", lat: -20.2825, lng: 149.0377, country: "Австралия", category: "water", en: "Whitehaven Beach" },
+  { name: "Розовое озеро Хиллер", lat: -34.0950, lng: 123.2028, country: "Австралия", category: "water", en: "Lake Hillier" },
+  { name: "Сейшелы — Ла-Диг", lat: -4.3715, lng: 55.8272, country: "Сейшелы", category: "water", en: "La Digue" },
+  { name: "Остров Капри", lat: 40.5507, lng: 14.2426, country: "Италия", category: "water", en: "Capri" },
+  { name: "Остров Чеджудо", lat: 33.4890, lng: 126.4983, country: "Южная Корея", category: "water", en: "Jeju Island" },
+  { name: "Остров Мадейра", lat: 32.7607, lng: -16.9595, country: "Португалия", category: "water", en: "Madeira" },
+  { name: "Остров Парос", lat: 37.0856, lng: 25.1488, country: "Греция", category: "water", en: "Paros" },
+  { name: "Остров Бали", lat: -8.4095, lng: 115.1889, country: "Индонезия", category: "water", en: "Bali" },
+  { name: "Озеро Титикака", lat: -15.9254, lng: -69.3354, country: "Перу / Боливия", category: "water", en: "Lake Titicaca" },
+  { name: "Анс-Сурс-д'Аржан", lat: -4.3695, lng: 55.8272, country: "Сейшелы", category: "water", en: "Anse Source d'Argent" },
+  { name: "Гейрангер-фьорд", lat: 62.1015, lng: 7.0941, country: "Норвегия", category: "water", en: "Geirangerfjord" },
+  { name: "Нерёй-фьорд", lat: 60.9427, lng: 6.9408, country: "Норвегия", category: "water", en: "Nærøyfjord" },
+  { name: "Лох-Несс", lat: 57.3229, lng: -4.4244, country: "Шотландия", category: "water", en: "Loch Ness" },
+  { name: "Река Ли — Гуйлинь", lat: 25.2736, lng: 110.2902, country: "Китай", category: "water", en: "Li River" },
+  { name: "Озеро Пейто", lat: 51.7275, lng: -116.5225, country: "Канада", category: "water", en: "Peyto Lake" },
+  { name: "Озеро Маккензи", lat: -25.4475, lng: 153.0569, country: "Австралия", category: "water", en: "Lake McKenzie (Queensland)" },
+  { name: "Водопад Деттифосс", lat: 65.8147, lng: -16.3846, country: "Исландия", category: "water", en: "Dettifoss" },
+  { name: "Озеро Мэтисон", lat: -43.4398, lng: 169.9664, country: "Новая Зеландия", category: "water", en: "Lake Matheson" },
+  { name: "Залив Майя", lat: 7.6766, lng: 98.7661, country: "Таиланд", category: "water", en: "Maya Bay" },
+  { name: "Водопад Йосемити", lat: 37.7566, lng: -119.5969, country: "США", category: "water", en: "Yosemite Falls" },
+  { name: "Изумрудные озёра Цзючжайгоу", lat: 33.2611, lng: 103.9189, country: "Китай", category: "water", en: "Jiuzhaigou" },
+  { name: "Бассейны Фей — Скай", lat: 57.2498, lng: -6.2554, country: "Шотландия", category: "water", en: "Fairy Pools" },
+  { name: "Озеро Луиз", lat: 51.4115, lng: -116.2286, country: "Канада", category: "water", en: "Lake Louise (Alberta)" },
+  { name: "Пещера Бенагил", lat: 37.0874, lng: -8.4239, country: "Португалия", category: "water", en: "Benagil Cave" },
+  { name: "Кровавый водопад", lat: -77.7167, lng: 162.2667, country: "Антарктида", category: "water", en: "Blood Falls" },
+  { name: "Голубая лагуна", lat: 63.8792, lng: -22.4453, country: "Исландия", category: "water", en: "Blue Lagoon (geothermal spa)" },
+  { name: "Бухта Ханалей (Кауаи)", lat: 22.2144, lng: -159.5033, country: "США (Гавайи)", category: "water", en: "Hanalei Bay" },
+  { name: "Острова Пхи-Пхи", lat: 7.7407, lng: 98.7784, country: "Таиланд", category: "water", en: "Phi Phi Islands" },
+  { name: "Морской парк Вакатоби", lat: -5.5167, lng: 123.5500, country: "Индонезия", category: "water", en: "Wakatobi Regency" },
+  { name: "Скала Парус", lat: 44.4372, lng: 38.1883, country: "Россия", category: "water", en: "Parus Rock" },
+  { name: "Берег Скелетов", lat: -19.5000, lng: 12.5000, country: "Намибия", category: "water", en: "Skeleton Coast" },
+  { name: "Лагуна Колорада", lat: -22.2039, lng: -67.7761, country: "Боливия", category: "water", en: "Laguna Colorada" },
+  { name: "Озеро Накуру", lat: -0.3667, lng: 36.1000, country: "Кения", category: "water", en: "Lake Nakuru" },
+  { name: "Озеро Малави (Ньяса)", lat: -12.0000, lng: 34.5000, country: "Малави", category: "water", en: "Lake Malawi" },
+  { name: "Каньо-Кристалес", lat: 2.2642, lng: -73.7936, country: "Колумбия", category: "water", en: "Caño Cristales" },
+  { name: "Озеро Иссык-Куль", lat: 42.4333, lng: 77.2500, country: "Кыргызстан", category: "water", en: "Issyk-Kul" },
+  { name: "Водопад Гoдафосс", lat: 65.6828, lng: -17.5503, country: "Исландия", category: "water", en: "Goðafoss" },
+  { name: "Озеро Виктория", lat: -1.0000, lng: 33.0000, country: "Танзания / Уганда / Кения", category: "water", en: "Lake Victoria" },
+  { name: "Озеро Танганьика", lat: -6.0000, lng: 29.5000, country: "Танзания / ДР Конго / Замбия", category: "water", en: "Lake Tanganyika" },
+  { name: "Согне-фьорд", lat: 61.0000, lng: 6.5000, country: "Норвегия", category: "water", en: "Sognefjord" },
+  { name: "Хардангер-фьорд", lat: 60.3000, lng: 6.5000, country: "Норвегия", category: "water", en: "Hardangerfjord" },
+  { name: "Люсе-фьорд", lat: 58.9500, lng: 6.1800, country: "Норвегия", category: "water", en: "Lysefjord" },
+  { name: "Лофотенские острова", lat: 68.3000, lng: 14.7000, country: "Норвегия", category: "water", en: "Lofoten" },
+  { name: "Биг-Айленд (Гавайи)", lat: 19.6000, lng: -155.5000, country: "США (Гавайи)", category: "water", en: "Hawaii (island)" },
+  { name: "Остров Лансароте", lat: 29.0000, lng: -13.6000, country: "Испания (Канары)", category: "water", en: "Lanzarote" },
+  { name: "Остров Пасхи (Рапа-Нуи)", lat: -27.1127, lng: -109.3497, country: "Чили", category: "water", en: "Easter Island" },
+  { name: "Лорд-Хау", lat: -31.5500, lng: 159.0800, country: "Австралия", category: "water", en: "Lord Howe Island" },
+  { name: "Озеро Севан", lat: 40.4000, lng: 45.3000, country: "Армения", category: "water", en: "Lake Sevan" },
+  { name: "Озеро Ван", lat: 38.6000, lng: 42.9000, country: "Турция", category: "water", en: "Lake Van" },
+  { name: "Озеро Балхаш", lat: 46.5000, lng: 75.5000, country: "Казахстан", category: "water", en: "Lake Balkhash" },
+  { name: "Озеро Ладога", lat: 60.8500, lng: 31.5000, country: "Россия", category: "water", en: "Lake Ladoga" },
+  { name: "Онежское озеро", lat: 61.7000, lng: 35.5000, country: "Россия", category: "water", en: "Lake Onega" },
+  { name: "Озеро Рица", lat: 43.4833, lng: 40.5500, country: "Абхазия", category: "water", en: "Lake Ritsa" },
+  { name: "Водопад Скогафосс", lat: 63.5300, lng: -19.5113, country: "Исландия", category: "water", en: "Skógafoss" },
+  { name: "Сельяландсфосс", lat: 63.6156, lng: -19.9886, country: "Исландия", category: "water", en: "Seljalandsfoss" },
+  { name: "Криммльский водопад", lat: 47.2000, lng: 12.1700, country: "Австрия", category: "water", en: "Krimml Waterfalls" },
+  { name: "Озеро Мид", lat: 36.1000, lng: -114.4000, country: "США", category: "water", en: "Lake Mead" },
+  { name: "Озеро Пауэлл", lat: 37.0000, lng: -111.5000, country: "США", category: "water", en: "Lake Powell" },
+  { name: "Каспийское море", lat: 41.0000, lng: 50.5000, country: "Россия / Иран / Казахстан / Азерб. / Туркм.", category: "water", en: "Caspian Sea" },
+  { name: "Раджа-Ампат", lat: -0.5000, lng: 130.4000, country: "Индонезия", category: "water", en: "Raja Ampat Islands" },
+  { name: "Острова Гили", lat: -8.3500, lng: 116.0500, country: "Индонезия", category: "water", en: "Gili Islands" },
+  { name: "Острова Симилан", lat: 8.6500, lng: 97.6500, country: "Таиланд", category: "water", en: "Similan Islands" },
+  { name: "Бухта Котор", lat: 42.4500, lng: 18.7700, country: "Черногория", category: "water", en: "Bay of Kotor" },
+  { name: "Лагуна Венеции", lat: 45.4300, lng: 12.3300, country: "Италия", category: "water", en: "Venetian Lagoon" },
+  { name: "Озеро Лугу", lat: 27.7000, lng: 100.8000, country: "Китай", category: "water", en: "Lugu Lake" },
+  { name: "Озеро Тяньчи (Чанбайшань)", lat: 42.0000, lng: 128.0700, country: "Китай / КНДР", category: "water", en: "Heaven Lake" },
+  { name: "Залив Фанди", lat: 45.0000, lng: -64.5000, country: "Канада", category: "water", en: "Bay of Fundy" },
+  { name: "Острова Тонга", lat: -21.1800, lng: -175.2000, country: "Тонга", category: "water", en: "Tonga" },
+  { name: "Острова Кука", lat: -21.2300, lng: -159.7800, country: "Острова Кука", category: "water", en: "Cook Islands" },
+  { name: "Маркизские острова", lat: -9.7800, lng: -139.0400, country: "Французская Полинезия", category: "water", en: "Marquesas Islands" },
+  { name: "Остров Сипадан", lat: 4.1100, lng: 118.6300, country: "Малайзия", category: "water", en: "Sipadan" },
+  { name: "Острова Палау", lat: 7.5000, lng: 134.5800, country: "Палау", category: "water", en: "Palau" },
+  { name: "Водопад Гюдльфосс", lat: 64.3263, lng: -20.1199, country: "Исландия", category: "water", en: "Gullfoss" },
+  { name: "Водопад Кравица", lat: 43.1517, lng: 17.6181, country: "Босния и Герцеговина", category: "water", en: "Kravica (waterfall)" },
+  { name: "Водопад Дудхсагар", lat: 15.3144, lng: 74.3144, country: "Индия", category: "water", en: "Dudhsagar Falls" },
+  { name: "Озеро Туркана", lat: 3.5500, lng: 36.0833, country: "Кения / Эфиопия", category: "water", en: "Lake Turkana" },
+  { name: "Реверсивные водопады", lat: 45.2700, lng: -66.0700, country: "Канада", category: "water", en: "Reversing Falls" },
+  { name: "Бухта Шарк-Бей", lat: -25.5000, lng: 113.5000, country: "Австралия", category: "water", en: "Shark Bay" },
+  { name: "Остров Сокотра — бухта Шуаб", lat: 12.5167, lng: 53.4167, country: "Йемен", category: "water", en: "Socotra" },
+  { name: "Озеро Каинджи", lat: 10.5000, lng: 4.6000, country: "Нигерия", category: "water", en: "Kainji Lake" },
+  { name: "Озеро Тоба", lat: 2.6845, lng: 98.8756, country: "Индонезия", category: "water", en: "Lake Toba" },
+
+  // ────────────────────── ГОРЫ И СКАЛЫ ──────────────────────
+  { name: "Столовая гора", lat: -33.9628, lng: 18.4098, country: "ЮАР", category: "mountain", en: "Table Mountain" },
+  { name: "Гора Фансипан", lat: 22.3039, lng: 103.7750, country: "Вьетнам", category: "mountain", en: "Fansipan" },
+  { name: "Эверест (Джомолунгма)", lat: 27.9881, lng: 86.9250, country: "Непал / Китай", category: "mountain", en: "Mount Everest" },
+  { name: "Гора Фудзи", lat: 35.3606, lng: 138.7274, country: "Япония", category: "mountain", en: "Mount Fuji" },
+  { name: "Скала Улуру", lat: -25.3444, lng: 131.0369, country: "Австралия", category: "mountain", en: "Uluru" },
+  { name: "Парк Чжанцзяцзе", lat: 29.3153, lng: 110.4348, country: "Китай", category: "mountain", en: "Zhangjiajie National Forest Park" },
+  { name: "Доломитовые Альпы", lat: 46.4333, lng: 11.8833, country: "Италия", category: "mountain", en: "Dolomites" },
+  { name: "Маттерхорн", lat: 45.9763, lng: 7.6583, country: "Швейцария / Италия", category: "mountain", en: "Matterhorn" },
+  { name: "Килиманджаро", lat: -3.0674, lng: 37.3556, country: "Танзания", category: "mountain", en: "Mount Kilimanjaro" },
+  { name: "Монблан", lat: 45.8326, lng: 6.8652, country: "Франция / Италия", category: "mountain", en: "Mont Blanc" },
+  { name: "Аконкагуа", lat: -32.6532, lng: -70.0109, country: "Аргентина", category: "mountain", en: "Aconcagua" },
+  { name: "Денали (Мак-Кинли)", lat: 63.0692, lng: -151.0070, country: "США", category: "mountain", en: "Denali" },
+  { name: "Гора Рорайма", lat: 5.1978, lng: -60.7380, country: "Венесуэла / Бразилия / Гайана", category: "mountain", en: "Mount Roraima" },
+  { name: "Тре-Чиме-ди-Лаваредо", lat: 46.6186, lng: 12.3028, country: "Италия", category: "mountain", en: "Tre Cime di Lavaredo" },
+  { name: "Гора Хуаншань", lat: 30.1306, lng: 118.1706, country: "Китай", category: "mountain", en: "Huangshan" },
+  { name: "K2 (Чогори)", lat: 35.8814, lng: 76.5133, country: "Пакистан / Китай", category: "mountain", en: "K2" },
+  { name: "Аннапурна", lat: 28.5961, lng: 83.8203, country: "Непал", category: "mountain", en: "Annapurna Massif" },
+  { name: "Эльбрус", lat: 43.3499, lng: 42.4453, country: "Россия", category: "mountain", en: "Mount Elbrus" },
+  { name: "Прекестулен", lat: 58.9861, lng: 6.1887, country: "Норвегия", category: "mountain", en: "Preikestolen" },
+  { name: "Тянь-Шань", lat: 42.0333, lng: 80.1167, country: "Кыргызстан / Китай", category: "mountain", en: "Tian Shan" },
+  { name: "Кинабалу", lat: 6.0746, lng: 116.5593, country: "Малайзия", category: "mountain", en: "Mount Kinabalu" },
+  { name: "Язык Тролля", lat: 60.1309, lng: 6.7400, country: "Норвегия", category: "mountain", en: "Trolltunga" },
+  { name: "Аораки / Маунт-Кук", lat: -43.5950, lng: 170.1418, country: "Новая Зеландия", category: "mountain", en: "Aoraki / Mount Cook" },
+  { name: "Серро-Фицрой", lat: -49.2713, lng: -73.0433, country: "Аргентина / Чили", category: "mountain", en: "Fitz Roy" },
+  { name: "Уайна-Пикчу", lat: -13.1631, lng: -72.5450, country: "Перу", category: "mountain", en: "Huayna Picchu" },
+  { name: "Башня Дьявола", lat: 44.5902, lng: -104.7146, country: "США", category: "mountain", en: "Devils Tower" },
+  { name: "Двенадцать Апостолов", lat: -38.6621, lng: 143.1051, country: "Австралия", category: "mountain", en: "The Twelve Apostles (Victoria)" },
+  { name: "Пики Торрес-дель-Пайне", lat: -51.0000, lng: -73.0000, country: "Чили", category: "mountain", en: "Torres del Paine" },
+  { name: "Гора Арарат", lat: 39.7025, lng: 44.2990, country: "Турция", category: "mountain", en: "Mount Ararat" },
+  { name: "Кайлас", lat: 31.0673, lng: 81.3119, country: "Китай (Тибет)", category: "mountain", en: "Mount Kailash" },
+  { name: "Хаф-Доум", lat: 37.7460, lng: -119.5332, country: "США", category: "mountain", en: "Half Dome" },
+  { name: "Массив Винсон", lat: -78.5255, lng: -85.6171, country: "Антарктида", category: "mountain", en: "Vinson Massif" },
+  { name: "Гора Белуха", lat: 49.8078, lng: 86.5888, country: "Россия", category: "mountain", en: "Belukha Mountain" },
+  { name: "Пик Ленина", lat: 39.3469, lng: 72.8775, country: "Кыргызстан / Таджикистан", category: "mountain", en: "Lenin Peak" },
+  { name: "Гора Олимп", lat: 40.0850, lng: 22.3564, country: "Греция", category: "mountain", en: "Mount Olympus" },
+  { name: "Лхоцзе", lat: 27.9616, lng: 86.9333, country: "Непал / Китай", category: "mountain", en: "Lhotse" },
+  { name: "Эйгер", lat: 46.5775, lng: 8.0053, country: "Швейцария", category: "mountain", en: "Eiger" },
+  { name: "Дант-дю-Жеан", lat: 45.8622, lng: 6.9500, country: "Франция / Италия", category: "mountain", en: "Dent du Géant" },
+  { name: "Сьерра-Невада", lat: 37.7333, lng: -119.5667, country: "США", category: "mountain", en: "Sierra Nevada (United States)" },
+  { name: "Маунт-Рейнир", lat: 46.8523, lng: -121.7603, country: "США", category: "mountain", en: "Mount Rainier" },
+  { name: "Дракенсберг", lat: -29.3833, lng: 29.3500, country: "ЮАР / Лесото", category: "mountain", en: "Drakensberg" },
+  { name: "Скалы Джеймса Бонда (Пханг-Нга)", lat: 8.2747, lng: 98.5011, country: "Таиланд", category: "mountain", en: "Phang Nga Bay" },
+  { name: "Побережье На-Пали", lat: 22.1814, lng: -159.6558, country: "США (Кауаи)", category: "mountain", en: "Nā Pali Coast State Park" },
+  { name: "Алтайские горы", lat: 50.0000, lng: 86.0000, country: "Россия / Монголия / Казахстан", category: "mountain", en: "Altai Mountains" },
+  { name: "Гора Тубкаль", lat: 31.0600, lng: -7.9150, country: "Марокко", category: "mountain", en: "Toubkal" },
+  { name: "Большой Кавказ", lat: 42.5000, lng: 45.0000, country: "Грузия / Россия / Азербайджан", category: "mountain", en: "Greater Caucasus" },
+  { name: "Пик Виктория", lat: 22.2758, lng: 114.1455, country: "Китай (Гонконг)", category: "mountain", en: "Victoria Peak" },
+  { name: "Гора Логан", lat: 60.5672, lng: -140.4055, country: "Канада", category: "mountain", en: "Mount Logan" },
+  { name: "Адамов пик", lat: 6.8097, lng: 80.4994, country: "Шри-Ланка", category: "mountain", en: "Adam's Peak" },
+  { name: "Ленские столбы", lat: 61.1000, lng: 127.3500, country: "Россия", category: "mountain", en: "Lena Pillars" },
+  { name: "Красноярские столбы", lat: 55.9142, lng: 92.7483, country: "Россия", category: "mountain", en: "Stolby Nature Reserve" },
+  { name: "Дорога гигантов", lat: 55.2408, lng: -6.5116, country: "Северная Ирландия", category: "mountain", en: "Giant's Causeway" },
+  { name: "Нанга-Парбат", lat: 35.2400, lng: 74.5900, country: "Пакистан", category: "mountain", en: "Nanga Parbat" },
+  { name: "Манаслу", lat: 28.5500, lng: 84.5600, country: "Непал", category: "mountain", en: "Manaslu" },
+  { name: "Чо-Ойю", lat: 28.1000, lng: 86.6600, country: "Непал / Китай", category: "mountain", en: "Cho Oyu" },
+  { name: "Дхаулагири", lat: 28.7000, lng: 83.5000, country: "Непал", category: "mountain", en: "Dhaulagiri" },
+  { name: "Шишапангма", lat: 28.3500, lng: 85.7800, country: "Китай", category: "mountain", en: "Shishapangma" },
+  { name: "Нанда-Деви", lat: 30.3800, lng: 79.9700, country: "Индия", category: "mountain", en: "Nanda Devi" },
+  { name: "Гашербрум II", lat: 35.7600, lng: 76.6500, country: "Пакистан / Китай", category: "mountain", en: "Gasherbrum II" },
+  { name: "Маунт-Стэнли (Рувензори)", lat: 0.3833, lng: 29.8700, country: "Уганда / ДР Конго", category: "mountain", en: "Mount Stanley" },
+  { name: "Гора Кения", lat: -0.1500, lng: 37.3100, country: "Кения", category: "mountain", en: "Mount Kenya" },
+  { name: "Демавенд", lat: 35.9500, lng: 52.1000, country: "Иран", category: "mountain", en: "Mount Damavand" },
+  { name: "Чимборасо", lat: -1.4700, lng: -78.8200, country: "Эквадор", category: "mountain", en: "Chimborazo" },
+  { name: "Уаскаран", lat: -9.1200, lng: -77.6000, country: "Перу", category: "mountain", en: "Huascarán" },
+  { name: "Маунт-Худ", lat: 45.3700, lng: -121.7000, country: "США", category: "mountain", en: "Mount Hood" },
+  { name: "Маунт-Шаста", lat: 41.4100, lng: -122.1900, country: "США", category: "mountain", en: "Mount Shasta" },
+  { name: "Маунт-Уитни", lat: 36.5800, lng: -118.2900, country: "США", category: "mountain", en: "Mount Whitney" },
+  { name: "Гранд-Титон", lat: 43.7400, lng: -110.8000, country: "США", category: "mountain", en: "Grand Teton" },
+  { name: "Стетинд", lat: 68.1600, lng: 16.5800, country: "Норвегия", category: "mountain", en: "Stetind" },
+  { name: "Снайфедльсйёкюдль", lat: 64.8000, lng: -23.7800, country: "Исландия", category: "mountain", en: "Snæfellsjökull" },
+  { name: "Бен-Невис", lat: 56.8000, lng: -5.0000, country: "Шотландия", category: "mountain", en: "Ben Nevis" },
+  { name: "Сноудон", lat: 53.0700, lng: -4.0800, country: "Уэльс", category: "mountain", en: "Snowdon" },
+  { name: "Юнгфрау", lat: 46.5400, lng: 7.9600, country: "Швейцария", category: "mountain", en: "Jungfrau" },
+  { name: "Маунт-Веллингтон", lat: -42.9000, lng: 147.2400, country: "Австралия", category: "mountain", en: "Mount Wellington (Tasmania)" },
+  { name: "Крэдл-Маунтин", lat: -41.6800, lng: 145.9400, country: "Австралия", category: "mountain", en: "Cradle Mountain" },
+  { name: "Маунт-Таранаки", lat: -39.3000, lng: 174.0600, country: "Новая Зеландия", category: "mountain", en: "Mount Taranaki" },
+  { name: "Маунт-Аспайринг", lat: -44.4000, lng: 168.7300, country: "Новая Зеландия", category: "mountain", en: "Mount Aspiring / Tititea" },
+  { name: "Хан-Тенгри", lat: 42.2200, lng: 80.1800, country: "Кыргызстан / Казахстан", category: "mountain", en: "Khan Tengri" },
+  { name: "Пико-де-Орисаба", lat: 19.0300, lng: -97.2700, country: "Мексика", category: "mountain", en: "Pico de Orizaba" },
+  { name: "Гора Меру", lat: -3.2500, lng: 36.7500, country: "Танзания", category: "mountain", en: "Mount Meru (Tanzania)" },
+  { name: "Пик Дюфур", lat: 45.9367, lng: 7.8669, country: "Швейцария", category: "mountain", en: "Dufourspitze" },
+  { name: "Хорнелен", lat: 61.8838, lng: 5.2364, country: "Норвегия", category: "mountain", en: "Hornelen" },
+  { name: "Кейрнгормс", lat: 57.1180, lng: -3.7000, country: "Шотландия", category: "mountain", en: "Cairngorms" },
+  { name: "Орлиная скала Бастай", lat: 50.9614, lng: 14.0764, country: "Германия", category: "mountain", en: "Bastei" },
+  { name: "Скалы Этрета", lat: 49.7079, lng: 0.2042, country: "Франция", category: "mountain", en: "Étretat" },
+  { name: "Утёсы Прейкестулен — Кьераг", lat: 59.0334, lng: 6.5867, country: "Норвегия", category: "mountain", en: "Kjerag" },
+  { name: "Гора Эммонс", lat: 40.7383, lng: -110.3306, country: "США", category: "mountain", en: "Mount Emmons (Colorado)" },
+  { name: "Эрджиес", lat: 38.5333, lng: 35.4500, country: "Турция", category: "mountain", en: "Mount Erciyes" },
+  { name: "Питон-де-Нэ", lat: -21.0833, lng: 55.4833, country: "Реюньон (Франция)", category: "mountain", en: "Piton des Neiges" },
+
+  // ────────────────────── ЛЕСА И НАЦИОНАЛЬНЫЕ ПАРКИ ──────────────────────
+  { name: "Дождевые леса Амазонии", lat: -3.4653, lng: -62.2159, country: "Бразилия / Перу", category: "forest", en: "Amazon rainforest" },
+  { name: "Национальный парк Комодо", lat: -8.5403, lng: 119.4526, country: "Индонезия", category: "forest", en: "Komodo National Park" },
+  { name: "Парк Банф", lat: 51.4968, lng: -115.9281, country: "Канада", category: "forest", en: "Banff National Park" },
+  { name: "Облачный лес Монтеверде", lat: 10.3010, lng: -84.7958, country: "Коста-Рика", category: "forest", en: "Monteverde Cloud Forest Reserve" },
+  { name: "Парк Денали", lat: 63.1148, lng: -151.1926, country: "США", category: "forest", en: "Denali National Park and Preserve" },
+  { name: "Йеллоустон", lat: 44.4280, lng: -110.5885, country: "США", category: "forest", en: "Yellowstone National Park" },
+  { name: "Серенгети", lat: -2.3333, lng: 34.8333, country: "Танзания", category: "forest", en: "Serengeti" },
+  { name: "Торрес-дель-Пайне", lat: -51.2532, lng: -72.3517, country: "Чили", category: "forest", en: "Torres del Paine National Park" },
+  { name: "Сокотра — драконьи деревья", lat: 12.4634, lng: 53.8237, country: "Йемен", category: "forest", en: "Dracaena cinnabari" },
+  { name: "Йосемити", lat: 37.8651, lng: -119.5383, country: "США", category: "forest", en: "Yosemite National Park" },
+  { name: "Парк Секвойя", lat: 36.4864, lng: -118.5658, country: "США", category: "forest", en: "Sequoia National Park" },
+  { name: "Тропический лес Дейнтри", lat: -16.1700, lng: 145.4185, country: "Австралия", category: "forest", en: "Daintree Rainforest" },
+  { name: "Цзючжайгоу", lat: 33.2611, lng: 103.9189, country: "Китай", category: "forest", en: "Jiuzhaigou" },
+  { name: "Шварцвальд", lat: 48.3333, lng: 8.3333, country: "Германия", category: "forest", en: "Black Forest" },
+  { name: "Бамбуковая роща Арасияма", lat: 35.0094, lng: 135.6668, country: "Япония", category: "forest", en: "Arashiyama Bamboo Grove" },
+  { name: "Цинжи-дю-Бемараха", lat: -18.6667, lng: 44.7500, country: "Мадагаскар", category: "forest", en: "Tsingy de Bemaraha National Park" },
+  { name: "Парк Редвуд", lat: 41.2132, lng: -124.0046, country: "США", category: "forest", en: "Redwood National and State Parks" },
+  { name: "Парк Глейшер", lat: 48.7596, lng: -113.7870, country: "США", category: "forest", en: "Glacier National Park (U.S.)" },
+  { name: "Фьордленд", lat: -45.4144, lng: 167.7181, country: "Новая Зеландия", category: "forest", en: "Fiordland National Park" },
+  { name: "Масаи-Мара", lat: -1.4900, lng: 35.1439, country: "Кения", category: "forest", en: "Maasai Mara" },
+  { name: "Заповедник Нгоронгоро", lat: -3.1768, lng: 35.5866, country: "Танзания", category: "forest", en: "Ngorongoro Conservation Area" },
+  { name: "Олимпик", lat: 47.8021, lng: -123.6044, country: "США", category: "forest", en: "Olympic National Park" },
+  { name: "Парк Крюгера", lat: -23.9884, lng: 31.5547, country: "ЮАР", category: "forest", en: "Kruger National Park" },
+  { name: "Беловежская пуща", lat: 52.7333, lng: 23.8667, country: "Польша / Беларусь", category: "forest", en: "Białowieża Forest" },
+  { name: "Долина цветов", lat: 30.7280, lng: 79.6053, country: "Индия", category: "forest", en: "Valley of Flowers National Park" },
+  { name: "Парк Джаспер", lat: 52.8737, lng: -118.0814, country: "Канада", category: "forest", en: "Jasper National Park" },
+  { name: "Сибирская тайга — Енисейская", lat: 60.0000, lng: 90.0000, country: "Россия", category: "forest", en: "Taiga" },
+  { name: "Лес обезьян в Убуде", lat: -8.5190, lng: 115.2590, country: "Индонезия", category: "forest", en: "Ubud Monkey Forest" },
+  { name: "Дельта Окаванго", lat: -19.2905, lng: 22.8202, country: "Ботсвана", category: "forest", en: "Okavango Delta" },
+  { name: "Тасманская пустошь", lat: -43.1492, lng: 146.1481, country: "Австралия", category: "forest", en: "Tasmanian Wilderness" },
+  { name: "Парк Какаду", lat: -13.0923, lng: 132.3938, country: "Австралия", category: "forest", en: "Kakadu National Park" },
+  { name: "Гарахонай", lat: 28.1250, lng: -17.2389, country: "Испания (Ла-Гомера)", category: "forest", en: "Garajonay National Park" },
+  { name: "Голубые горы", lat: -33.6115, lng: 150.3121, country: "Австралия", category: "forest", en: "Blue Mountains (New South Wales)" },
+  { name: "Парк Дои-Интханон", lat: 18.5880, lng: 98.4870, country: "Таиланд", category: "forest", en: "Doi Inthanon" },
+  { name: "Заповедник Синхараджа", lat: 6.4000, lng: 80.4500, country: "Шри-Ланка", category: "forest", en: "Sinharaja Forest Reserve" },
+  { name: "Атлантический лес Пау-Бразил", lat: -16.3000, lng: -39.1000, country: "Бразилия", category: "forest", en: "Atlantic Forest" },
+  { name: "Сундарбан", lat: 21.9497, lng: 89.1833, country: "Индия / Бангладеш", category: "forest", en: "Sundarbans" },
+  { name: "Кривой лес", lat: 53.2144, lng: 14.4746, country: "Польша", category: "forest", en: "Crooked Forest" },
+  { name: "Валле-де-Мэ", lat: -4.3314, lng: 55.7381, country: "Сейшелы", category: "forest", en: "Vallée de Mai Nature Reserve" },
+  { name: "Долины Гёреме (Каппадокия)", lat: 38.6433, lng: 34.8294, country: "Турция", category: "forest", en: "Göreme" },
+  { name: "Камчатские леса", lat: 55.0000, lng: 159.0000, country: "Россия", category: "forest", en: "Kamchatka Peninsula" },
+  { name: "Лес Хох", lat: 47.8609, lng: -123.9348, country: "США", category: "forest", en: "Hoh Rainforest" },
+  { name: "Тропики Игуасу", lat: -25.6800, lng: -54.4300, country: "Бразилия", category: "forest", en: "Iguaçu National Park" },
+  { name: "Парк Кинабалу (Борнео)", lat: 1.0000, lng: 114.0000, country: "Малайзия", category: "forest", en: "Kinabalu Park" },
+  { name: "Леса Кат-Тьен", lat: 11.4000, lng: 107.4000, country: "Вьетнам", category: "forest", en: "Cát Tiên National Park" },
+  { name: "Смоки-Маунтинс", lat: 35.6000, lng: -83.5000, country: "США", category: "forest", en: "Great Smoky Mountains National Park" },
+  { name: "Брокелианд", lat: 48.1000, lng: -2.1800, country: "Франция", category: "forest", en: "Paimpont forest" },
+  { name: "Шервудский лес", lat: 53.2000, lng: -1.0800, country: "Англия", category: "forest", en: "Sherwood Forest" },
+  { name: "Якусима", lat: 30.3500, lng: 130.5000, country: "Япония", category: "forest", en: "Yakushima" },
+  { name: "Аокигахара", lat: 35.4600, lng: 138.7000, country: "Япония", category: "forest", en: "Aokigahara" },
+  { name: "Триглавский парк", lat: 46.3800, lng: 13.8400, country: "Словения", category: "forest", en: "Triglav National Park" },
+  { name: "Тонгасс", lat: 56.0000, lng: -132.0000, country: "США (Аляска)", category: "forest", en: "Tongass National Forest" },
+  { name: "Парк Вирунга", lat: -1.2000, lng: 29.0000, country: "ДР Конго", category: "forest", en: "Virunga National Park" },
+  { name: "Чинкве-Терре", lat: 44.1300, lng: 9.7000, country: "Италия", category: "forest", en: "Cinque Terre" },
+  { name: "Сихотэ-Алинь", lat: 44.0000, lng: 137.0000, country: "Россия", category: "forest", en: "Sikhote-Alin" },
+  { name: "Маньпупунёр", lat: 62.2500, lng: 59.3000, country: "Россия", category: "forest", en: "Manpupuner rock formations" },
+  { name: "Шумава", lat: 49.0000, lng: 13.5000, country: "Чехия", category: "forest", en: "Šumava National Park" },
+  { name: "Татранский парк", lat: 49.1800, lng: 19.9000, country: "Словакия", category: "forest", en: "Tatra National Park, Slovakia" },
+  { name: "Парк Корбетт", lat: 29.5000, lng: 78.9000, country: "Индия", category: "forest", en: "Jim Corbett National Park" },
+  { name: "Парк Канха", lat: 22.3300, lng: 80.6000, country: "Индия", category: "forest", en: "Kanha Tiger Reserve" },
+  { name: "Кхао-Сок", lat: 9.0000, lng: 98.8500, country: "Таиланд", category: "forest", en: "Khao Sok National Park" },
+  { name: "Гунунг-Лёсер", lat: 3.5000, lng: 97.5000, country: "Индонезия", category: "forest", en: "Gunung Leuser National Park" },
+  { name: "Танджунг-Путинг", lat: -2.8000, lng: 111.9500, country: "Индонезия", category: "forest", en: "Tanjung Puting" },
+  { name: "Эверглейдс", lat: 25.3000, lng: -80.9000, country: "США", category: "forest", en: "Everglades National Park" },
+  { name: "Дурмитор", lat: 43.1500, lng: 19.0500, country: "Черногория", category: "forest", en: "Durmitor" },
+  { name: "Биоградска-гора", lat: 42.8500, lng: 19.4500, country: "Черногория", category: "forest", en: "Biogradska Gora National Park" },
+  { name: "Гирканский лес", lat: 36.5000, lng: 51.5000, country: "Иран", category: "forest", en: "Hyrcanian forests" },
+  { name: "Лес Таман-Негара", lat: 4.4000, lng: 102.4000, country: "Малайзия", category: "forest", en: "Taman Negara" },
+  { name: "Парк Бако", lat: 1.7167, lng: 110.4667, country: "Малайзия", category: "forest", en: "Bako National Park" },
+  { name: "Парк Синтра", lat: 38.8000, lng: -9.3800, country: "Португалия", category: "forest", en: "Sintra-Cascais Natural Park" },
+  { name: "Парк Тейде", lat: 28.2723, lng: -16.6425, country: "Испания (Тенерифе)", category: "forest", en: "Teide National Park" },
+  { name: "Йосемитская долина (sequoia mariposa)", lat: 37.5044, lng: -119.5950, country: "США", category: "forest", en: "Mariposa Grove" },
+  { name: "Парк Озеро Накуру", lat: -0.3667, lng: 36.1000, country: "Кения", category: "forest", en: "Lake Nakuru National Park" },
+  { name: "Кенозерский парк", lat: 62.6000, lng: 38.2000, country: "Россия", category: "forest", en: "Kenozersky National Park" },
+  { name: "Куршская коса", lat: 55.2667, lng: 20.9667, country: "Россия / Литва", category: "forest", en: "Curonian Spit" },
+  { name: "Лесопарк Чжанцзяцзе южная", lat: 29.0500, lng: 110.5000, country: "Китай", category: "forest", en: "Wulingyuan" },
+  { name: "Парк Цинуа", lat: 23.3833, lng: 121.5167, country: "Тайвань", category: "forest", en: "Yushan National Park" },
+  { name: "Парк Лес Лагуны Бакалар", lat: 18.6818, lng: -88.3963, country: "Мексика", category: "forest", en: "Bacalar Lagoon" },
+  { name: "Лес Конго-Базин", lat: -1.0000, lng: 23.0000, country: "ДР Конго / Габон", category: "forest", en: "Congolian rainforests" },
+  { name: "Парк Лосиный остров", lat: 55.8550, lng: 37.7900, country: "Россия", category: "forest", en: "Losiny Ostrov National Park" },
+
+  // ────────────────────── ПУСТЫНИ И КАНЬОНЫ ──────────────────────
+  { name: "Гранд-Каньон", lat: 36.1069, lng: -112.1129, country: "США", category: "desert", en: "Grand Canyon" },
+  { name: "Солончак Уюни", lat: -20.1338, lng: -67.6258, country: "Боливия", category: "desert", en: "Salar de Uyuni" },
+  { name: "Сахара", lat: 23.8061, lng: 11.2885, country: "Северная Африка", category: "desert", en: "Sahara" },
+  { name: "Атакама", lat: -23.8634, lng: -69.1328, country: "Чили", category: "desert", en: "Atacama Desert" },
+  { name: "Намиб", lat: -24.7702, lng: 15.2894, country: "Намибия", category: "desert", en: "Namib" },
+  { name: "Каньон Антилопы", lat: 36.8619, lng: -111.3743, country: "США", category: "desert", en: "Antelope Canyon" },
+  { name: "Долина Монументов", lat: 36.9980, lng: -110.0984, country: "США", category: "desert", en: "Monument Valley" },
+  { name: "Вади-Рам (Лунная долина)", lat: 29.5753, lng: 35.4358, country: "Иордания", category: "desert", en: "Wadi Rum" },
+  { name: "Долина Смерти", lat: 36.5323, lng: -116.9325, country: "США", category: "desert", en: "Death Valley" },
+  { name: "Гоби", lat: 42.5900, lng: 103.3000, country: "Монголия / Китай", category: "desert", en: "Gobi Desert" },
+  { name: "Уайт-Сэндс", lat: 32.7872, lng: -106.3257, country: "США", category: "desert", en: "White Sands National Park" },
+  { name: "Ленсойc-Мараньенсис", lat: -2.5524, lng: -43.1257, country: "Бразилия", category: "desert", en: "Lençóis Maranhenses National Park" },
+  { name: "Каньон Фиш-Ривер", lat: -27.6033, lng: 17.6186, country: "Намибия", category: "desert", en: "Fish River Canyon" },
+  { name: "Ущелье Прыгающего Тигра", lat: 27.2333, lng: 100.1333, country: "Китай", category: "desert", en: "Tiger Leaping Gorge" },
+  { name: "Каньон Колка", lat: -15.6022, lng: -71.7456, country: "Перу", category: "desert", en: "Colca Canyon" },
+  { name: "Впадина Данакиль", lat: 14.2417, lng: 40.3000, country: "Эфиопия", category: "desert", en: "Danakil Depression" },
+  { name: "Цветные скалы Чжанъе", lat: 38.9372, lng: 100.1264, country: "Китай", category: "desert", en: "Zhangye National Geopark" },
+  { name: "Пустыня Тар", lat: 26.9730, lng: 70.9149, country: "Индия / Пакистан", category: "desert", en: "Thar Desert" },
+  { name: "Руб-эль-Хали", lat: 20.0000, lng: 50.0000, country: "Саудовская Аравия / ОАЭ / Оман", category: "desert", en: "Rub' al Khali" },
+  { name: "Пиннаклс", lat: -30.6035, lng: 115.1557, country: "Австралия", category: "desert", en: "Pinnacles Desert" },
+  { name: "Каракумы", lat: 39.0000, lng: 60.0000, country: "Туркменистан", category: "desert", en: "Karakum Desert" },
+  { name: "Мохаве", lat: 35.0083, lng: -115.4746, country: "США", category: "desert", en: "Mojave Desert" },
+  { name: "Дедвлей", lat: -24.7593, lng: 15.2917, country: "Намибия", category: "desert", en: "Deadvlei" },
+  { name: "Каньон Блайд-Ривер", lat: -24.5667, lng: 30.8167, country: "ЮАР", category: "desert", en: "Blyde River Canyon" },
+  { name: "Метеоры", lat: 39.7126, lng: 21.6267, country: "Греция", category: "desert", en: "Meteora" },
+  { name: "Каньон Вердон", lat: 43.7431, lng: 6.3683, country: "Франция", category: "desert", en: "Verdon Gorge" },
+  { name: "Парк Зайон", lat: 37.2982, lng: -113.0263, country: "США", category: "desert", en: "Zion National Park" },
+  { name: "Пятнистое озеро Клилук", lat: 49.0778, lng: -119.5667, country: "Канада", category: "desert", en: "Spotted Lake" },
+  { name: "Долина Гоблинов", lat: 38.5724, lng: -110.7065, country: "США", category: "desert", en: "Goblin Valley State Park" },
+  { name: "Чарынский каньон", lat: 43.3510, lng: 79.0833, country: "Казахстан", category: "desert", en: "Charyn Canyon" },
+  { name: "Каньон Ярлунг-Цангпо", lat: 29.8000, lng: 95.0000, country: "Китай (Тибет)", category: "desert", en: "Yarlung Tsangpo Grand Canyon" },
+  { name: "Масада", lat: 31.3156, lng: 35.3536, country: "Израиль", category: "desert", en: "Masada" },
+  { name: "Каппадокия", lat: 38.6500, lng: 34.8300, country: "Турция", category: "desert", en: "Cappadocia" },
+  { name: "Дюна Пила", lat: 44.5891, lng: -1.2138, country: "Франция", category: "desert", en: "Dune of Pilat" },
+  { name: "Афарская котловина", lat: 11.5000, lng: 41.0000, country: "Эфиопия / Джибути", category: "desert", en: "Afar Triangle" },
+  { name: "Салар-де-Арисаро", lat: -25.0500, lng: -67.7500, country: "Аргентина", category: "desert", en: "Salar de Arizaro" },
+  { name: "Калахари", lat: -23.0000, lng: 22.0000, country: "Ботсвана / Намибия / ЮАР", category: "desert", en: "Kalahari Desert" },
+  { name: "Симпсон", lat: -25.0000, lng: 137.0000, country: "Австралия", category: "desert", en: "Simpson Desert" },
+  { name: "Кызылкум", lat: 42.0000, lng: 64.0000, country: "Узбекистан / Казахстан", category: "desert", en: "Kyzylkum Desert" },
+  { name: "Большая Виктория", lat: -27.0000, lng: 127.0000, country: "Австралия", category: "desert", en: "Great Victoria Desert" },
+  { name: "Большая Песчаная пустыня", lat: -20.0000, lng: 124.0000, country: "Австралия", category: "desert", en: "Great Sandy Desert" },
+  { name: "Танами", lat: -19.0000, lng: 132.0000, country: "Австралия", category: "desert", en: "Tanami Desert" },
+  { name: "Самария (ущелье)", lat: 35.3000, lng: 23.9500, country: "Греция (Крит)", category: "desert", en: "Samaria Gorge" },
+  { name: "Викос-каньон", lat: 39.9400, lng: 20.7400, country: "Греция", category: "desert", en: "Vikos Gorge" },
+  { name: "Каньон Тары", lat: 43.1600, lng: 18.9400, country: "Босния и Герцеговина / Черногория", category: "desert", en: "Tara River Canyon" },
+  { name: "Хеллс-Каньон", lat: 45.3000, lng: -116.7000, country: "США", category: "desert", en: "Hells Canyon" },
+  { name: "Royal Gorge", lat: 38.4600, lng: -105.3200, country: "США", category: "desert", en: "Royal Gorge" },
+  { name: "Блэк-Каньон Ганнисона", lat: 38.5500, lng: -107.7000, country: "США", category: "desert", en: "Black Canyon of the Gunnison National Park" },
+  { name: "Глен-Каньон", lat: 36.9400, lng: -111.4900, country: "США", category: "desert", en: "Glen Canyon" },
+  { name: "Капитол-Риф", lat: 38.3700, lng: -111.2600, country: "США", category: "desert", en: "Capitol Reef National Park" },
+  { name: "Каньон Брайс", lat: 37.5930, lng: -112.1871, country: "США", category: "desert", en: "Bryce Canyon National Park" },
+  { name: "Сечура", lat: -6.0000, lng: -80.8000, country: "Перу", category: "desert", en: "Sechura Desert" },
+  { name: "Патагонская пустыня", lat: -45.0000, lng: -69.0000, country: "Аргентина", category: "desert", en: "Patagonian Desert" },
+  { name: "Большой Кару", lat: -32.0000, lng: 22.5000, country: "ЮАР", category: "desert", en: "Great Karoo" },
+  { name: "Песчаные дюны Грейт-Сэнд (Колорадо)", lat: 37.7916, lng: -105.5128, country: "США", category: "desert", en: "Great Sand Dunes National Park and Preserve" },
+  { name: "Каньон де Челли", lat: 36.1300, lng: -109.4600, country: "США", category: "desert", en: "Canyon de Chelly National Monument" },
+  { name: "Аркес (Арки)", lat: 38.7331, lng: -109.5925, country: "США", category: "desert", en: "Arches National Park" },
+  { name: "Сахаро-Аравийский Махтеш-Рамон", lat: 30.6128, lng: 34.8014, country: "Израиль", category: "desert", en: "Makhtesh Ramon" },
+  { name: "Каньон Сумидеро", lat: 16.8333, lng: -93.0833, country: "Мексика", category: "desert", en: "Sumidero Canyon" },
+  { name: "Барранкас-дель-Кобре", lat: 27.3833, lng: -107.6167, country: "Мексика", category: "desert", en: "Copper Canyon" },
+  { name: "Дюны Эрг-Шебби", lat: 31.1500, lng: -3.9667, country: "Марокко", category: "desert", en: "Erg Chebbi" },
+  { name: "Тассилин-Аджер", lat: 25.5000, lng: 9.0000, country: "Алжир", category: "desert", en: "Tassili n'Ajjer" },
+  { name: "Эрта Але — поле", lat: 13.6000, lng: 40.6667, country: "Эфиопия", category: "desert", en: "Erta Ale" },
+
+  // ────────────────────── ВУЛКАНЫ И ГЕЙЗЕРЫ ──────────────────────
+  { name: "Кракатау", lat: -6.1021, lng: 105.4230, country: "Индонезия", category: "volcano", en: "Krakatoa" },
+  { name: "Этна", lat: 37.7510, lng: 14.9934, country: "Италия", category: "volcano", en: "Mount Etna" },
+  { name: "Везувий", lat: 40.8224, lng: 14.4289, country: "Италия", category: "volcano", en: "Mount Vesuvius" },
+  { name: "Бромо", lat: -7.9425, lng: 112.9530, country: "Индонезия", category: "volcano", en: "Mount Bromo" },
+  { name: "Килауэа", lat: 19.4069, lng: -155.2834, country: "США (Гавайи)", category: "volcano", en: "Kīlauea" },
+  { name: "Мауна-Лоа", lat: 19.4721, lng: -155.5922, country: "США (Гавайи)", category: "volcano", en: "Mauna Loa" },
+  { name: "Террасы Памуккале", lat: 37.9232, lng: 29.1197, country: "Турция", category: "volcano", en: "Pamukkale" },
+  { name: "Эйяфьядлайёкюдль", lat: 63.6300, lng: -19.6200, country: "Исландия", category: "volcano", en: "Eyjafjallajökull" },
+  { name: "Котопахи", lat: -0.6838, lng: -78.4372, country: "Эквадор", category: "volcano", en: "Cotopaxi" },
+  { name: "Ареналь", lat: 10.4632, lng: -84.7032, country: "Коста-Рика", category: "volcano", en: "Arenal Volcano" },
+  { name: "Старый Служака", lat: 44.4605, lng: -110.8281, country: "США", category: "volcano", en: "Old Faithful" },
+  { name: "Долина гейзеров (Камчатка)", lat: 54.4367, lng: 160.1417, country: "Россия", category: "volcano", en: "Valley of Geysers" },
+  { name: "Тейде", lat: 28.2723, lng: -16.6425, country: "Испания (Тенерифе)", category: "volcano", en: "Mount Teide" },
+  { name: "Майон", lat: 13.2548, lng: 123.6861, country: "Филиппины", category: "volcano", en: "Mayon" },
+  { name: "Питон-де-ла-Фурнез", lat: -21.2425, lng: 55.7119, country: "Реюньон (Франция)", category: "volcano", en: "Piton de la Fournaise" },
+  { name: "Попокатепетль", lat: 19.0222, lng: -98.6278, country: "Мексика", category: "volcano", en: "Popocatépetl" },
+  { name: "Осорно", lat: -41.1042, lng: -72.4925, country: "Чили", category: "volcano", en: "Osorno (volcano)" },
+  { name: "Руапеху", lat: -39.2817, lng: 175.5642, country: "Новая Зеландия", category: "volcano", en: "Mount Ruapehu" },
+  { name: "Даллол", lat: 14.2417, lng: 40.3000, country: "Эфиопия", category: "volcano", en: "Dallol (volcano)" },
+  { name: "Ключевская Сопка", lat: 56.0575, lng: 160.6383, country: "Россия", category: "volcano", en: "Klyuchevskaya Sopka" },
+  { name: "Стромболи", lat: 38.7891, lng: 15.2131, country: "Италия", category: "volcano", en: "Stromboli" },
+  { name: "Иджен (синий огонь)", lat: -8.0583, lng: 114.2417, country: "Индонезия", category: "volcano", en: "Ijen" },
+  { name: "Гейсир", lat: 64.3104, lng: -20.3024, country: "Исландия", category: "volcano", en: "Geysir" },
+  { name: "Эль-Татио", lat: -22.3333, lng: -68.0167, country: "Чили", category: "volcano", en: "El Tatio" },
+  { name: "Мутновский", lat: 52.4500, lng: 158.1800, country: "Россия", category: "volcano", en: "Mutnovsky" },
+  { name: "Гейзер Флай", lat: 40.8592, lng: -119.3323, country: "США", category: "volcano", en: "Fly Geyser" },
+  { name: "Шивелуч", lat: 56.6500, lng: 161.3500, country: "Россия", category: "volcano", en: "Shiveluch" },
+  { name: "Пакайя", lat: 14.3811, lng: -90.6011, country: "Гватемала", category: "volcano", en: "Pacaya" },
+  { name: "Кратер Нгоронгоро", lat: -3.1667, lng: 35.5833, country: "Танзания", category: "volcano", en: "Ngorongoro Crater" },
+  { name: "Долина гейзеров Таупо", lat: -38.6833, lng: 176.0833, country: "Новая Зеландия", category: "volcano", en: "Wai-O-Tapu" },
+  { name: "Пинатубо", lat: 15.1300, lng: 120.3500, country: "Филиппины", category: "volcano", en: "Mount Pinatubo" },
+  { name: "Тамбора", lat: -8.2500, lng: 118.0000, country: "Индонезия", category: "volcano", en: "Mount Tambora" },
+  { name: "Ринджани", lat: -8.4000, lng: 116.4000, country: "Индонезия", category: "volcano", en: "Mount Rinjani" },
+  { name: "Мерапи", lat: -7.5400, lng: 110.4400, country: "Индонезия", category: "volcano", en: "Mount Merapi" },
+  { name: "Семеру", lat: -8.1000, lng: 112.9200, country: "Индонезия", category: "volcano", en: "Semeru" },
+  { name: "Ясур", lat: -19.5300, lng: 169.4500, country: "Вануату", category: "volcano", en: "Mount Yasur" },
+  { name: "Эребус", lat: -77.5300, lng: 167.1700, country: "Антарктида", category: "volcano", en: "Mount Erebus" },
+  { name: "Мауна-Кеа", lat: 19.8200, lng: -155.4700, country: "США (Гавайи)", category: "volcano", en: "Mauna Kea" },
+  { name: "Авачинский", lat: 53.2600, lng: 158.8300, country: "Россия", category: "volcano", en: "Avachinsky" },
+  { name: "Толбачик", lat: 55.8300, lng: 160.3900, country: "Россия", category: "volcano", en: "Tolbachik" },
+  { name: "Карымский", lat: 54.0500, lng: 159.4500, country: "Россия", category: "volcano", en: "Karymsky" },
+  { name: "Сент-Хеленс", lat: 46.2000, lng: -122.1800, country: "США", category: "volcano", en: "Mount St. Helens" },
+  { name: "Сакурадзима", lat: 31.5833, lng: 130.6500, country: "Япония", category: "volcano", en: "Sakurajima" },
+  { name: "Оватало (Уайт-Айленд)", lat: -37.5217, lng: 177.1814, country: "Новая Зеландия", category: "volcano", en: "Whakaari / White Island" },
+  { name: "Картаго / Поас", lat: 10.1989, lng: -84.2331, country: "Коста-Рика", category: "volcano", en: "Poás Volcano" },
+  { name: "Невадо-дель-Руис", lat: 4.8950, lng: -75.3225, country: "Колумбия", category: "volcano", en: "Nevado del Ruiz" },
+  { name: "Эрта-Але", lat: 13.6000, lng: 40.6667, country: "Эфиопия", category: "volcano", en: "Erta Ale" },
+  { name: "Гекла", lat: 63.9930, lng: -19.6660, country: "Исландия", category: "volcano", en: "Hekla" },
+
+  // ────────────────────── ЛЕДНИКИ И ПЕЩЕРЫ ──────────────────────
+  { name: "Пещера Шондонг", lat: 17.4526, lng: 106.2882, country: "Вьетнам", category: "ice_cave", en: "Sơn Đoòng Cave" },
+  { name: "Ледник Перито-Морено", lat: -50.4851, lng: -73.0456, country: "Аргентина", category: "ice_cave", en: "Perito Moreno Glacier" },
+  { name: "Светлячковые пещеры Вайтомо", lat: -38.2612, lng: 175.1017, country: "Новая Зеландия", category: "ice_cave", en: "Waitomo Glowworm Caves" },
+  { name: "Мраморные пещеры (Хенераль-Каррера)", lat: -46.6500, lng: -72.0333, country: "Чили", category: "ice_cave", en: "Marble Caves (Chile)" },
+  { name: "Ватнайёкюдль — ледяные пещеры", lat: 64.4000, lng: -16.8333, country: "Исландия", category: "ice_cave", en: "Vatnajökull" },
+  { name: "Пещера кристаллов Найка", lat: 27.8500, lng: -105.4833, country: "Мексика", category: "ice_cave", en: "Cave of the Crystals" },
+  { name: "Антарктический ледяной щит", lat: -82.8628, lng: 135.0000, country: "Антарктида", category: "ice_cave", en: "Antarctic ice sheet" },
+  { name: "Мамонтова пещера", lat: 37.1862, lng: -86.1005, country: "США", category: "ice_cave", en: "Mammoth Cave National Park" },
+  { name: "Ледник Фокс", lat: -43.4667, lng: 170.0167, country: "Новая Зеландия", category: "ice_cave", en: "Fox Glacier" },
+  { name: "Пещеры Бату", lat: 3.2374, lng: 101.6839, country: "Малайзия", category: "ice_cave", en: "Batu Caves" },
+  { name: "Алечский ледник", lat: 46.4383, lng: 8.0400, country: "Швейцария", category: "ice_cave", en: "Aletsch Glacier" },
+  { name: "Фингалова пещера", lat: 56.4316, lng: -6.3400, country: "Шотландия", category: "ice_cave", en: "Fingal's Cave" },
+  { name: "Пещера тростниковой флейты", lat: 25.3088, lng: 110.2713, country: "Китай", category: "ice_cave", en: "Reed Flute Cave" },
+  { name: "Ледник Менденхолл", lat: 58.4239, lng: -134.5422, country: "США (Аляска)", category: "ice_cave", en: "Mendenhall Glacier" },
+  { name: "Постойнска-Яма", lat: 45.7820, lng: 14.2045, country: "Словения", category: "ice_cave", en: "Postojna Cave" },
+  { name: "Пещера Ласточек", lat: 21.5997, lng: -99.0987, country: "Мексика", category: "ice_cave", en: "Cave of Swallows" },
+  { name: "Ледник Франца-Иосифа", lat: -43.4646, lng: 170.1873, country: "Новая Зеландия", category: "ice_cave", en: "Franz Josef Glacier" },
+  { name: "Айсрайзенвельт", lat: 47.5028, lng: 13.1906, country: "Австрия", category: "ice_cave", en: "Eisriesenwelt" },
+  { name: "Кунгурская ледяная пещера", lat: 57.4414, lng: 57.0069, country: "Россия", category: "ice_cave", en: "Kungur Ice Cave" },
+  { name: "Карлсбадские пещеры", lat: 32.1753, lng: -104.4439, country: "США", category: "ice_cave", en: "Carlsbad Caverns National Park" },
+  { name: "Гуфр-де-Падирак", lat: 44.8583, lng: 1.7508, country: "Франция", category: "ice_cave", en: "Gouffre de Padirac" },
+  { name: "Шкоцянские пещеры", lat: 45.6631, lng: 13.9922, country: "Словения", category: "ice_cave", en: "Škocjan Caves" },
+  { name: "Илулиссат-Исфьорд", lat: 69.1764, lng: -49.9167, country: "Гренландия", category: "ice_cave", en: "Ilulissat Icefjord" },
+  { name: "Ледник Хаббард", lat: 60.0333, lng: -139.5333, country: "США / Канада", category: "ice_cave", en: "Hubbard Glacier" },
+  { name: "Пещера Лечугия", lat: 32.1600, lng: -104.4600, country: "США", category: "ice_cave", en: "Lechuguilla Cave" },
+  { name: "Скафтафедль (ледяные пещеры)", lat: 64.0000, lng: -16.9700, country: "Исландия", category: "ice_cave", en: "Skaftafell" },
+  { name: "Кристальная пещера Вафнайёкюдль", lat: 64.4000, lng: -16.5000, country: "Исландия", category: "ice_cave", en: "Vatnajökull" },
+  { name: "Пещеры Млынки", lat: 49.0000, lng: 25.7000, country: "Украина", category: "ice_cave", en: "Mlynki Cave" },
+  { name: "Пещеры Аггтелек", lat: 48.4700, lng: 20.5000, country: "Венгрия", category: "ice_cave", en: "Aggtelek Karst" },
+  { name: "Соф-Омар", lat: 6.9200, lng: 40.8300, country: "Эфиопия", category: "ice_cave", en: "Sof Omar Caves" },
+  { name: "Сонорские пещеры", lat: 30.5500, lng: -100.8100, country: "США", category: "ice_cave", en: "Kartchner Caverns State Park" },
+  { name: "Пещера Ласко", lat: 45.0500, lng: 1.1600, country: "Франция", category: "ice_cave", en: "Lascaux" },
+  { name: "Стеркфонтейн", lat: -26.0000, lng: 27.7300, country: "ЮАР", category: "ice_cave", en: "Sterkfontein" },
+  { name: "Пещеры Гомантонг", lat: 5.5500, lng: 118.0700, country: "Малайзия", category: "ice_cave", en: "Gomantong Caves" },
+  { name: "Алтамира", lat: 43.3770, lng: -4.1217, country: "Испания", category: "ice_cave", en: "Cave of Altamira" },
+  { name: "Ледник Бриксдальсбреен", lat: 61.6700, lng: 6.7500, country: "Норвегия", category: "ice_cave", en: "Briksdalsbreen" },
+  { name: "Ледник Йостедальсбреен", lat: 61.6500, lng: 7.1000, country: "Норвегия", category: "ice_cave", en: "Jostedalsbreen" },
+  { name: "Ледник Бирюзовая лагуна (Йёкюльсаурлоун)", lat: 64.0784, lng: -16.2306, country: "Исландия", category: "ice_cave", en: "Jökulsárlón" },
+  { name: "Пещера Ветра (Сауд-Дакота)", lat: 43.5500, lng: -103.4760, country: "США", category: "ice_cave", en: "Wind Cave National Park" },
+  { name: "Пещеры Эллоры", lat: 20.0264, lng: 75.1770, country: "Индия", category: "ice_cave", en: "Ellora Caves" },
+  { name: "Грутта-ди-Нетунно (Грот Нептуна)", lat: 40.5589, lng: 8.1583, country: "Италия", category: "ice_cave", en: "Grotta di Nettuno" },
+  { name: "Голубой грот (Капри)", lat: 40.5605, lng: 14.2050, country: "Италия", category: "ice_cave", en: "Blue Grotto (Capri)" },
+  { name: "Грот Палинуро (Лазурная)", lat: 36.9700, lng: 23.3000, country: "Греция", category: "ice_cave", en: "Blue Caves (Zakynthos)" },
+  { name: "Ледник Гилкей", lat: 58.9500, lng: -134.0500, country: "США (Аляска)", category: "ice_cave", en: "Gilkey Glacier" },
+  { name: "Большая Азишская пещера", lat: 44.2000, lng: 39.9333, country: "Россия", category: "ice_cave", en: "Bolshaya Azishskaya Cave" }
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ИНИЦИАЛИЗАЦИЯ
+// ═══════════════════════════════════════════════════════════════════════
+let map, markerCluster;
+let currentLayer;
+let selectedLocationIndex = null;
+const markerByIndex = new Map();
+
+// Слои карты
+const tileLayers = {
+  voyager: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxZoom: 19, subdomains: 'abcd'
+  }),
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxZoom: 19, subdomains: 'abcd'
+  }),
+  terrain: L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap, SRTM | © OpenTopoMap', maxZoom: 17
+  }),
+  satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri', maxZoom: 19
+  })
+};
+
+function initMap() {
+  map = L.map('map', {
+    zoomControl: false,
+    worldCopyJump: true,
+    minZoom: 2
+  }).setView([20, 10], 2.5);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  currentLayer = tileLayers.voyager;
+  currentLayer.addTo(map);
+
+  // Кластеризация
+  markerCluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    maxClusterRadius: 45,
+    disableClusteringAtZoom: 8
+  });
+
+  map.addLayer(markerCluster);
+
+  // Координаты курсора
+  map.on('mousemove', (e) => {
+    const display = document.getElementById('coordsDisplay');
+    if (display) {
+      display.textContent = `${e.latlng.lat.toFixed(3)}° / ${e.latlng.lng.toFixed(3)}°`;
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   РЕНДЕРИНГ
+// ═══════════════════════════════════════════════════════════════════════
+function getFilteredLocations() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+  const sort = document.getElementById('sortSelect').value;
+  const tagF = document.getElementById('tagFilter')?.value || 'all';
+  const visF = document.getElementById('visitedFilter')?.value || 'all';
+
+  let result = locations.map((l, i) => ({...l, _i: i})).filter(loc => {
+    if (cat !== 'all' && loc.category !== cat) return false;
+    if (tagF !== 'all' && !hasTag(loc, tagF)) return false;
+    if (visF === 'visited' && !isVisited(loc)) return false;
+    if (visF === 'unvisited' && isVisited(loc)) return false;
+    if (q) {
+      const hay = (loc.name + ' ' + loc.country + ' ' + (loc.en||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  result.sort((a, b) => {
+    if (sort === 'name') return a.name.localeCompare(b.name, 'ru');
+    if (sort === 'country') return a.country.localeCompare(b.country, 'ru');
+    if (sort === 'category') return catConfig[a.category].label.localeCompare(catConfig[b.category].label);
+    if (sort === 'lat-desc') return b.lat - a.lat;
+    if (sort === 'lat-asc') return a.lat - b.lat;
+    return 0;
+  });
+
+  return result;
+}
+
+function renderEverything() {
+  const filtered = getFilteredLocations();
+  renderMarkers(filtered);
+  renderList(filtered);
+  updateCounters(filtered);
+  updateProgress();
+}
+
+function renderMarkers(filtered) {
+  markerCluster.clearLayers();
+  markerByIndex.clear();
+
+  const filteredIndices = new Set(filtered.map(f => f._i));
+
+  locations.forEach((loc, index) => {
+    if (!filteredIndices.has(index)) return;
+
+    const cat = catConfig[loc.category];
+
+    const iconHtml = `<div class="emoji-marker" style="--accent-color:${cat.hex}; border-color:${cat.hex};">${cat.emoji}</div>`;
+    const icon = L.divIcon({
+      html: iconHtml,
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16]
+    });
+
+    const marker = L.marker([loc.lat, loc.lng], { icon });
+
+    const popup = `
+      <div style="padding: 14px 16px 12px; min-width: 220px;">
+        <div class="pill" style="color:${cat.hex}; font-weight: 600; margin-bottom: 6px;">${cat.emoji} ${cat.label}</div>
+        <h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; margin: 0 0 4px;">${loc.name}</h3>
+        <p style="font-size: 12px; color: var(--ink-mute); font-style: italic; margin: 0 0 10px;">${loc.country}</p>
+        <p style="font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin: 0 0 10px;">${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}</p>
+        <button onclick="openGallery(${index})" style="width: 100%; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s;" onmouseover="this.style.background='${cat.hex}'" onmouseout="this.style.background='var(--ink)'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Открыть карточку
+        </button>
+      </div>
+    `;
+    marker.bindPopup(popup, { className: 'custom-popup', closeButton: true, autoPan: true });
+    markerCluster.addLayer(marker);
+    markerByIndex.set(index, marker);
+  });
+}
+
+// Ленивая подгрузка превью карточек
+let cardThumbObserver = null;
+function ensureThumbObserver() {
+  if (cardThumbObserver) return cardThumbObserver;
+  cardThumbObserver = new IntersectionObserver((entries) => {
+    entries.forEach(async (entry) => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      cardThumbObserver.unobserve(el);
+      const idx = +el.dataset.idx;
+      const loc = locations[idx];
+      const summary = await fetchSummary(loc);
+      if (summary?.thumb) {
+        const img = document.createElement('img');
+        img.src = summary.thumb;
+        img.alt = loc.name;
+        img.loading = 'lazy';
+        img.onload = () => { const ph = el.querySelector('.ph'); if (ph) ph.remove(); };
+        el.appendChild(img);
+      }
+    });
+  }, { rootMargin: '200px' });
+  return cardThumbObserver;
+}
+
+function renderList(filtered) {
+  const container = document.getElementById('location-list');
+  container.innerHTML = '';
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12 px-4" style="color: var(--ink-mute);">
+        <div class="text-5xl mb-3 opacity-50">🔍</div>
+        <p class="font-display italic text-base">Ничего не найдено</p>
+        <p class="text-xs mt-1">Попробуйте изменить запрос или фильтры</p>
+      </div>
+    `;
+    return;
+  }
+
+  const obs = ensureThumbObserver();
+
+  filtered.forEach((loc, i) => {
+    const cat = catConfig[loc.category];
+    const tags = getTags(loc);
+    const visitedNow = isVisited(loc);
+    const card = document.createElement('div');
+    card.className = 'loc-card p-3 rounded-xl cursor-pointer anim-in' + (visitedNow ? ' visited' : '');
+    card.style.animationDelay = `${Math.min(i * 6, 180)}ms`;
+    const tagsHtml = tags.slice(0, 2).map(t => {
+      const tc = tagConfig[t];
+      return `<span class="tag tag-${t}">${tc.emoji} ${tc.short}</span>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="card-thumb" data-idx="${loc._i}">
+          <div class="ph">${cat.emoji}</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="font-display text-[15px] font-medium leading-tight truncate flex-1" style="color: var(--ink);">${loc.name}</h4>
+            <input type="checkbox" class="visit-check" ${visitedNow ? 'checked' : ''} title="Был тут" data-visit="${loc._i}">
+          </div>
+          <p class="text-[11px] italic mt-0.5 truncate" style="color: var(--ink-mute);">${loc.country}</p>
+          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span class="pill" style="color: ${cat.hex};">${cat.label}</span>
+            ${tagsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+    // Клик по карточке (но не по чекбоксу)
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('visit-check')) return;
+      flyToAndOpen(loc._i);
+    });
+    // Чекбокс «был тут»
+    const cb = card.querySelector('.visit-check');
+    cb.addEventListener('click', (e) => e.stopPropagation());
+    cb.addEventListener('change', () => {
+      toggleVisited(loc);
+      card.classList.toggle('visited', isVisited(loc));
+      if (selectedLocationIndex === loc._i) syncModalVisit(loc);
+    });
+    container.appendChild(card);
+    obs.observe(card.querySelector('.card-thumb'));
+  });
+}
+
+function syncModalVisit(loc) {
+  const btn = document.getElementById('modalVisitBtn');
+  if (!btn) return;
+  const on = isVisited(loc);
+  btn.classList.toggle('on', on);
+  document.getElementById('modalVisitIcon').textContent = on ? '✓' : '○';
+  document.getElementById('modalVisitLabel').textContent = on ? 'Я там был' : 'Отметить как посещённое';
+}
+
+function flyToAndOpen(index) {
+  const loc = locations[index];
+  map.flyTo([loc.lat, loc.lng], 7, { duration: 1.4 });
+
+  // Ждём пока кластер раскроется
+  setTimeout(() => {
+    const marker = markerByIndex.get(index);
+    if (marker) {
+      markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
+    }
+  }, 200);
+
+  openGallery(index);
+}
+
+function updateCounters(filtered) {
+  document.getElementById('visibleCount').textContent = filtered.length;
+  document.getElementById('totalCount').textContent = locations.length;
+}
+
+function renderStats() {
+  const counts = {};
+  Object.keys(catConfig).forEach(k => counts[k] = 0);
+  locations.forEach(l => counts[l.category]++);
+
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = Object.entries(catConfig).map(([k, c]) => `
+    <button onclick="setFilterCategory('${k}')" class="flex items-center gap-1.5 hover:opacity-100 opacity-80 transition-opacity">
+      <span style="color: ${c.hex};">${c.emoji}</span>
+      <span class="font-mono" style="color: var(--ink-mute);">${counts[k]}</span>
+    </button>
+  `).join('');
+}
+
+function setFilterCategory(cat) {
+  document.getElementById('categoryFilter').value = cat;
+  renderEverything();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ГАЛЕРЕЯ
+// ═══════════════════════════════════════════════════════════════════════
+// Простой in-memory кэш, чтобы не дергать API повторно
+const imageCache = new Map();
+
+// Чёрный список картинок-мусора (иконки, флаги, гербы, locator-карты)
+function isJunkImage(t) {
+  return /commons-logo|wikimedia|wikipedia|wiktionary|wikiquote|wikidata|wikisource|wikinews|wikivoyage|wikibooks|symbol|icon|flag[\s_\-]of|flag\.|coat[\s_\-]of[\s_\-]arms|locator|location[\s_\-]map|emblem|edit[\s_\-]icon|noia|sound|speaker|red[\s_\-]x|increase|decrease|question[\s_\-]book|disambig|nuvola|crystal|gnome-|oxygen-|stub|ambox|portal\.|globe[\s_\-]icon|orthographic|relief[\s_\-]map|topographic[\s_\-]map|administrative|topo[\s_\-]map|elevation[\s_\-]profile|cross[\s_\-]section|diagram|chart|graph|infobox|info[\s_\-]box|^File:Map[\s_]|red[\s_\-]pog|blue[\s_\-]pog|location[\s_\-]dot|locator[\s_\-]dot|coordinate|degree|compass|usgs[\s_\-]map/i.test(t);
+}
+
+// Получить картинки конкретной статьи по точному заголовку (без поиска).
+// lang — 'en' или 'ru', title — название статьи в этой Википедии.
+async function fetchImagesByTitle(lang, title) {
+  // Запрашиваем lead-image + images у статьи
+  const imgsUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=images|pageimages&imlimit=50&piprop=name&redirects=1&format=json&origin=*`;
+  const imd = await fetch(imgsUrl).then(r => r.json());
+  const pages = imd?.query?.pages || {};
+  const page = Object.values(pages)[0];
+  if (!page || page.missing !== undefined) return [];
+
+  const orderedFiles = [];
+  if (page.pageimage) orderedFiles.push('File:' + page.pageimage);
+  if (page.images) {
+    for (const im of page.images) {
+      if (!orderedFiles.includes(im.title)) orderedFiles.push(im.title);
+    }
+  }
+
+  const fileTitles = orderedFiles
+    .filter(t => /\.(jpe?g|png|webp)$/i.test(t))
+    .filter(t => !isJunkImage(t))
+    .slice(0, 14);
+
+  if (!fileTitles.length) return [];
+
+  // Резолвим File:... в URL через Commons
+  const resolveUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitles.join('|'))}&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`;
+  const ud = await fetch(resolveUrl).then(r => r.json());
+  const byTitle = {};
+  Object.values(ud?.query?.pages || {}).forEach(p => { byTitle[p.title] = p; });
+
+  return fileTitles
+    .map(t => byTitle[t])
+    .filter(p => p?.imageinfo?.[0]?.thumburl)
+    .map(p => ({
+      url: p.imageinfo[0].thumburl,
+      full: p.imageinfo[0].url,
+      title: p.title
+    }))
+    .slice(0, 6);
+}
+
+// Фоллбэк-поиск (если у точки нет en или статья не нашлась)
+async function searchAndFetchImages(lang, query) {
+  if (!query) return [];
+  try {
+    const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&srprop=&format=json&origin=*`;
+    const sd = await fetch(searchUrl).then(r => r.json());
+    const hits = sd?.query?.search || [];
+    for (const hit of hits.slice(0, 2)) {
+      const imgs = await fetchImagesByTitle(lang, hit.title);
+      if (imgs.length) return imgs;
+    }
+  } catch (e) {
+    console.warn(`searchAndFetchImages ${lang}/${query}:`, e.message);
+  }
+  return [];
+}
+
+async function fetchImages(loc) {
+  const cacheKey = `${loc.name}|${loc.country}`;
+  if (imageCache.has(cacheKey)) return imageCache.get(cacheKey);
+
+  let images = [];
+
+  // 1. Главный путь: точное имя статьи в английской Википедии
+  if (loc.en) {
+    try {
+      images = await fetchImagesByTitle('en', loc.en);
+    } catch (e) {
+      console.warn(`en/${loc.en}:`, e.message);
+    }
+  }
+
+  // 2. Фоллбэк: поиск по en.wiki с en-именем
+  if (!images.length && loc.en) {
+    images = await searchAndFetchImages('en', loc.en);
+  }
+
+  // 3. Фоллбэк: русская Википедия по русскому названию (на случай редкого места)
+  if (!images.length) {
+    const cleanName = loc.name.replace(/\(.*?\)/g, '').trim();
+    images = await searchAndFetchImages('ru', cleanName);
+  }
+
+  imageCache.set(cacheKey, images);
+  return images;
+}
+
+window.openGallery = async function(index) {
+  selectedLocationIndex = index;
+  const loc = locations[index];
+  const cat = catConfig[loc.category];
+
+  const modal = document.getElementById('galleryModal');
+  const modalContent = document.getElementById('modalContent');
+  const grid = document.getElementById('galleryGrid');
+
+  document.getElementById('modalTitle').textContent = loc.name;
+  document.getElementById('modalCountry').textContent = loc.country;
+  document.getElementById('modalCoords').textContent = `${loc.lat.toFixed(4)}° N · ${loc.lng.toFixed(4)}° E`;
+
+  const catBadge = document.getElementById('modalCategory');
+  catBadge.textContent = `${cat.emoji} ${cat.label}`;
+  catBadge.style.color = cat.hex;
+  catBadge.style.backgroundColor = cat.hex + '20';
+
+  // Теги
+  const tagsBox = document.getElementById('modalTags');
+  const tags = getTags(loc);
+  tagsBox.innerHTML = tags.map(t => {
+    const tc = tagConfig[t];
+    return `<span class="tag tag-${t}" title="${tc.label}">${tc.emoji} ${tc.short}</span>`;
+  }).join('');
+
+  // Кнопка «был тут»
+  const visitBtn = document.getElementById('modalVisitBtn');
+  syncModalVisit(loc);
+  visitBtn.onclick = () => {
+    toggleVisited(loc);
+    syncModalVisit(loc);
+    // обновим карточку в списке
+    const cb = document.querySelector(`.visit-check[data-visit="${index}"]`);
+    if (cb) {
+      cb.checked = isVisited(loc);
+      cb.closest('.loc-card').classList.toggle('visited', isVisited(loc));
+    }
+    toast(isVisited(loc) ? `✓ Добавлено: ${loc.name}` : `Убрано из посещённых`);
+  };
+
+  // Ссылки
+  document.getElementById('modalOpenMap').onclick = () => {
+    closeGallery();
+    flyToAndOpen(index);
+  };
+  document.getElementById('modalWiki').onclick = () => {
+    if (loc.en) {
+      window.open(`https://en.wikipedia.org/wiki/${encodeURIComponent(loc.en.replace(/ /g, '_'))}`, '_blank');
+    } else {
+      const query = encodeURIComponent(loc.name.replace(/\(.*\)/, '').trim());
+      window.open(`https://ru.wikipedia.org/wiki/Special:Search?search=${query}`, '_blank');
+    }
+  };
+
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    modalContent.classList.remove('scale-95');
+  }, 10);
+
+  // Сбрасываем hero / описание / факты
+  const hero = document.getElementById('modalHero');
+  hero.innerHTML = `<div class="ph">${cat.emoji}</div>`;
+  document.getElementById('modalDesc').innerHTML = `<p style="color: var(--ink-mute); font-style: italic;">Загружаем описание из Википедии…</p>`;
+  document.getElementById('modalFacts').innerHTML = `<li style="color: var(--ink-mute); font-style: italic;">Подбираем интересные факты…</li>`;
+
+  // Грузим summary параллельно с картинками
+  fetchSummary(loc).then(summary => {
+    if (selectedLocationIndex !== index) return; // пользователь уже переключился
+    // Hero
+    if (summary?.thumbWide) {
+      hero.innerHTML = `<img src="${summary.thumbWide}" alt="${loc.name}" loading="lazy">`;
+    }
+    // Описание
+    const descBox = document.getElementById('modalDesc');
+    if (summary?.extract) {
+      const paragraphs = summary.extract
+        .split(/\n+/).map(p => p.trim()).filter(Boolean);
+      descBox.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+    } else {
+      descBox.innerHTML = `<p style="color: var(--ink-mute); font-style: italic;">Подробного описания пока нет. Откройте Википедию для полной статьи.</p>`;
+    }
+    // Факты
+    const factsBox = document.getElementById('modalFacts');
+    const baseFacts = [];
+    // Tag-based "почему это чудо"
+    if (tags.includes('7nat')) baseFacts.push('Входит в классические <b>Семь природных чудес света</b> (CNN, 1997).');
+    if (tags.includes('new7')) baseFacts.push('Победитель глобального голосования <b>«Новые 7 чудес природы»</b> (2011).');
+    if (tags.includes('unesco')) baseFacts.push('Объект <b>Всемирного наследия ЮНЕСКО</b> — охраняется международным правом.');
+    if (tags.includes('extreme')) baseFacts.push('Одно из самых <b>экстремальных мест</b> планеты — требует подготовки.');
+    if (tags.includes('underrated')) baseFacts.push('Малоизвестная жемчужина — туристов в разы меньше, чем у икон.');
+
+    const extracted = extractFacts(summary?.extract || '');
+    const all = [...baseFacts, ...extracted].slice(0, 6);
+    if (all.length === 0) {
+      factsBox.innerHTML = `<li style="color: var(--ink-mute); font-style: italic;">Факты появятся по мере наполнения базы.</li>`;
+    } else {
+      factsBox.innerHTML = all.map(f => `<li>${f}</li>`).join('');
+    }
+  });
+
+  // Скелетон 6 кадров
+  grid.innerHTML = Array(6).fill().map(() => `
+    <div class="h-48 md:h-56 rounded-xl skel"></div>
+  `).join('');
+
+  const images = await fetchImages(loc);
+
+  if (images.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-1 md:col-span-3 py-16 px-4 text-center rounded-xl border-2 border-dashed" style="border-color: var(--line); color: var(--ink-mute);">
+        <div class="text-5xl mb-3 opacity-40">📷</div>
+        <p class="font-display italic text-lg mb-1">Фотографии не найдены</p>
+        <p class="text-xs">Попробуйте открыть в Википедии для подробностей</p>
+      </div>
+    `;
+  } else {
+    grid.innerHTML = images.map((img, i) => `
+      <a href="${img.full}" target="_blank" rel="noopener" class="group block relative overflow-hidden rounded-xl anim-in" style="animation-delay: ${i * 40}ms; background: var(--bg-2);">
+        <img src="${img.url}" alt="${loc.name}" loading="lazy"
+             class="w-full h-48 md:h-56 object-cover transform group-hover:scale-105 transition-transform duration-500"
+             onerror="this.parentElement.style.display='none'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+          <span class="text-white text-[11px] font-medium flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Полное изображение
+          </span>
+        </div>
+      </a>
+    `).join('');
+  }
+};
+
+window.closeGallery = function() {
+  const modal = document.getElementById('galleryModal');
+  const modalContent = document.getElementById('modalContent');
+  modal.classList.add('opacity-0');
+  modalContent.classList.add('scale-95');
+  setTimeout(() => modal.classList.add('hidden'), 300);
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ
+// ═══════════════════════════════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+window.randomLocation = function() {
+  const filtered = getFilteredLocations();
+  const pool = filtered.length > 0 ? filtered : locations.map((l, i) => ({...l, _i: i}));
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  toast(`✦ ${pick.name}`);
+  flyToAndOpen(pick._i);
+};
+
+window.copyShareLink = function() {
+  navigator.clipboard.writeText(window.location.href).then(
+    () => toast('Ссылка скопирована'),
+    () => toast('Не удалось скопировать')
+  );
+};
+
+window.downloadGeoJSON = function() {
+  const filtered = getFilteredLocations();
+  const geojson = {
+    type: "FeatureCollection",
+    features: filtered.map(loc => ({
+      type: "Feature",
+      properties: {
+        name: loc.name,
+        country: loc.country,
+        category_id: loc.category,
+        category_name: catConfig[loc.category].label,
+        emoji: catConfig[loc.category].emoji
+      },
+      geometry: { type: "Point", coordinates: [loc.lng, loc.lat] }
+    }))
+  };
+  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wonders_${filtered.length}.geojson`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`Скачано: ${filtered.length} точек`);
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ТЁМНАЯ ТЕМА
+// ═══════════════════════════════════════════════════════════════════════
+function setTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  document.getElementById('iconSun').classList.toggle('hidden', dark);
+  document.getElementById('iconMoon').classList.toggle('hidden', !dark);
+  // Если карта в "Vintage" — на тёмной теме переключаем на dark layer
+  // (но оставляем выбор пользователя приоритетным)
+}
+
+document.getElementById('darkToggle').addEventListener('click', () => {
+  setTheme(!document.documentElement.classList.contains('dark'));
+});
+
+// Автодетект темы при загрузке
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme(true);
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ПЕРЕКЛЮЧАТЕЛЬ СЛОЁВ
+// ═══════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.layer-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const key = btn.dataset.layer;
+    if (currentLayer) map.removeLayer(currentLayer);
+    currentLayer = tileLayers[key];
+    currentLayer.addTo(map);
+  });
+});
+
+// Стилизация активной кнопки слоя
+const style = document.createElement('style');
+style.textContent = `
+  .layer-btn { color: var(--ink-mute); }
+  .layer-btn:hover { color: var(--ink); background: var(--bg-2); }
+  .layer-btn.active { background: var(--ink); color: var(--bg); }
+`;
+document.head.appendChild(style);
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ОБРАБОТЧИКИ
+// ═══════════════════════════════════════════════════════════════════════
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderEverything, 150);
+});
+document.getElementById('categoryFilter').addEventListener('change', renderEverything);
+document.getElementById('sortSelect').addEventListener('change', renderEverything);
+document.getElementById('tagFilter').addEventListener('change', renderEverything);
+document.getElementById('visitedFilter').addEventListener('change', renderEverything);
+document.getElementById('clearFilters').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('categoryFilter').value = 'all';
+  document.getElementById('sortSelect').value = 'name';
+  document.getElementById('tagFilter').value = 'all';
+  document.getElementById('visitedFilter').value = 'all';
+  renderEverything();
+  toast('Фильтры сброшены');
+});
+document.getElementById('resetVisited').addEventListener('click', () => {
+  if (!visited.size) { toast('Список пуст'); return; }
+  if (!confirm(`Сбросить все ${visited.size} отметок «был тут»?`)) return;
+  visited.clear();
+  localStorage.setItem(VISIT_KEY, '[]');
+  renderEverything();
+  toast('История посещений очищена');
+});
+
+// Клавиатура
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeGallery();
+  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); randomLocation(); }
+  if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// Закрытие модалки по клику на оверлей
+document.getElementById('galleryModal').addEventListener('click', (e) => {
+  if (e.target.id === 'galleryModal') closeGallery();
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ЗАПУСК
+// ═══════════════════════════════════════════════════════════════════════
+initMap();
+renderStats();
+document.getElementById('visitedTotal').textContent = locations.length;
+renderEverything();
+updateProgress();
+
+// Лог
+console.log(`%c✦ Atlas Naturae`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
+console.log(`%c${locations.length} мест в базе. Горячие клавиши: / поиск, Esc закрыть, Ctrl+R сюрприз.`, 'color: #6E6856;');
+</script>
+
+</body>
+</html>
