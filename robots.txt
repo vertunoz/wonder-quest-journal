@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wonder-quest-journal.lovable.app/sitemap.xml
