@@ -72,24 +72,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Atlas Naturae — Instagram Wonders" },
+      { title: "Atlas Naturae — 830 Wonders" },
       {
         name: "description",
         content:
-          "Atlas Naturae — интерактивный атлас Instagram Wonders с картой, категориями, описаниями, фактами и отметками о посещённых местах.",
+          "Atlas Naturae — объединённый атлас оригинальных природных чудес и Instagram Wonders с картой, категориями, описаниями, фактами и отметками о посещённых местах.",
       },
       { name: "author", content: "Atlas Naturae" },
-      { property: "og:title", content: "Atlas Naturae — Instagram Wonders" },
+      { property: "og:title", content: "Atlas Naturae — 830 Wonders" },
       {
         property: "og:description",
-        content: "Атлас Instagram Wonders с картой, категориями, описаниями и отметками посещений.",
+        content:
+          "Объединённый атлас оригинальных природных чудес и Instagram Wonders с картой, категориями, описаниями и отметками посещений.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Atlas Naturae — Instagram Wonders" },
+      { name: "twitter:title", content: "Atlas Naturae — 830 Wonders" },
       {
         name: "twitter:description",
-        content: "Атлас Instagram Wonders с картой, категориями и отметками посещений.",
+        content:
+          "Объединённый атлас природных чудес и Instagram Wonders с картой, категориями и отметками посещений.",
       },
     ],
     links: [
