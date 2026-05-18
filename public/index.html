@@ -224,6 +224,37 @@
         color: var(--tone, var(--accent));
       }
 
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .lang-toggle {
+        display: inline-flex;
+        gap: 2px;
+        padding: 2px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(250, 248, 244, 0.78);
+      }
+
+      .lang-btn {
+        min-width: 34px;
+        height: 30px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        font: 700 11px JetBrains Mono, monospace;
+        cursor: pointer;
+      }
+
+      .lang-btn.active {
+        background: var(--ink);
+        color: var(--bg);
+      }
+
       @media (max-width: 820px) {
         main {
           grid-template-columns: 1fr;
@@ -244,7 +275,13 @@
     <div class="shell">
       <header>
         <div class="brand">Atlas - MMXXVI</div>
-        <div class="count">989 &#1084;&#1077;&#1089;&#1090; &#1085;&#1072; &#1082;&#1072;&#1088;&#1090;&#1077;</div>
+        <div class="header-controls">
+          <div class="lang-toggle" aria-label="Language">
+            <button class="lang-btn" type="button" data-lang="ru">RU</button>
+            <button class="lang-btn" type="button" data-lang="en">EN</button>
+          </div>
+          <div class="count">989 &#1084;&#1077;&#1089;&#1090; &#1085;&#1072; &#1082;&#1072;&#1088;&#1090;&#1077;</div>
+        </div>
       </header>
 
       <main>
@@ -317,5 +354,35 @@
 
       <footer>&#1042;&#1099;&#1073;&#1088;&#1072;&#1085;&#1085;&#1099;&#1081; &#1082;&#1088;&#1080;&#1090;&#1077;&#1088;&#1080;&#1081; &#1087;&#1088;&#1080;&#1084;&#1077;&#1085;&#1103;&#1077;&#1090;&#1089;&#1103; &#1089;&#1088;&#1072;&#1079;&#1091; &#1087;&#1086;&#1089;&#1083;&#1077; &#1086;&#1090;&#1082;&#1088;&#1099;&#1090;&#1080;&#1103; &#1082;&#1072;&#1088;&#1090;&#1099;.</footer>
     </div>
+    <script>
+      const LANDING_LANG_KEY = 'atlas-naturae:lang';
+      const LANDING_I18N = {
+        ru: {
+          title: 'Atlas Naturae - выбор фильтра', description: 'Выберите категорию или ярлык и откройте интерактивную карту Atlas Naturae с 989 природными чудесами.', count: '989 мест на карте', h1: 'Выберите критерий', lead: 'Начните со всего атласа или сразу откройте карту с выбранной категорией или ярлыком. На карте останутся все инструменты поиска и отметки посещённых мест.', primary: 'Показать все', instagram: 'Инстаграм-топ', categories: 'Категории', labels: 'Ярлыки', footer: 'Выбранный критерий применяется сразу после открытия карты.',
+          choices: [['Все места','Полный атлас без фильтров: 989 природных чудес.','Показать все'],['Воды и берега','Озёра, водопады, моря, острова, рифы и побережья.','270 мест'],['Горы и скалы','Вершины, хребты, утёсы, плато и каменные ландшафты.','248 мест'],['Леса и парки','Заповедники, джунгли, рощи и национальные парки.','235 мест'],['Пустыни и каньоны','Дюны, ущелья, солончаки и сухие долины.','109 мест'],['Вулканы и гейзеры','Кальдеры, лавовые поля, термальные зоны и гейзеры.','62 места'],['Лёд и пещеры','Ледники, гроты, карстовые системы и пещеры.','65 мест']],
+          tags: ['UNESCO','Инстаграм-топ','7 чудес природы','Новые 7 чудес','Иконы планеты','Недооценённые','Экстрим']
+        },
+        en: {
+          title: 'Atlas Naturae - Choose a Filter', description: 'Choose a category or label and open the Atlas Naturae interactive map with 989 natural wonders.', count: '989 places on the map', h1: 'Choose a Criterion', lead: 'Start with the full atlas, or open the map already filtered by category or label. The map keeps search, filters, and visited-place tracking.', primary: 'Show all', instagram: 'Instagram top', categories: 'Categories', labels: 'Labels', footer: 'The selected criterion is applied as soon as the map opens.',
+          choices: [['All Places','The complete atlas without filters: 989 natural wonders.','Show all'],['Waters and Coasts','Lakes, waterfalls, seas, islands, reefs, and coastlines.','270 places'],['Mountains and Rocks','Peaks, ranges, cliffs, plateaus, and stone landscapes.','248 places'],['Forests and Parks','Reserves, jungles, groves, and national parks.','235 places'],['Deserts and Canyons','Dunes, gorges, salt flats, and dry valleys.','109 places'],['Volcanoes and Geysers','Calderas, lava fields, thermal zones, and geysers.','62 places'],['Ice and Caves','Glaciers, grottos, karst systems, and caves.','65 places']],
+          tags: ['UNESCO','Instagram top','7 Natural Wonders','New 7 Wonders','Planet Icons','Underrated','Extreme']
+        }
+      };
+      function landingInitialLang() { const p = new URLSearchParams(location.search).get('lang'); if (p === 'en' || p === 'ru') return p; return localStorage.getItem(LANDING_LANG_KEY) === 'en' ? 'en' : 'ru'; }
+      function atlasHref(href, lang) { const url = new URL(href, location.href); if (lang === 'en') url.searchParams.set('lang', 'en'); else url.searchParams.delete('lang'); return url.pathname.split('/').pop() + url.search; }
+      function setLandingLang(lang) {
+        const t = LANDING_I18N[lang] || LANDING_I18N.ru;
+        localStorage.setItem(LANDING_LANG_KEY, lang); document.documentElement.lang = lang; document.title = t.title;
+        document.querySelector('meta[name="description"]').content = t.description; document.querySelector('.count').textContent = t.count; document.querySelector('h1').textContent = t.h1; document.querySelector('.lead').textContent = t.lead;
+        document.querySelector('.primary').textContent = t.primary; document.querySelectorAll('.ghost')[1].textContent = t.instagram;
+        document.querySelectorAll('.section-label')[0].textContent = t.categories; document.querySelectorAll('.section-label')[1].textContent = t.labels; document.querySelector('footer').textContent = t.footer;
+        document.querySelectorAll('.choice').forEach((card, i) => { const copy = t.choices[i]; if (!copy) return; card.querySelector('strong').textContent = copy[0]; card.querySelector('span').textContent = copy[1]; card.querySelector('em').textContent = copy[2]; });
+        document.querySelectorAll('.tag-row .tag').forEach((tag, i) => { tag.textContent = t.tags[i] || tag.textContent; });
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+        document.querySelectorAll('a[href^="./atlas.html"]').forEach(a => { a.href = './' + atlasHref(a.getAttribute('href'), lang); });
+      }
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => setLandingLang(btn.dataset.lang)));
+      setLandingLang(landingInitialLang());
+    </script>
   </body>
 </html>

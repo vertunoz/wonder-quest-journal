@@ -192,6 +192,18 @@
   }
   .btn-ghost:hover { background: var(--bg-2); border-color: var(--ink-mute); }
 
+  .lang-toggle {
+    display: inline-flex; align-items: center; gap: 2px; padding: 2px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--bg);
+  }
+  .lang-btn {
+    min-width: 34px; height: 30px; border-radius: 8px;
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    color: var(--ink-mute); transition: all .15s ease;
+  }
+  .lang-btn:hover { color: var(--ink); background: var(--bg-2); }
+  .lang-btn.active { background: var(--ink); color: var(--bg); }
+
   /* Адаптивность: мобильные — табы во весь экран */
   @media (max-width: 768px) {
     body { height: 100dvh; }
@@ -227,11 +239,12 @@
   /* ───── v3: теги, чекбоксы, превью, описание ───── */
   .tag {
     display: inline-flex; align-items: center; gap: 4px;
+    max-width: 100%; min-width: 0;
     font-family: var(--mono); font-size: 9px; letter-spacing: .05em;
     text-transform: uppercase; font-weight: 600;
     padding: 2px 6px; border-radius: 4px;
     border: 1px solid currentColor;
-    line-height: 1.4;
+    line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .tag.tag-iconic     { color: #B8860B; background: #B8860B14; }
   .tag.tag-7nat       { color: #A85A2A; background: #A85A2A18; }
@@ -268,7 +281,15 @@
     background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 6%, var(--bg)), var(--bg));
     border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
   }
-  .loc-card.visited h4 { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 1px; }
+  .loc-card.visited .loc-card-title { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 1px; }
+  .loc-card-body { min-width: 0; overflow: hidden; }
+  .loc-card-title {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; overflow-wrap: anywhere; hyphens: auto;
+  }
+  .loc-card-country { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .loc-card-badges { min-width: 0; max-width: 100%; }
+  .loc-card-badges .pill { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* Превью в карточке списка */
   .card-thumb {
@@ -346,10 +367,16 @@
             <span class="italic" style="color: var(--accent);">Природы + Instagram + UNESCO</span>
           </h1>
         </div>
-        <button id="darkToggle" class="map-control p-2 hover:scale-105 transition-transform" title="Тема">
-          <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-          <svg id="iconMoon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <div id="langToggle" class="lang-toggle" aria-label="Language">
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+          </div>
+          <button id="darkToggle" class="map-control p-2 hover:scale-105 transition-transform" title="Тема">
+            <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <svg id="iconMoon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
       </div>
       <p class="text-[12px] leading-relaxed mb-4" style="color: var(--ink-mute);">
         Оригинальная коллекция природных чудес, Instagram-набор и UNESCO-места на одной карте — от полярных льдов до экваториальных джунглей.
@@ -572,6 +599,104 @@ const tagConfig = {
   extreme:    { label: "Экстремальное",   short: "Экстрим",   emoji: "🔥" }
 };
 
+const LANG_KEY = 'atlas-naturae:lang';
+const CAT_LABELS = {
+  ru: { water: 'Воды и берега', mountain: 'Горы и скалы', forest: 'Леса и парки', desert: 'Пустыни и каньоны', volcano: 'Вулканы и гейзеры', ice_cave: 'Лёд и пещеры' },
+  en: { water: 'Waters and Coasts', mountain: 'Mountains and Rocks', forest: 'Forests and Parks', desert: 'Deserts and Canyons', volcano: 'Volcanoes and Geysers', ice_cave: 'Ice and Caves' }
+};
+const TAG_LABELS = {
+  ru: { instagram: ['Instagram-топ','Instagram'], iconic: ['Икона планеты','Икона'], '7nat': ['7 чудес природы','7 чудес'], new7: ['Новые 7 чудес','Новые 7'], unesco: ['Объект ЮНЕСКО','ЮНЕСКО'], underrated: ['Недооценённое место','Скрытое'], extreme: ['Экстремальное место','Экстрим'] },
+  en: { instagram: ['Instagram Top','Instagram'], iconic: ['Planet Icon','Icon'], '7nat': ['7 Natural Wonders','7 Wonders'], new7: ['New 7 Wonders','New 7'], unesco: ['UNESCO Site','UNESCO'], underrated: ['Underrated Place','Hidden'], extreme: ['Extreme Place','Extreme'] }
+};
+const UI = {
+  ru: {
+    htmlLang: 'ru', metaTitle: 'Atlas Naturae — 989 чудес', metaDescription: 'Объединённый атлас природных чудес, Instagram Wonders и UNESCO Wonders с картой, фильтрами, описаниями и отметками посещений.',
+    heroTitle: 'чудес', heroSubtitle: 'Природа + Instagram + UNESCO', lead: 'Оригинальная коллекция природных чудес, Instagram-набор и UNESCO-места на одной карте: от полярных льдов до экваториальных джунглей.',
+    theme: 'Тема', searchPlaceholder: 'Поиск по названию или стране...', surprise: 'Сюрприз', share: 'Поделиться', myAtlas: 'Мой атлас', visitedWord: 'посещено', reset: 'Сбросить', of: 'из', list: 'Список', map: 'Карта', terrain: 'Рельеф', satellite: 'Спутник', openCard: 'Открыть карточку', allCategories: 'Все категории', allTags: 'Все ярлыки', allPlaces: 'Все места', visited: 'Я там был', unvisited: 'Ещё не был', sortName: 'По алфавиту', sortCountry: 'По стране', sortCategory: 'По категории', sortNorth: 'С севера на юг', sortSouth: 'С юга на север', noResultsTitle: 'Ничего не найдено', noResultsHint: 'Попробуйте изменить запрос или фильтры', visitTitle: 'Был тут', modalVisited: 'Я там был', modalVisit: 'Отметить как посещённое', mapTitle: 'Показать на карте', wikiTitle: 'Открыть в Википедии', closeTitle: 'Закрыть (Esc)', about: 'О месте', why: 'Почему это чудо', gallery: 'Галерея', loadingDesc: 'Загружаем описание из Википедии...', loadingFacts: 'Подбираем интересные факты...', source: 'Источник текста и изображений — Wikipedia / Wikimedia Commons. Лицензии указаны у источников.', noDesc: 'Подробного описания пока нет. Откройте Википедию для полной статьи.', noFacts: 'Факты появятся по мере наполнения базы.', noPhotosTitle: 'Фотографии не найдены', noPhotosHint: 'Попробуйте открыть статью в Википедии для подробностей', fullImage: 'Полное изображение', copied: 'Ссылка скопирована', copyFailed: 'Не удалось скопировать', filtersReset: 'Фильтры сброшены', emptyVisits: 'Список пуст', visitsCleared: 'История посещений очищена', confirmReset: n => 'Сбросить все отметки «был тут»? Сейчас отмечено: ' + n + '.', added: name => '✓ Добавлено: ' + name, removed: 'Убрано из посещённых', progress0: 'Начните отмечать места, где уже побывали', progress1: pct => 'Отличный старт: ' + pct + '% планеты', progress2: pct => 'Бывалый путешественник: ' + pct + '%', progress3: 'Серьёзный коллекционер чудес', progress4: pct => 'Легенда: ' + pct + '% мирового атласа',
+    tagFacts: { instagram: 'Входит в импортированный список <b>Instagram Wonders</b>.', '7nat': 'Входит в классический список <b>Семи природных чудес света</b> (CNN, 1997).', new7: 'Победитель глобального голосования <b>«Новые 7 чудес природы»</b> (2011).', unesco: 'Объект <b>Всемирного наследия ЮНЕСКО</b>, охраняемый международным правом.', extreme: 'Одно из самых <b>экстремальных мест</b> планеты: поездка требует подготовки.', underrated: 'Малоизвестная жемчужина: туристов здесь заметно меньше, чем у главных икон.' }
+  },
+  en: {
+    htmlLang: 'en', metaTitle: 'Atlas Naturae — 989 Wonders', metaDescription: 'A combined atlas of natural wonders, Instagram Wonders, and UNESCO Wonders with a map, filters, descriptions, and visited-place tracking.',
+    heroTitle: 'Wonders', heroSubtitle: 'Nature + Instagram + UNESCO', lead: 'A combined collection of natural wonders, Instagram favorites, and UNESCO places on one map: from polar ice to equatorial jungles.',
+    theme: 'Theme', searchPlaceholder: 'Search by name or country...', surprise: 'Surprise', share: 'Share', myAtlas: 'My Atlas', visitedWord: 'visited', reset: 'Reset', of: 'of', list: 'List', map: 'Map', terrain: 'Terrain', satellite: 'Satellite', openCard: 'Open Card', allCategories: 'All Categories', allTags: 'All Labels', allPlaces: 'All Places', visited: 'Visited', unvisited: 'Not Visited Yet', sortName: 'Alphabetical', sortCountry: 'By Country', sortCategory: 'By Category', sortNorth: 'North to South', sortSouth: 'South to North', noResultsTitle: 'Nothing Found', noResultsHint: 'Try changing the search query or filters', visitTitle: 'Visited', modalVisited: 'I Have Been There', modalVisit: 'Mark as Visited', mapTitle: 'Show on Map', wikiTitle: 'Open in Wikipedia', closeTitle: 'Close (Esc)', about: 'About This Place', why: 'Why It Is a Wonder', gallery: 'Gallery', loadingDesc: 'Loading description from Wikipedia...', loadingFacts: 'Finding useful facts...', source: 'Text and images are sourced from Wikipedia / Wikimedia Commons. Licenses are listed by the sources.', noDesc: 'No detailed description yet. Open Wikipedia for the full article.', noFacts: 'Facts will appear as the database grows.', noPhotosTitle: 'No Photos Found', noPhotosHint: 'Try opening the Wikipedia article for details', fullImage: 'Full Image', copied: 'Link copied', copyFailed: 'Could not copy the link', filtersReset: 'Filters reset', emptyVisits: 'The list is empty', visitsCleared: 'Visited history cleared', confirmReset: n => 'Reset all visited marks? Currently marked: ' + n + '.', added: name => '✓ Added: ' + name, removed: 'Removed from visited places', progress0: 'Start marking places you have already visited', progress1: pct => 'Great start: ' + pct + '% of the planet', progress2: pct => 'Seasoned traveler: ' + pct + '%', progress3: 'Serious collector of wonders', progress4: pct => 'Legend: ' + pct + '% of the world atlas',
+    tagFacts: { instagram: 'Included in the imported <b>Instagram Wonders</b> list.', '7nat': 'Included in the classic <b>Seven Natural Wonders of the World</b> list (CNN, 1997).', new7: 'Winner of the global <b>New 7 Wonders of Nature</b> vote (2011).', unesco: 'A <b>UNESCO World Heritage Site</b> protected by international law.', extreme: 'One of the planet\'s most <b>extreme places</b>: visiting requires preparation.', underrated: 'An underrated gem with noticeably fewer visitors than the major icons.' }
+  }
+};
+
+const RU_NAME_OVERRIDES = {
+  'Los Alerces National Park':'Национальный парк Лос-Алерсес',
+  'Lakes of Ounianga':'Озёра Унианга',
+  'South China Karst':'Южно-Китайский карст',
+  'Chengjiang Fossil Site':'Чэнцзянское местонахождение ископаемых',
+  'Xinjiang Tianshan':'Синьцзян-Тяньшань',
+  'Qinghai Hoh Xil':'Цинхай-Хох-Сил',
+  'Chiribiquete National Park – “The Maloca of the Jaguar”':'Национальный парк Чирибикете',
+  'Wadi Al-Hitan (Whale Valley)':'Вади-аль-Хитан (Долина китов)',
+  'Messel Pit Fossil Site':'Карьер Мессель',
+  'Western Ghats':'Западные Гаты',
+  'Great Himalayan National Park Conservation Area':'Заповедная зона национального парка Грейт-Хималайан',
+  'Isole Eolie (Aeolian Islands)':'Эоловые острова',
+  'The Dolomites':'Доломитовые Альпы',
+  'Mount Kenya National Park/Natural Forest':'Национальный парк и лесной массив Маунт-Кения',
+  'Ancient Maya City and Protected Tropical Forests of Calakmul, Campeche':'Калакмуль',
+  'El Pinacate and Gran Desierto de Altar Biosphere Reserve':'Эль-Пинакате и Гран-Десьерто-де-Альтар',
+  'Mount Hamiguitan Range Wildlife Sanctuary':'Заповедник хребта Хамигитан',
+  'Trang An Landscape Complex':'Ландшафтный комплекс Чанган',
+  'W-Arly-Pendjari Complex':'Комплекс W — Арли — Пенджари',
+  'Sangha Trinational':'Тринациональный Сангха',
+  'Wadden Sea':'Ваттовое море',
+  'Maloti-Drakensberg Park':'Парк Малоти-Дракенсберг',
+  'Landscapes of Dauria':'Ландшафты Даурии',
+  'Stevns Klint':'Стевнс-Клинт',
+  'Royal Gorge':'Королевское ущелье'
+};
+const COUNTRY_RU = { 'Argentina':'Аргентина','Australia':'Австралия','Austria':'Австрия','Belgium':'Бельгия','Belize':'Белиз','Bolivia':'Боливия','Bolivia (Plurinational State of)':'Боливия','Brazil':'Бразилия','Bulgaria':'Болгария','Canada':'Канада','Chile':'Чили','China':'Китай','Colombia':'Колумбия','Costa Rica':'Коста-Рика','Croatia':'Хорватия','Czechia':'Чехия','Democratic Republic of the Congo':'ДР Конго','Denmark':'Дания','Ecuador':'Эквадор','Egypt':'Египет','Ethiopia':'Эфиопия','Finland':'Финляндия','France':'Франция','Germany':'Германия','Greece':'Греция','Guatemala':'Гватемала','Hungary':'Венгрия','Iceland':'Исландия','India':'Индия','Indonesia':'Индонезия','Iran':'Иран','Iran (Islamic Republic of)':'Иран','Ireland':'Ирландия','Italy':'Италия','Japan':'Япония','Jordan':'Иордания','Kazakhstan':'Казахстан','Kenya':'Кения','Kyrgyzstan':'Кыргызстан','Madagascar':'Мадагаскар','Malaysia':'Малайзия','Maldives':'Мальдивы','Mexico':'Мексика','Mongolia':'Монголия','Morocco':'Марокко','Namibia':'Намибия','Nepal':'Непал','New Zealand':'Новая Зеландия','Norway':'Норвегия','Pakistan':'Пакистан','Peru':'Перу','Philippines':'Филиппины','Poland':'Польша','Republic of Korea':'Южная Корея','Romania':'Румыния','Russian Federation':'Россия','Samoa':'Самоа','San Marino':'Сан-Марино','Saudi Arabia':'Саудовская Аравия','Seychelles':'Сейшелы','Singapore':'Сингапур','Slovakia':'Словакия','Slovenia':'Словения','South Africa':'ЮАР','South Korea':'Южная Корея','Spain':'Испания','Sri Lanka':'Шри-Ланка','Sweden':'Швеция','Switzerland':'Швейцария','Tajikistan':'Таджикистан','Tanzania':'Танзания','Thailand':'Таиланд','Turkmenistan':'Туркменистан','Uganda':'Уганда','Ukraine':'Украина','United Arab Emirates':'ОАЭ','United Kingdom of Great Britain and Northern Ireland':'Великобритания','United Republic of Tanzania':'Танзания','United States':'США','United States of America':'США','Uzbekistan':'Узбекистан','Vatican City':'Ватикан','Venezuela':'Венесуэла','Venezuela (Bolivarian Republic of)':'Венесуэла','Viet Nam':'Вьетнам','Zambia':'Замбия','Zimbabwe':'Зимбабве' };
+const COUNTRY_EN = Object.fromEntries(Object.entries(COUNTRY_RU).map(([en, ru]) => [ru, en]));
+Object.assign(COUNTRY_EN, { 'Абхазия':'Abkhazia','Англия':'England','Антарктида':'Antarctica','Великобритания':'United Kingdom','Гренландия':'Greenland','Греция (Крит)':'Greece (Crete)','ДР Конго':'Democratic Republic of the Congo','Испания (Канары)':'Spain (Canary Islands)','Испания (Ла-Гомера)':'Spain (La Gomera)','Испания (Тенерифе)':'Spain (Tenerife)','Китай (Гонконг)':'China (Hong Kong)','Китай (Тибет)':'China (Tibet)','Китай / КНДР':'China / North Korea','КНДР':'North Korea','Кыргызстан':'Kyrgyzstan','Македония':'North Macedonia','Острова Кука':'Cook Islands','Реюньон (Франция)':'Réunion (France)','Россия / Иран / Казахстан / Азерб. / Туркм.':'Russia / Iran / Kazakhstan / Azerbaijan / Turkmenistan','Северная Африка':'North Africa','Северная Ирландия':'Northern Ireland','США':'United States','США (Аляска)':'United States (Alaska)','США (Гавайи)':'United States (Hawaii)','США (Кауаи)':'United States (Kauai)','Уэльс':'Wales','Фарерские острова':'Faroe Islands','Французская Полинезия':'French Polynesia','Шотландия':'Scotland','ЮАР':'South Africa' });
+function getInitialLanguage() { const p = new URLSearchParams(window.location.search).get('lang'); if (p === 'en' || p === 'ru') return p; return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'ru'; }
+let currentLang = getInitialLanguage();
+function ui() { return UI[currentLang] || UI.ru; }
+function catLabel(key) { return CAT_LABELS[currentLang]?.[key] || catConfig[key]?.label || key; }
+function tagLabel(key) { return TAG_LABELS[currentLang]?.[key]?.[0] || tagConfig[key]?.label || key; }
+function tagShort(key) { return TAG_LABELS[currentLang]?.[key]?.[1] || tagConfig[key]?.short || key; }
+function cleanRuName(value) { return String(value || '').replace(/\s+-\s+.*$/i, '').replace(/^(.+?)\s+\(([^()]*)$/, '$1'); }
+function displayName(loc) {
+  if (currentLang === 'en') return loc.en || loc.wikiEnTitle || loc.name;
+  const enKey = loc.wikiEnTitle || loc.en;
+  if (RU_NAME_OVERRIDES[enKey]) return RU_NAME_OVERRIDES[enKey];
+  if (RU_NAME_OVERRIDES[loc.en]) return RU_NAME_OVERRIDES[loc.en];
+  if ((/^[\x00-\x7F]+$/.test(loc.name) || /\)\s*-|^[?"]/.test(loc.name)) && loc.wikiRuTitle) return cleanRuName(loc.wikiRuTitle);
+  return cleanRuName(loc.name);
+}
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function translateCountryPart(part, lang) { const trimmed = part.trim(); if (!trimmed) return trimmed; return lang === 'ru' ? (COUNTRY_RU[trimmed] || trimmed) : (COUNTRY_EN[trimmed] || trimmed); }
+function displayCountry(loc) { const country = loc.country || ''; const exact = currentLang === 'ru' ? COUNTRY_RU[country] : COUNTRY_EN[country]; if (exact) return exact; const sep = country.includes(' / ') ? ' / ' : (country.includes(',') ? ', ' : null); if (!sep) return translateCountryPart(country, currentLang); const parts = sep === ' / ' ? country.split(/\s*\/\s*/) : country.split(/\s*,\s*/); return parts.map(part => translateCountryPart(part, currentLang)).join(sep); }
+function formatCoords(loc) { const latDir = loc.lat >= 0 ? 'N' : 'S'; const lngDir = loc.lng >= 0 ? 'E' : 'W'; return Math.abs(loc.lat).toFixed(4) + '° ' + latDir + ' · ' + Math.abs(loc.lng).toFixed(4) + '° ' + lngDir; }
+function setButtonText(button, text) { if (!button) return; const node = [...button.childNodes].reverse().find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim()); if (node) node.textContent = ' ' + text; else button.append(document.createTextNode(' ' + text)); }
+function setSelectOptions(id, options) { const select = document.getElementById(id); if (!select) return; const current = select.value; select.innerHTML = options.map(o => '<option value="' + o.value + '">' + escapeHtml(o.label) + '</option>').join(''); if (options.some(o => o.value === current)) select.value = current; }
+function applyI18n() {
+  const t = ui(); document.documentElement.lang = t.htmlLang; document.title = t.metaTitle;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[property="og:description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', t.metaDescription);
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
+  const title = document.querySelector('#sidePanel h1'); if (title) title.innerHTML = locations.length + ' ' + escapeHtml(t.heroTitle) + '<br><span class="italic" style="color: var(--accent);">' + escapeHtml(t.heroSubtitle) + '</span>';
+  const lead = document.querySelector('#sidePanel .p-5 > p'); if (lead) lead.textContent = t.lead; const dark = document.getElementById('darkToggle'); if (dark) dark.title = t.theme; const search = document.getElementById('searchInput'); if (search) search.placeholder = t.searchPlaceholder;
+  setSelectOptions('categoryFilter', [{value:'all', label:'🌍 ' + t.allCategories}, ...Object.entries(catConfig).map(([k,c]) => ({value:k, label:c.emoji + ' ' + catLabel(k)}))]);
+  setSelectOptions('sortSelect', [{value:'name', label:'↕ ' + t.sortName},{value:'country', label:'↕ ' + t.sortCountry},{value:'category', label:'↕ ' + t.sortCategory},{value:'lat-desc', label:'↕ ' + t.sortNorth},{value:'lat-asc', label:'↕ ' + t.sortSouth}]);
+  setSelectOptions('tagFilter', [{value:'all', label:'🏷️ ' + t.allTags}, ...Object.entries(tagConfig).map(([k,c]) => ({value:k, label:c.emoji + ' ' + tagLabel(k)}))]);
+  setSelectOptions('visitedFilter', [{value:'all', label:'✦ ' + t.allPlaces},{value:'visited', label:'✓ ' + t.visited},{value:'unvisited', label:'○ ' + t.unvisited}]);
+  setButtonText(document.querySelector('button[onclick="randomLocation()"]'), t.surprise); setButtonText(document.querySelector('button[onclick="copyShareLink()"]'), t.share);
+  const progress = document.querySelector('.progress-track')?.closest('.border-b'); const myAtlas = progress?.querySelector('.pill'); if (myAtlas) myAtlas.textContent = t.myAtlas; const visitedLabel = document.getElementById('visitedTotal')?.nextSibling; if (visitedLabel) visitedLabel.textContent = ' ' + t.visitedWord;
+  const resetBtn = document.getElementById('resetVisited'); if (resetBtn) resetBtn.textContent = t.reset; const clearBtn = document.getElementById('clearFilters'); if (clearBtn) clearBtn.textContent = t.reset;
+  const visiblePill = document.getElementById('visibleCount')?.parentElement; if (visiblePill) visiblePill.innerHTML = '<span id="visibleCount">' + (document.getElementById('visibleCount')?.textContent || '0') + '</span> ' + escapeHtml(t.of) + ' <span id="totalCount">' + (document.getElementById('totalCount')?.textContent || '0') + '</span>';
+  const terrain = document.querySelector('[data-layer="terrain"]'); if (terrain) terrain.textContent = t.terrain; const satellite = document.querySelector('[data-layer="satellite"]'); if (satellite) satellite.textContent = t.satellite;
+  setButtonText(document.getElementById('tabList'), t.list); setButtonText(document.getElementById('tabMap'), t.map);
+  const modalOpen = document.getElementById('modalOpenMap'); if (modalOpen) modalOpen.title = t.mapTitle; const modalWiki = document.getElementById('modalWiki'); if (modalWiki) modalWiki.title = t.wikiTitle; const modalClose = document.querySelector('[onclick="closeGallery()"]'); if (modalClose) modalClose.title = t.closeTitle;
+  const sectionTitles = [...document.querySelectorAll('#modalContent .section-title')]; if (sectionTitles[0]) sectionTitles[0].textContent = t.about; if (sectionTitles[1]) sectionTitles[1].textContent = t.why; if (sectionTitles[2]) sectionTitles[2].textContent = t.gallery; const source = document.querySelector('#galleryGrid + p'); if (source) source.textContent = t.source;
+  updateProgress();
+}
+function setLanguage(lang, options = {}) { if (lang !== 'ru' && lang !== 'en') lang = 'ru'; currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n(); if (options.sync !== false) syncUrlFilters(); if (options.render !== false && typeof markerCluster !== 'undefined' && markerCluster) { renderStats(); renderEverything(); if (selectedLocationIndex !== null && !document.getElementById('galleryModal')?.classList.contains('hidden')) openGallery(selectedLocationIndex); } }
+
+
 // Известные эталонные списки. Ключи — английские имена статей (loc.en).
 const TAGS_BY_EN = (() => {
   const map = {};
@@ -684,6 +809,8 @@ function updateProgress() {
   const n = locations.filter(isVisited).length;
   const total = locations.length;
   const pct = (n / total) * 100;
+  const pctText = pct.toFixed(1);
+  const t = ui();
   const cnt = document.getElementById('visitedCount');
   const totalCnt = document.getElementById('visitedTotal');
   const fill = document.getElementById('progressFill');
@@ -692,11 +819,11 @@ function updateProgress() {
   if (totalCnt) totalCnt.textContent = total;
   if (fill) fill.style.width = pct.toFixed(2) + '%';
   if (lbl) {
-    if (n === 0) lbl.textContent = 'Начните отмечать места, где уже побывали';
-    else if (n < 10) lbl.textContent = 'Отличный старт! ' + pct.toFixed(1) + '% планеты';
-    else if (n < 50) lbl.textContent = 'Бывалый путешественник — ' + pct.toFixed(1) + '%';
-    else if (n < 100) lbl.textContent = 'Серьёзный коллекционер чудес';
-    else lbl.textContent = 'Легенда. ' + pct.toFixed(1) + '% мирового атласа';
+    if (n === 0) lbl.textContent = t.progress0;
+    else if (n < 10) lbl.textContent = t.progress1(pctText);
+    else if (n < 50) lbl.textContent = t.progress2(pctText);
+    else if (n < 100) lbl.textContent = t.progress3;
+    else lbl.textContent = t.progress4(pctText);
   }
 }
 
@@ -705,28 +832,26 @@ function updateProgress() {
 // ═══════════════════════════════════════════════════════════════════════
 const summaryCache = new Map();
 async function fetchSummary(loc) {
-  const key = loc.wikiEnTitle || loc.en || loc.name;
+  const key = currentLang + '|' + (loc.wikiEnTitle || loc.en || loc.name);
   if (summaryCache.has(key)) return summaryCache.get(key);
   const tryLang = async (lang, title) => {
+    if (!title) return null;
     try {
-      const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}?redirect=true`);
+      const r = await fetch('https://' + lang + '.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title.replace(/ /g,'_')) + '?redirect=true');
       if (!r.ok) return null;
       const d = await r.json();
       if (d.type === 'disambiguation' || !d.extract) return null;
-      return {
-        extract: d.extract,
-        thumb: d.thumbnail?.source || null,
-        thumbWide: d.originalimage?.source || d.thumbnail?.source || null,
-        lang
-      };
+      return { extract: d.extract, thumb: d.thumbnail?.source || null, thumbWide: d.originalimage?.source || d.thumbnail?.source || null, lang };
     } catch { return null; }
   };
-  let res = null;
-  // Сначала пробуем русскую Википедию — описания должны быть на русском
   const ruTitle = loc.wikiRuTitle || loc.name.replace(/\(.*?\)/g,'').trim();
   const enTitle = loc.wikiEnTitle || loc.en;
-  res = await tryLang('ru', ruTitle);
-  if (!res && enTitle) res = await tryLang('en', enTitle);
+  const order = currentLang === 'en' ? [['en', enTitle], ['ru', ruTitle]] : [['ru', ruTitle], ['en', enTitle]];
+  let res = null;
+  for (const [lang, title] of order) {
+    res = await tryLang(lang, title);
+    if (res) break;
+  }
   summaryCache.set(key, res);
   return res;
 }
@@ -1818,16 +1943,16 @@ function getFilteredLocations() {
     if (visF === 'visited' && !isVisited(loc)) return false;
     if (visF === 'unvisited' && isVisited(loc)) return false;
     if (q) {
-      const hay = (loc.name + ' ' + loc.country + ' ' + (loc.en||'') + ' ' + (loc.wikiEnTitle||'') + ' ' + (loc.wikiRuTitle||'')).toLowerCase();
+      const hay = [loc.name, loc.country, displayCountry(loc), loc.en, loc.wikiEnTitle, loc.wikiRuTitle].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
 
   result.sort((a, b) => {
-    if (sort === 'name') return a.name.localeCompare(b.name, 'ru');
-    if (sort === 'country') return a.country.localeCompare(b.country, 'ru');
-    if (sort === 'category') return catConfig[a.category].label.localeCompare(catConfig[b.category].label);
+    if (sort === 'name') return displayName(a).localeCompare(displayName(b), currentLang === 'ru' ? 'ru' : 'en');
+    if (sort === 'country') return displayCountry(a).localeCompare(displayCountry(b), currentLang === 'ru' ? 'ru' : 'en');
+    if (sort === 'category') return catLabel(a.category).localeCompare(catLabel(b.category), currentLang === 'ru' ? 'ru' : 'en');
     if (sort === 'lat-desc') return b.lat - a.lat;
     if (sort === 'lat-asc') return a.lat - b.lat;
     return 0;
@@ -1854,37 +1979,21 @@ function renderMarkers(filtered) {
     if (!filteredIndices.has(index)) return;
 
     const cat = catConfig[loc.category];
+    const locName = escapeHtml(displayName(loc));
+    const locCountry = escapeHtml(displayCountry(loc));
+    const catText = escapeHtml(catLabel(loc.category));
 
-    const iconHtml = `<div class="emoji-marker" style="--accent-color:${cat.hex}; border-color:${cat.hex};">${cat.emoji}</div>`;
-    const icon = L.divIcon({
-      html: iconHtml,
-      className: '',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16]
-    });
-
+    const iconHtml = '<div class="emoji-marker" style="--accent-color:' + cat.hex + '; border-color:' + cat.hex + ';">' + cat.emoji + '</div>';
+    const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
     const marker = L.marker([loc.lat, loc.lng], { icon });
 
-    const popup = `
-      <div style="padding: 14px 16px 12px; min-width: 220px;">
-        <div class="pill" style="color:${cat.hex}; font-weight: 600; margin-bottom: 6px;">${cat.emoji} ${cat.label}</div>
-        <h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; margin: 0 0 4px;">${loc.name}</h3>
-        <p style="font-size: 12px; color: var(--ink-mute); font-style: italic; margin: 0 0 10px;">${loc.country}</p>
-        <p style="font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin: 0 0 10px;">${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}</p>
-        <button onclick="openGallery(${index})" style="width: 100%; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s;" onmouseover="this.style.background='${cat.hex}'" onmouseout="this.style.background='var(--ink)'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Открыть карточку
-        </button>
-      </div>
-    `;
+    const popup = '\n      <div style="padding: 14px 16px 12px; min-width: 220px; max-width: 260px;">\n        <div class="pill" style="color:' + cat.hex + '; font-weight: 600; margin-bottom: 6px;">' + cat.emoji + ' ' + catText + '</div>\n        <h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; margin: 0 0 4px; overflow-wrap: anywhere;">' + locName + '</h3>\n        <p style="font-size: 12px; color: var(--ink-mute); font-style: italic; margin: 0 0 10px;">' + locCountry + '</p>\n        <p style="font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin: 0 0 10px;">' + formatCoords(loc) + '</p>\n        <button onclick="openGallery(' + index + ')" style="width: 100%; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s;" onmouseover="this.style.background=\'' + cat.hex + '\'" onmouseout="this.style.background=\'var(--ink)\'">\n          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>\n          ' + escapeHtml(ui().openCard) + '\n        </button>\n      </div>\n    ';
     marker.bindPopup(popup, { className: 'custom-popup', closeButton: true, autoPan: true });
     markerCluster.addLayer(marker);
     markerByIndex.set(index, marker);
   });
 }
 
-// Ленивая подгрузка превью карточек
 let cardThumbObserver = null;
 function ensureThumbObserver() {
   if (cardThumbObserver) return cardThumbObserver;
@@ -1899,7 +2008,7 @@ function ensureThumbObserver() {
       if (summary?.thumb) {
         const img = document.createElement('img');
         img.src = summary.thumb;
-        img.alt = loc.name;
+        img.alt = displayName(loc);
         img.loading = 'lazy';
         img.onload = () => { const ph = el.querySelector('.ph'); if (ph) ph.remove(); };
         el.appendChild(img);
@@ -1912,15 +2021,10 @@ function ensureThumbObserver() {
 function renderList(filtered) {
   const container = document.getElementById('location-list');
   container.innerHTML = '';
+  const t = ui();
 
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12 px-4" style="color: var(--ink-mute);">
-        <div class="text-5xl mb-3 opacity-50">🔍</div>
-        <p class="font-display italic text-base">Ничего не найдено</p>
-        <p class="text-xs mt-1">Попробуйте изменить запрос или фильтры</p>
-      </div>
-    `;
+    container.innerHTML = '<div class="text-center py-12 px-4" style="color: var(--ink-mute);"><div class="text-5xl mb-3 opacity-50">🔍</div><p class="font-display italic text-base">' + escapeHtml(t.noResultsTitle) + '</p><p class="text-xs mt-1">' + escapeHtml(t.noResultsHint) + '</p></div>';
     return;
   }
 
@@ -1931,43 +2035,18 @@ function renderList(filtered) {
     const tags = getTags(loc);
     const visitedNow = isVisited(loc);
     const card = document.createElement('div');
-    card.className = 'loc-card p-3 rounded-xl cursor-pointer anim-in' + (visitedNow ? ' visited' : '');
-    card.style.animationDelay = `${Math.min(i * 6, 180)}ms`;
-    const tagsHtml = tags.slice(0, 2).map(t => {
-      const tc = tagConfig[t];
-      return `<span class="tag tag-${t}">${tc.emoji} ${tc.short}</span>`;
+    card.className = 'loc-card p-3 rounded-lg cursor-pointer anim-in' + (visitedNow ? ' visited' : '');
+    card.style.animationDelay = Math.min(i * 6, 180) + 'ms';
+    const tagsHtml = tags.slice(0, 2).map(tk => {
+      const tc = tagConfig[tk];
+      if (!tc) return '';
+      return '<span class="tag tag-' + tk + '" title="' + escapeHtml(tagLabel(tk)) + '">' + tc.emoji + ' ' + escapeHtml(tagShort(tk)) + '</span>';
     }).join('');
-    card.innerHTML = `
-      <div class="flex items-start gap-3">
-        <div class="card-thumb" data-idx="${loc._i}">
-          <div class="ph">${cat.emoji}</div>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start justify-between gap-2">
-            <h4 class="font-display text-[15px] font-medium leading-tight truncate flex-1" style="color: var(--ink);">${loc.name}</h4>
-            <input type="checkbox" class="visit-check" ${visitedNow ? 'checked' : ''} title="Был тут" data-visit="${loc._i}">
-          </div>
-          <p class="text-[11px] italic mt-0.5 truncate" style="color: var(--ink-mute);">${loc.country}</p>
-          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-            <span class="pill" style="color: ${cat.hex};">${cat.label}</span>
-            ${tagsHtml}
-          </div>
-        </div>
-      </div>
-    `;
-    // Клик по карточке (но не по чекбоксу)
-    card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('visit-check')) return;
-      flyToAndOpen(loc._i);
-    });
-    // Чекбокс «был тут»
+    card.innerHTML = '<div class="flex items-start gap-3 min-w-0"><div class="card-thumb" data-idx="' + loc._i + '"><div class="ph">' + cat.emoji + '</div></div><div class="loc-card-body flex-1"><div class="flex items-start justify-between gap-2 min-w-0"><h4 class="loc-card-title font-display text-[15px] font-medium leading-tight flex-1" style="color: var(--ink);">' + escapeHtml(displayName(loc)) + '</h4><input type="checkbox" class="visit-check" ' + (visitedNow ? 'checked' : '') + ' title="' + escapeHtml(t.visitTitle) + '" data-visit="' + loc._i + '"></div><p class="loc-card-country text-[11px] italic mt-0.5" style="color: var(--ink-mute);">' + escapeHtml(displayCountry(loc)) + '</p><div class="loc-card-badges flex items-center gap-1.5 mt-1.5 flex-wrap"><span class="pill" style="color: ' + cat.hex + ';">' + escapeHtml(catLabel(loc.category)) + '</span>' + tagsHtml + '</div></div></div>';
+    card.addEventListener('click', (e) => { if (e.target.classList.contains('visit-check')) return; flyToAndOpen(loc._i); });
     const cb = card.querySelector('.visit-check');
     cb.addEventListener('click', (e) => e.stopPropagation());
-    cb.addEventListener('change', () => {
-      toggleVisited(loc);
-      card.classList.toggle('visited', isVisited(loc));
-      if (selectedLocationIndex === loc._i) syncModalVisit(loc);
-    });
+    cb.addEventListener('change', () => { toggleVisited(loc); card.classList.toggle('visited', isVisited(loc)); if (selectedLocationIndex === loc._i) syncModalVisit(loc); });
     container.appendChild(card);
     obs.observe(card.querySelector('.card-thumb'));
   });
@@ -1979,21 +2058,16 @@ function syncModalVisit(loc) {
   const on = isVisited(loc);
   btn.classList.toggle('on', on);
   document.getElementById('modalVisitIcon').textContent = on ? '✓' : '○';
-  document.getElementById('modalVisitLabel').textContent = on ? 'Я там был' : 'Отметить как посещённое';
+  document.getElementById('modalVisitLabel').textContent = on ? ui().modalVisited : ui().modalVisit;
 }
 
 function flyToAndOpen(index) {
   const loc = locations[index];
   map.flyTo([loc.lat, loc.lng], 7, { duration: 1.4 });
-
-  // Ждём пока кластер раскроется
   setTimeout(() => {
     const marker = markerByIndex.get(index);
-    if (marker) {
-      markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
-    }
+    if (marker) markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
   }, 200);
-
   openGallery(index);
 }
 
@@ -2006,19 +2080,13 @@ function renderStats() {
   const counts = {};
   Object.keys(catConfig).forEach(k => counts[k] = 0);
   locations.forEach(l => counts[l.category]++);
-
   const bar = document.getElementById('statsBar');
-  bar.innerHTML = Object.entries(catConfig).map(([k, c]) => `
-    <button onclick="setFilterCategory('${k}')" class="flex items-center gap-1.5 hover:opacity-100 opacity-80 transition-opacity">
-      <span style="color: ${c.hex};">${c.emoji}</span>
-      <span class="font-mono" style="color: var(--ink-mute);">${counts[k]}</span>
-    </button>
-  `).join('');
+  bar.innerHTML = Object.entries(catConfig).map(([k, c]) => '<button onclick="setFilterCategory(\'' + k + '\')" class="flex items-center gap-1.5 hover:opacity-100 opacity-80 transition-opacity" title="' + escapeHtml(catLabel(k)) + '"><span style="color: ' + c.hex + ';">' + c.emoji + '</span><span class="font-mono" style="color: var(--ink-mute);">' + counts[k] + '</span></button>').join('');
 }
 
 function setFilterCategory(cat) {
   document.getElementById('categoryFilter').value = cat;
-  renderEverything();
+  renderAndSync();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -2126,136 +2194,82 @@ window.openGallery = async function(index) {
   selectedLocationIndex = index;
   const loc = locations[index];
   const cat = catConfig[loc.category];
+  const t = ui();
+  const locName = displayName(loc);
 
   const modal = document.getElementById('galleryModal');
   const modalContent = document.getElementById('modalContent');
   const grid = document.getElementById('galleryGrid');
 
-  document.getElementById('modalTitle').textContent = loc.name;
-  document.getElementById('modalCountry').textContent = loc.country;
-  document.getElementById('modalCoords').textContent = `${loc.lat.toFixed(4)}° N · ${loc.lng.toFixed(4)}° E`;
+  document.getElementById('modalTitle').textContent = locName;
+  document.getElementById('modalCountry').textContent = displayCountry(loc);
+  document.getElementById('modalCoords').textContent = formatCoords(loc);
 
   const catBadge = document.getElementById('modalCategory');
-  catBadge.textContent = `${cat.emoji} ${cat.label}`;
+  catBadge.textContent = cat.emoji + ' ' + catLabel(loc.category);
   catBadge.style.color = cat.hex;
   catBadge.style.backgroundColor = cat.hex + '20';
 
-  // Теги
   const tagsBox = document.getElementById('modalTags');
   const tags = getTags(loc);
-  tagsBox.innerHTML = tags.map(t => {
-    const tc = tagConfig[t];
+  tagsBox.innerHTML = tags.map(tag => {
+    const tc = tagConfig[tag];
     if (!tc) return '';
-    return `<span class="tag tag-${t}" title="${tc.label}">${tc.emoji} ${tc.short}</span>`;
+    return '<span class="tag tag-' + tag + '" title="' + escapeHtml(tagLabel(tag)) + '">' + tc.emoji + ' ' + escapeHtml(tagShort(tag)) + '</span>';
   }).join('');
 
-  // Кнопка «был тут»
   const visitBtn = document.getElementById('modalVisitBtn');
   syncModalVisit(loc);
   visitBtn.onclick = () => {
     toggleVisited(loc);
     syncModalVisit(loc);
-    // обновим карточку в списке
-    const cb = document.querySelector(`.visit-check[data-visit="${index}"]`);
+    const cb = document.querySelector('.visit-check[data-visit="' + index + '"]');
     if (cb) {
       cb.checked = isVisited(loc);
       cb.closest('.loc-card').classList.toggle('visited', isVisited(loc));
     }
-    toast(isVisited(loc) ? `✓ Добавлено: ${loc.name}` : `Убрано из посещённых`);
+    toast(isVisited(loc) ? t.added(locName) : t.removed);
   };
 
-  // Ссылки
-  document.getElementById('modalOpenMap').onclick = () => {
-    closeGallery();
-    flyToAndOpen(index);
-  };
+  document.getElementById('modalOpenMap').onclick = () => { closeGallery(); flyToAndOpen(index); };
   document.getElementById('modalWiki').onclick = () => {
-    const wikiTitle = loc.wikiEnTitle || loc.en;
-    if (wikiTitle) {
-      window.open(`https://en.wikipedia.org/wiki/${encodeURIComponent(wikiTitle.replace(/ /g, '_'))}`, '_blank');
-    } else {
-      const query = encodeURIComponent(loc.name.replace(/\(.*\)/, '').trim());
-      window.open(`https://ru.wikipedia.org/wiki/Special:Search?search=${query}`, '_blank');
-    }
+    const wikiTitle = currentLang === 'ru' ? (loc.wikiRuTitle || loc.name) : (loc.wikiEnTitle || loc.en);
+    const wikiLang = currentLang === 'ru' ? 'ru' : 'en';
+    if (wikiTitle) window.open('https://' + wikiLang + '.wikipedia.org/wiki/' + encodeURIComponent(wikiTitle.replace(/ /g, '_')), '_blank');
   };
 
   modal.classList.remove('hidden');
-  setTimeout(() => {
-    modal.classList.remove('opacity-0');
-    modalContent.classList.remove('scale-95');
-  }, 10);
+  setTimeout(() => { modal.classList.remove('opacity-0'); modalContent.classList.remove('scale-95'); }, 10);
 
-  // Сбрасываем hero / описание / факты
   const hero = document.getElementById('modalHero');
-  hero.innerHTML = `<div class="ph">${cat.emoji}</div>`;
-  document.getElementById('modalDesc').innerHTML = `<p style="color: var(--ink-mute); font-style: italic;">Загружаем описание из Википедии…</p>`;
-  document.getElementById('modalFacts').innerHTML = `<li style="color: var(--ink-mute); font-style: italic;">Подбираем интересные факты…</li>`;
+  hero.innerHTML = '<div class="ph">' + cat.emoji + '</div>';
+  document.getElementById('modalDesc').innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">' + escapeHtml(t.loadingDesc) + '</p>';
+  document.getElementById('modalFacts').innerHTML = '<li style="color: var(--ink-mute); font-style: italic;">' + escapeHtml(t.loadingFacts) + '</li>';
 
-  // Грузим summary параллельно с картинками
   fetchSummary(loc).then(summary => {
-    if (selectedLocationIndex !== index) return; // пользователь уже переключился
-    // Hero
-    if (summary?.thumbWide) {
-      hero.innerHTML = `<img src="${summary.thumbWide}" alt="${loc.name}" loading="lazy">`;
-    }
-    // Описание
+    if (selectedLocationIndex !== index) return;
+    if (summary?.thumbWide) hero.innerHTML = '<img src="' + summary.thumbWide + '" alt="' + escapeHtml(locName) + '" loading="lazy">';
     const descBox = document.getElementById('modalDesc');
     if (summary?.extract) {
-      const paragraphs = summary.extract
-        .split(/\n+/).map(p => p.trim()).filter(Boolean);
-      descBox.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+      const paragraphs = summary.extract.split(/\n+/).map(p => p.trim()).filter(Boolean);
+      descBox.innerHTML = paragraphs.map(p => '<p>' + escapeHtml(p) + '</p>').join('');
     } else {
-      descBox.innerHTML = `<p style="color: var(--ink-mute); font-style: italic;">Подробного описания пока нет. Откройте Википедию для полной статьи.</p>`;
+      descBox.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">' + escapeHtml(t.noDesc) + '</p>';
     }
-    // Факты
     const factsBox = document.getElementById('modalFacts');
     const baseFacts = [];
-    // Tag-based "почему это чудо"
-    if (tags.includes('instagram')) baseFacts.push('Входит в импортированный список <b>Instagram Wonders</b>.');
-    if (tags.includes('7nat')) baseFacts.push('Входит в классические <b>Семь природных чудес света</b> (CNN, 1997).');
-    if (tags.includes('new7')) baseFacts.push('Победитель глобального голосования <b>«Новые 7 чудес природы»</b> (2011).');
-    if (tags.includes('unesco')) baseFacts.push('Объект <b>Всемирного наследия ЮНЕСКО</b> — охраняется международным правом.');
-    if (tags.includes('extreme')) baseFacts.push('Одно из самых <b>экстремальных мест</b> планеты — требует подготовки.');
-    if (tags.includes('underrated')) baseFacts.push('Малоизвестная жемчужина — туристов в разы меньше, чем у икон.');
-
-    const extracted = extractFacts(summary?.extract || '');
+    ['instagram','7nat','new7','unesco','extreme','underrated'].forEach(tag => { if (tags.includes(tag)) baseFacts.push(t.tagFacts[tag]); });
+    const extracted = extractFacts(summary?.extract || '').map(escapeHtml);
     const all = [...baseFacts, ...extracted].slice(0, 6);
-    if (all.length === 0) {
-      factsBox.innerHTML = `<li style="color: var(--ink-mute); font-style: italic;">Факты появятся по мере наполнения базы.</li>`;
-    } else {
-      factsBox.innerHTML = all.map(f => `<li>${f}</li>`).join('');
-    }
+    factsBox.innerHTML = all.length ? all.map(f => '<li>' + f + '</li>').join('') : '<li style="color: var(--ink-mute); font-style: italic;">' + escapeHtml(t.noFacts) + '</li>';
   });
 
-  // Скелетон 6 кадров
-  grid.innerHTML = Array(6).fill().map(() => `
-    <div class="h-48 md:h-56 rounded-xl skel"></div>
-  `).join('');
-
+  grid.innerHTML = Array(6).fill().map(() => '<div class="h-48 md:h-56 rounded-xl skel"></div>').join('');
   const images = await fetchImages(loc);
-
   if (images.length === 0) {
-    grid.innerHTML = `
-      <div class="col-span-1 md:col-span-3 py-16 px-4 text-center rounded-xl border-2 border-dashed" style="border-color: var(--line); color: var(--ink-mute);">
-        <div class="text-5xl mb-3 opacity-40">📷</div>
-        <p class="font-display italic text-lg mb-1">Фотографии не найдены</p>
-        <p class="text-xs">Попробуйте открыть в Википедии для подробностей</p>
-      </div>
-    `;
+    grid.innerHTML = '<div class="col-span-1 md:col-span-3 py-16 px-4 text-center rounded-xl border-2 border-dashed" style="border-color: var(--line); color: var(--ink-mute);"><div class="text-5xl mb-3 opacity-40">📷</div><p class="font-display italic text-lg mb-1">' + escapeHtml(t.noPhotosTitle) + '</p><p class="text-xs">' + escapeHtml(t.noPhotosHint) + '</p></div>';
   } else {
-    grid.innerHTML = images.map((img, i) => `
-      <a href="${img.full}" target="_blank" rel="noopener" class="group block relative overflow-hidden rounded-xl anim-in" style="animation-delay: ${i * 40}ms; background: var(--bg-2);">
-        <img src="${img.url}" alt="${loc.name}" loading="lazy"
-             class="w-full h-48 md:h-56 object-cover transform group-hover:scale-105 transition-transform duration-500"
-             onerror="this.parentElement.style.display='none'">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-          <span class="text-white text-[11px] font-medium flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Полное изображение
-          </span>
-        </div>
-      </a>
-    `).join('');
+    grid.innerHTML = images.map((img, i) => '<a href="' + img.full + '" target="_blank" rel="noopener" class="group block relative overflow-hidden rounded-xl anim-in" style="animation-delay: ' + (i * 40) + 'ms; background: var(--bg-2);"><img src="' + img.url + '" alt="' + escapeHtml(locName) + '" loading="lazy" class="w-full h-48 md:h-56 object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.parentElement.style.display=\'none\'"><div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3"><span class="text-white text-[11px] font-medium flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' + escapeHtml(t.fullImage) + '</span></div></a>').join('');
   }
 };
 
@@ -2282,14 +2296,14 @@ window.randomLocation = function() {
   const filtered = getFilteredLocations();
   const pool = filtered.length > 0 ? filtered : locations.map((l, i) => ({...l, _i: i}));
   const pick = pool[Math.floor(Math.random() * pool.length)];
-  toast(`✦ ${pick.name}`);
+  toast('✦ ' + displayName(pick));
   flyToAndOpen(pick._i);
 };
 
 window.copyShareLink = function() {
   navigator.clipboard.writeText(window.location.href).then(
-    () => toast('Ссылка скопирована'),
-    () => toast('Не удалось скопировать')
+    () => toast(ui().copied),
+    () => toast(ui().copyFailed)
   );
 };
 
@@ -2358,6 +2372,7 @@ function syncUrlFilters() {
   if (category !== 'all') params.set('category', category);
   if (tag !== 'all') params.set('tag', tag);
   if (search) params.set('q', search);
+  if (currentLang !== 'ru') params.set('lang', currentLang);
 
   const next = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
   window.history.replaceState(null, '', next);
@@ -2380,6 +2395,9 @@ document.getElementById('categoryFilter').addEventListener('change', renderAndSy
 document.getElementById('sortSelect').addEventListener('change', renderEverything);
 document.getElementById('tagFilter').addEventListener('change', renderAndSync);
 document.getElementById('visitedFilter').addEventListener('change', renderEverything);
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+});
 document.getElementById('clearFilters').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
   document.getElementById('categoryFilter').value = 'all';
@@ -2387,15 +2405,15 @@ document.getElementById('clearFilters').addEventListener('click', () => {
   document.getElementById('tagFilter').value = 'all';
   document.getElementById('visitedFilter').value = 'all';
   renderAndSync();
-  toast('Фильтры сброшены');
+  toast(ui().filtersReset);
 });
 document.getElementById('resetVisited').addEventListener('click', () => {
-  if (!visited.size) { toast('Список пуст'); return; }
-  if (!confirm(`Сбросить все ${visited.size} отметок «был тут»?`)) return;
+  if (!visited.size) { toast(ui().emptyVisits); return; }
+  if (!confirm(ui().confirmReset(visited.size))) return;
   visited.clear();
   localStorage.setItem(VISIT_KEY, '[]');
   renderEverything();
-  toast('История посещений очищена');
+  toast(ui().visitsCleared);
 });
 
 // Клавиатура
@@ -2417,6 +2435,7 @@ document.getElementById('galleryModal').addEventListener('click', (e) => {
 //   ЗАПУСК
 // ═══════════════════════════════════════════════════════════════════════
 initMap();
+setLanguage(currentLang, { sync: false, render: false });
 renderStats();
 document.getElementById('visitedTotal').textContent = locations.length;
 applyInitialUrlFilters();
@@ -2453,7 +2472,7 @@ flyToAndOpen = function(...args) {
 
 // Лог
 console.log(`%c✦ Atlas Naturae`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
-console.log(`%c${locations.length} мест в базе. Горячие клавиши: / поиск, Esc закрыть, Ctrl+R сюрприз.`, 'color: #6E6856;');
+console.log(`%c${locations.length} places in the database. Shortcuts: / search, Esc close, Ctrl+R surprise.`, 'color: #6E6856;');
 </script>
 
 </body>
