@@ -670,8 +670,10 @@ async function fetchSummary(loc) {
     } catch { return null; }
   };
   let res = null;
-  if (loc.en) res = await tryLang('en', loc.en);
-  if (!res) res = await tryLang('ru', loc.name.replace(/\(.*?\)/g,'').trim());
+  // Сначала пробуем русскую Википедию — описания должны быть на русском
+  const ruTitle = loc.name.replace(/\(.*?\)/g,'').trim();
+  res = await tryLang('ru', ruTitle);
+  if (!res && loc.en) res = await tryLang('en', loc.en);
   summaryCache.set(key, res);
   return res;
 }
