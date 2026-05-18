@@ -1848,6 +1848,36 @@ document.getElementById('visitedTotal').textContent = locations.length;
 renderEverything();
 updateProgress();
 
+// ═══════════════════════════════════════════════════════════════════════
+//   МОБИЛЬНЫЕ ТАБЫ — переключение между списком и картой
+// ═══════════════════════════════════════════════════════════════════════
+const tabList = document.getElementById('tabList');
+const tabMap = document.getElementById('tabMap');
+const sidePanel = document.getElementById('sidePanel');
+const mapPanel = document.getElementById('mapPanel');
+function showMobileTab(which) {
+  if (which === 'map') {
+    sidePanel.classList.add('mobile-hidden');
+    mapPanel.classList.remove('mobile-hidden');
+    tabMap.classList.add('active'); tabList.classList.remove('active');
+    setTimeout(() => map && map.invalidateSize(), 50);
+  } else {
+    mapPanel.classList.add('mobile-hidden');
+    sidePanel.classList.remove('mobile-hidden');
+    tabList.classList.add('active'); tabMap.classList.remove('active');
+  }
+}
+tabList.addEventListener('click', () => showMobileTab('list'));
+tabMap.addEventListener('click', () => showMobileTab('map'));
+// При клике по карточке на мобильных — открываем карту
+const _origFly = window.flyToLocation;
+if (typeof _origFly === 'function') {
+  window.flyToLocation = function(...args) {
+    if (window.innerWidth <= 768) showMobileTab('map');
+    return _origFly.apply(this, args);
+  };
+}
+
 // Лог
 console.log(`%c✦ Atlas Naturae`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
 console.log(`%c${locations.length} мест в базе. Горячие клавиши: / поиск, Esc закрыть, Ctrl+R сюрприз.`, 'color: #6E6856;');
