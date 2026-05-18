@@ -72,16 +72,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Wonder Weaver is an app for discovering and tracking natural wonders worldwide." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Wonder Weaver is an app for discovering and tracking natural wonders worldwide." },
+      { title: "Atlas Naturae — 400 Чудес Природы" },
+      { name: "description", content: "Atlas Naturae — кураторский атлас 400 природных чудес мира с картой, описаниями, фактами и отметками о посещённых местах." },
+      { name: "author", content: "Atlas Naturae" },
+      { property: "og:title", content: "Atlas Naturae — 400 Чудес Природы" },
+      { property: "og:description", content: "Кураторский атлас 400 природных чудес мира с картой, описаниями и отметками посещений." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Wonder Weaver is an app for discovering and tracking natural wonders worldwide." },
+      { name: "twitter:title", content: "Atlas Naturae — 400 Чудес Природы" },
+      { name: "twitter:description", content: "Кураторский атлас 400 природных чудес мира с картой и отметками посещений." },
     ],
     links: [
       {
