@@ -1,0 +1,542 @@
+sourceIndex,status,score,sourceName,seed,item,en,name,country,lat,lng,category,wikiEnTitle,wikiRuTitle,image,typeLabel,note
+,unresolved,,,Badakhshan,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Farah,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Devoll (Bilisht),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Diber (Peshkopi),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Adrar,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Alger,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Batna,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Eastern,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Rose Island,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Western,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Bengo,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Bie,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cabinda,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ross Dependency,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Peter I Island,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Queen Maud Land,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint George,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint John,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Mary,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint Paul,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Peter,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint Philip,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Antartica e Islas del Atlantico Sur,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Buenos Aires,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Catamarca,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Chaco,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Chubut,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cordoba,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ararat,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Armavir,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Geghark'unik',,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kotayk',,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Lorri,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Shirak,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ashmore and Cartier Island,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Victoria,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Abseron Rayonu,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Agcabadi Rayonu,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Agdam Rayonu,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Agdas Rayonu,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Agstafa Rayonu,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Agsu Rayonu,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Ali Bayramli Sahari,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Astara Rayonu,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Cat Island,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Freeport,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Al Mintaqah al Wusta,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Rangpur,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Christ Church,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Saint Andrew,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint George,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint James,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint John,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Joseph,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint Lucy,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Brestskaya (Brest),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Homyel'skaya (Homyel'),,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Hrodzyenskaya (Hrodna),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Mahilyowskaya (Mahilyow),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Vitsyebskaya (Vitsyebsk),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Brussels Capitol Region,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Hainaut,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Limburg,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cayo,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Corozal,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Orange Walk,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Stann Creek,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Toledo,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Atakora,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Atlantique,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Collines,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Donga,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Littoral,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Hamilton,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Hamilton,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Paget,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Pembroke,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint George,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Georges,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Sandys,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bumthang,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Chirang,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Daga,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Paro,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Beni,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Chuquisaca,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Pando,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Potosi,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Santa Cruz,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Central,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Chobe,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Kgalagadi,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Acre,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Amapa,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Amazonas,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Distrito Federal,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Belait,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Tutong,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Bale,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bam,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Comoe,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ayeyarwady,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bago,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Magway,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Kampong Cham,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kampong Chhnang,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kampong Spoe,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kampong Thum,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kandal,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Adamaoua,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Centre,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Est,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Extreme-Nord,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Littoral,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Nord,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Nord-Ouest,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ouest,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Boa Vista,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Brava,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Maio,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Mosteiros,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Paul,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ribeira Grande,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Creek,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Eastern,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Midland,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,South Town,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Spot Bay,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Stake Bay,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,West End,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Western,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Batha,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Biltine,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Borkou-Ennedi-Tibesti,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Chari-Baguirmi,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Guera,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kanem,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Lac,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Logone Occidental,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Aisen del General Carlos Ibanez del Campo,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Araucania,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Bio-Bio,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Los Lagos,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Direction Island,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Amazonas,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Antioquia,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Arauca,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Bolivar,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Boyaca,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Caldas,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Caqueta,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Anjouan (Nzwani),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Grande Comore (Njazidja),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Moheli (Mwali),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Moroni,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Bandundu,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Katanga,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cuvette,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kouilou,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Likouala,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Niari,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Plateaux,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Manuae,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cartago,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Guanacaste,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Heredia,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Limon,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,San Jose,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Adiake',,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Ale'pe',,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bjelovarsko-Bilogorska Zupanija,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Brodsko-Posavska Zupanija,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Dubrovacko-Neretvanska Zupanija,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Istarska Zupanija,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Karlovacka Zupanija,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Koprivnicko-Krizevacka Zupanija,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Krapinsko-Zagorska Zupanija,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Licko-Senjska Zupanija,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Granma,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Brnensky,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Budejovicky,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Jihlavsky,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Karlovarsky,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kralovehradecky,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Olomoucky,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ostravsky,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Fredericksberg,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Frederiksborg,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kobenhavns,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Nordjylland,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint Andrew,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint David,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Saint Joseph,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint Luke,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Mark,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint Patrick,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Azua,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Baoruco,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Barahona,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Duarte,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Bolivar,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Canar,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,El Oro,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Esmeraldas,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Al Bahr al Ahmar,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Al Buhayrah,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Al Gharbiyah,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Al Iskandariyah,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Al Isma'iliyah,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Al Jizah,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Cabanas,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Chalatenango,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,La Libertad,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Morazan,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Litoral,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Barka,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Denkel,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Sahil,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Senhit,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Harjumaa (Tallinn),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Hiiumaa (Kardla),,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Ida-Virumaa (Johvi),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Jarvamaa (Paide),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Jogevamaa (Jogeva),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Laane-Virumaa (Rakvere),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Laanemaa (Haapsalu),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Parnumaa (Parnu),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Adis Abeba (Addis Ababa),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Afar,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Amara,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Gambela Hizboch,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Hareri Hizb,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Sumale,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bordoy,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Mykines,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Northern,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Lappi,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Oulun Laani,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Bretagne,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Centre,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Archipel des Marquises,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Archipel des Tubuai,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Iles Sous-le-Vent,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ile Crozet,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Iles Saint-Paul et Amsterdam,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Estuaire,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Nyanga,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,North Bank,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Western,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Abashis,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Abkhazia or Ap'khazet'is Avtonomiuri Respublika (Sokhumi),,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Adigenis,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ajaria or Acharis Avtonomiuri Respublika (Bat'umi),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Akhalgoris,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Akhalk'alak'is,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Akhalts'ikhis,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Akhmetis,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ashanti,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Central,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Eastern,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Northern,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Upper East,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Upper West,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ile Glorieuse,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Arkadhia,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Arta,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ayion Oros (Mt. Athos),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Avannaa (Nordgronland),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Kitaa (Vestgronland),,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Tunu (Ostgronland),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint Andrew,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Saint David,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint John,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint Mark,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Patrick,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Grande-Terre,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Iles de la Petite Terre,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Castel,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Forest,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,St. Andrew,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,St. Martin,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,St. Sampson,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,St. Saviour,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Beyla,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Boffa,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Boke,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Bafata,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bolama-Bijagos,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Gabu,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Oio,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Artibonite,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Grand'Anse,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Nord,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Nord-Est,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Nord-Ouest,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Ouest,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Sud,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Holy See (Vatican ),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Atlantida,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Choluteca,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Colon,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Cortes,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,El Paraiso,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Francisco Morazan,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Baranya,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Austur-Bardhastrandarsysla,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Austur-Hunavatnssysla,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Borgarfjardharsysla,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Azarbayjan-e Gharbi,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Fars,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Al Qadisiyah,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Clare,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Cork,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Donegal,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kerry,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Antrim,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ards,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Northern,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Southern,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Clarendon,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Kingston,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Portland,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Saint Andrew,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Saint Ann,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Saint Catherine,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Akita,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Chiba,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Fukui,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Fukushima,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Aqmola,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Coast,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Eastern,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,North Eastern,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Nyanza,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Rift Valley,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Beru,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Chagang-do (Chagang ),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Hamgyong-bukto (North Hamgyong ),,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Hamgyong-namdo (South Hamgyong ),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Hwanghae-bukto (North Hwanghae ),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Hwanghae-namdo (South Hwanghae ),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Kaesong-si (Kaesong ),,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kangwon-do (Kangwon ),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Namp'o-si (Namp'o ),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ch'ungch'ong-bukto,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ch'ungch'ong-namdo,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Cholla-bukto,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cholla-namdo,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Inch'on-gwangyoksi,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Kangwon-do,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Kwangju-gwangyoksi,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Al 'Asimah,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Al Ahmadi,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Hawalli,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Chuy Oblasty (Bishkek),,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Ysyk-Kol Oblasty (Karakol),,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Champasak,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Aizkraukles Rajons,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Aluksnes Rajons,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Balvu Rajons,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Bauskas Rajons,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Cesu Rajons,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Daugavpils Rajons,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Dobeles Rajons,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Ech Chimal,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Ej Jnoub,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,El Bekaa,,,,,,,water,,,,,could not resolve seed country
+,unresolved,,,Jabal Loubnane,,,,,,,desert,,,,,could not resolve seed country
+,unresolved,,,Berea,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bomi,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Bong,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Lofa,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Akmenes Rajonas,,,,,,,mountain,,,,,could not resolve seed country
+,unresolved,,,Alytaus Rajonas,,,,,,,forest,,,,,could not resolve seed country
+,unresolved,,,Benguela,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Manu'a,,,,,,,forest,,,,,This operation was aborted
+,error,,,Anguilla,,,,,,,mountain,,,,,This operation was aborted
+,error,,,British Antarctic Territory,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Devonshire,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Anegada,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Falkland Islands (Islas Malvinas),,,,,,,mountain,,,,,This operation was aborted
+,error,,,Gibraltar,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Carrickfergus,,,,,,,mountain,,,,,This operation was aborted
+,unresolved,,,Redonda,,,,,,,forest,,,,,no country/category candidate above threshold
+,error,,,Adélie Land,,,,,,,desert,,,,,This operation was aborted
+,error,,,Auvergne,,,,,,,desert,,,,,This operation was aborted
+,error,,,Bourgogne,,,,,,,desert,,,,,This operation was aborted
+,error,,,Iles Kerguelen,,,,,,,desert,,,,,This operation was aborted
+,error,,,Marie-Galante,,,,,,,desert,,,,,This operation was aborted
+,unresolved,,,Governor's Harbour,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Green Turtle Cay,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Bimini,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Al Hadd,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Ar Rifa' wa al Mintaqah al Janubiyah,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Jidd Hafs,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Al Manamah,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Al Mintaqah ash Shamaliyah,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Barisal,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Sylhet,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Chittagong,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Dhaka,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Khulna,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Bridgetown,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Horad Minsk,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Liege,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Francistown,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Ghanzi,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Kgatleng,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Kweneng,,,,,,,mountain,,,,,no country/category candidate above threshold
+,error,,,Tortola,,,,,,,desert,,,,,This operation was aborted
+,error,,,Armagh,,,,,,,desert,,,,,This operation was aborted
+,error,,,Ballymoney,,,,,,,desert,,,,,This operation was aborted
+,unresolved,,,Temburong,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Banwa,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Bougouriba,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Boulkiemde,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Chin State,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Kayah State,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Karuzi,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Kayanza,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Bururi,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Cibitoke,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Virgin Gorda,,,,,,,water,,,,,This operation was aborted
+,error,,,Ballymena,,,,,,,water,,,,,This operation was aborted
+,error,,,Banbridge,,,,,,,water,,,,,This operation was aborted
+,error,,,Manchester,,,,,,,water,,,,,This operation was aborted
+,unresolved,,,Bamingui-Bangoran,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Haute-Sangha,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Kemo-Gribingui,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Bangui,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Basse-Kotto,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Haut-Mbomou,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Fujian,,,,,,,water,,,,,This operation was aborted
+,error,,,Guangdong,,,,,,,water,,,,,This operation was aborted
+,error,,,Clipperton Island,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Europa Island,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Alsace,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Champagne-Ardenne,,,,,,,mountain,,,,,This operation was aborted
+,error,,,French Guiana,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Adelie Land,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Ile du Lys,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Basse-Terre,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Juan de Nova Island,,,,,,,mountain,,,,,This operation was aborted
+,unresolved,,,Domoni,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Equateur,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Kasai-Oriental,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Bouenza,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Lekoumou,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Mauke,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Mitiaro,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Atiu,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Avarua,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Manihiki,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Agnibilekrou,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Abidjan,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Aboisso,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Adzope,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Kyrenia,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Larnaca,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Nicosia,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Liberecky,,,,,,,water,,,,,no country/category candidate above threshold
+,error,,,Atlantico,,,,,,,water,,,,,This operation was aborted
+,error,,,Basse-Normandie,,,,,,,water,,,,,This operation was aborted
+,error,,,Iles du Vent,,,,,,,water,,,,,This operation was aborted
+,error,,,Iles des Saintes,,,,,,,water,,,,,This operation was aborted
+,unresolved,,,Dikhil,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Tadjoura,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Elias Pina,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Distrito Nacional,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Chimborazo,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Cuscatlan,,,,,,,water,,,,,no country/category candidate above threshold
+,unresolved,,,Annobon,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Wele-Nzas,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Bioko Sur,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Kie-Ntem,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Eysturoy,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Skuvoy,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Tvoroyri,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Ita-Suomen Laani,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Moyen-Ogooue,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Ogooue-Lolo,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Ogooue-Maritime,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Banjul,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Central River,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Lower River,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Upper River,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Aquitaine,,,,,,,forest,,,,,This operation was aborted
+,error,,,Archipel des Tuamotu,,,,,,,forest,,,,,This operation was aborted
+,error,,,Baden-Wuerttemberg,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Hessen,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Mecklenburg-Vorpommern,,,,,,,mountain,,,,,This operation was aborted
+,unresolved,,,Berlin,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Bayern,,,,,,,forest,,,,,This operation was aborted
+,error,,,Hanover,,,,,,,forest,,,,,This operation was aborted
+,error,,,Brandenburg,,,,,,,water,,,,,This operation was aborted
+,unresolved,,,Hamburg,,,,,,,water,,,,,no country/category candidate above threshold
+,unresolved,,,Greater Accra,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Bremen,,,,,,,desert,,,,,This operation was aborted
+,unresolved,,,Chimaltenango,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,El Progreso,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Copan,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,St. Peter Port,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Coyah,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Biombo,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Bissau,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Cacheu,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Quinara,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Pomeroon-Supenaam,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Potaro-Siparuni,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Cuyuni-Mazaruni,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Demerara-Mahaica,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Essequibo Islands-West Demerara,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Bekes,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Borsod-Abauj-Zemplen,,,,,,,desert,,,,,no country/category candidate above threshold
+,error,,,Guam,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Howland Island,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Jarvis Island,,,,,,,mountain,,,,,This operation was aborted
+,error,,,Johnston Atoll,,,,,,,mountain,,,,,This operation was aborted
+,unresolved,,,Dublin,,,,,,,water,,,,,no country/category candidate above threshold
+,unresolved,,,Belfast,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Jerusalem,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Jersey,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Abaiang,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Butaritari,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Central Gilberts,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Abemama,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Aranuka,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Banaba,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Al Farwaniyah,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Bokeo,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Bolikhamxai,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Houaphan,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Leribe,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Maseru,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Grand Bassa,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Grand Gedeh,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Margibi,,,,,,,mountain,,,,,no country/category candidate above threshold
+,unresolved,,,Al 'Aziziyah,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Eschen,,,,,,,forest,,,,,no country/category candidate above threshold
+,unresolved,,,Gamprin,,,,,,,desert,,,,,no country/category candidate above threshold
+,unresolved,,,Planken,,,,,,,desert,,,,,no country/category candidate above threshold
