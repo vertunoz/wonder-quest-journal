@@ -535,6 +535,38 @@
   .advanced-filters summary::-webkit-details-marker { display: none; }
   .advanced-filters summary::after { content: "+"; font-family: var(--mono); color: var(--accent); }
   .advanced-filters[open] summary::after { content: "-"; }
+  .travel-card {
+    border: 1px solid var(--line); border-radius: 10px;
+    background: color-mix(in oklab, var(--bg) 88%, var(--bg-2));
+  }
+  .travel-metric {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px; background: var(--bg);
+  }
+  .travel-metric .k { display: block; font-size: 10px; color: var(--ink-mute); font-weight: 700; }
+  .travel-metric .v { display: block; margin-top: 3px; font-size: 13px; color: var(--ink); font-weight: 750; }
+  .board-status-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 34px; padding: 7px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg);
+    color: var(--ink); font-size: 12px; font-weight: 700;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .board-status-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .board-status-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .board-panel-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 7px 0; border-top: 1px solid var(--line);
+  }
+  .board-mini-name {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 12px; font-weight: 650; color: var(--ink);
+  }
+  .board-mini-status { font-family: var(--mono); font-size: 10px; color: var(--accent); flex-shrink: 0; }
+  .board-chip {
+    border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--line));
+    color: var(--accent); background: color-mix(in oklab, var(--accent) 9%, transparent);
+  }
 </style>
 </head>
 
@@ -637,6 +669,15 @@
       </div>
     </div>
 
+    <div id="boardPanel" class="px-5 py-3 border-b flex-shrink-0" style="border-color: var(--line); background: var(--bg);">
+      <div class="flex items-center justify-between mb-2">
+        <span id="boardTitle" class="pill" style="color: var(--accent);">Доска мечты</span>
+        <span id="boardTotal" class="font-mono text-[11px]" style="color: var(--ink-mute);">0</span>
+      </div>
+      <div id="boardStatusCounts" class="grid grid-cols-4 gap-1.5 mb-2"></div>
+      <div id="boardMiniList"></div>
+    </div>
+
     <!-- Статистика по категориям -->
     <div id="statsBar" class="px-5 py-3 border-b flex-shrink-0 flex flex-wrap gap-x-3 gap-y-2 text-[10px]" style="border-color: var(--line); background: var(--bg-2);">
       <!-- генерируется JS -->
@@ -721,6 +762,18 @@
         <!-- Hero изображение -->
         <div id="modalHero" class="modal-hero mb-6">
           <div class="ph">🏞️</div>
+        </div>
+
+        <div id="modalTravelPanel" class="travel-card p-4 md:p-5 mb-5"></div>
+
+        <div id="modalBoardActions" class="travel-card p-3 md:p-4 mb-6">
+          <div id="modalBoardTitle" class="section-title mb-3">Доска мечты</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button type="button" class="board-status-btn" data-board-status="dream">Мечтаю</button>
+            <button type="button" class="board-status-btn" data-board-status="planning">Планирую</button>
+            <button type="button" class="board-status-btn" data-board-status="going">Еду</button>
+            <button type="button" class="board-status-btn" data-board-status="visited">Был тут</button>
+          </div>
         </div>
 
         <!-- Описание + факты в две колонки -->
@@ -859,7 +912,62 @@ const COUNTRY_EN = Object.fromEntries(Object.entries(COUNTRY_RU).map(([en, ru]) 
 Object.assign(COUNTRY_EN, { 'Абхазия':'Abkhazia','Англия':'England','Антарктида':'Antarctica','Великобритания':'United Kingdom','Гренландия':'Greenland','Греция (Крит)':'Greece (Crete)','ДР Конго':'Democratic Republic of the Congo','Испания (Канары)':'Spain (Canary Islands)','Испания (Ла-Гомера)':'Spain (La Gomera)','Испания (Тенерифе)':'Spain (Tenerife)','Китай (Гонконг)':'China (Hong Kong)','Китай (Тибет)':'China (Tibet)','Китай / КНДР':'China / North Korea','КНДР':'North Korea','Кыргызстан':'Kyrgyzstan','Македония':'North Macedonia','Острова Кука':'Cook Islands','Реюньон (Франция)':'Réunion (France)','Россия / Иран / Казахстан / Азерб. / Туркм.':'Russia / Iran / Kazakhstan / Azerbaijan / Turkmenistan','Северная Африка':'North Africa','Северная Ирландия':'Northern Ireland','США':'United States','США (Аляска)':'United States (Alaska)','США (Гавайи)':'United States (Hawaii)','США (Кауаи)':'United States (Kauai)','Уэльс':'Wales','Фарерские острова':'Faroe Islands','Французская Полинезия':'French Polynesia','Шотландия':'Scotland','ЮАР':'South Africa' });
 function getInitialLanguage() { const p = new URLSearchParams(window.location.search).get('lang'); if (p === 'en' || p === 'ru') return p; return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'ru'; }
 let currentLang = getInitialLanguage();
+const TRAVEL_UI = {
+  ru: {
+    boardTitle: 'Доска мечты',
+    boardEmpty: 'Добавляйте места из карточек: мечтаю, планирую, еду.',
+    boardTotal: n => n + ' в борде',
+    boardAdded: name => 'Добавлено в доску: ' + name,
+    boardRemoved: 'Убрано из доски',
+    status: { dream: 'Мечтаю', planning: 'Планирую', going: 'Еду', visited: 'Был тут' },
+    verdictTitle: 'Стоит ли ехать',
+    verdictNote: 'Персональный слой появится после квиза. Сейчас оценка основана на типе места, ярлыках и логистике.',
+    metrics: { season: 'Лучшее время', time: 'Сколько нужно', access: 'Доступ', family: 'С ребёнком', safety: 'Риски' },
+    badges: { must_see: 'Обязательно увидеть', worth_detour: 'Стоит крюка', hidden_gem: 'Скрытая жемчужина', hard_adventure: 'Сложное приключение', overrated: 'Спорно' },
+    access: { easy: 'Просто', moderate: 'Средне', hard: 'Сложно' },
+    family: { yes: 'Подходит', caution: 'С осторожностью', no: 'Лучше без детей' },
+    safety: { low: 'Низкие', mid: 'Средние', high: 'Высокие' },
+    reasons: {
+      iconic: 'Входит в один из эталонных списков чудес.',
+      unesco: 'Статус ЮНЕСКО повышает культурную и природную ценность поездки.',
+      remote: 'Потребуется запас времени на дорогу и погодные окна.',
+      city: 'Удобно встроить в городской маршрут.',
+      natural: 'Главная ценность — масштаб ландшафта и ощущение места.',
+      human: 'Сильная архитектура, история и визуальная узнаваемость.',
+      mixed: 'Редкое сочетание природы и культурного слоя.'
+    },
+    months: { all: 'Круглый год', springAutumn: 'Апрель-июнь, сентябрь-октябрь', summer: 'Май-сентябрь', winter: 'Декабрь-март', dry: 'Сухой сезон', shoulder: 'Межсезонье' },
+    timeNeeded: { short: '2-4 часа', day: '1 день', days: '2-3 дня', expedition: '3+ дня' }
+  },
+  en: {
+    boardTitle: 'Dream Board',
+    boardEmpty: 'Add places from cards: dream, plan, going.',
+    boardTotal: n => n + ' on board',
+    boardAdded: name => 'Added to board: ' + name,
+    boardRemoved: 'Removed from board',
+    status: { dream: 'Dream', planning: 'Planning', going: 'Going', visited: 'Visited' },
+    verdictTitle: 'Worth the trip?',
+    verdictNote: 'Personal scoring comes with the quiz. For now this uses place type, labels, and logistics.',
+    metrics: { season: 'Best time', time: 'Time needed', access: 'Access', family: 'With kids', safety: 'Risks' },
+    badges: { must_see: 'Must see', worth_detour: 'Worth a detour', hidden_gem: 'Hidden gem', hard_adventure: 'Hard adventure', overrated: 'Debatable' },
+    access: { easy: 'Easy', moderate: 'Moderate', hard: 'Hard' },
+    family: { yes: 'Good', caution: 'Use caution', no: 'Better without kids' },
+    safety: { low: 'Low', mid: 'Medium', high: 'High' },
+    reasons: {
+      iconic: 'Included in one of the benchmark wonder lists.',
+      unesco: 'UNESCO status adds cultural or natural weight.',
+      remote: 'Budget extra time for access and weather windows.',
+      city: 'Easy to weave into an urban itinerary.',
+      natural: 'The main value is landscape scale and sense of place.',
+      human: 'Strong architecture, history, and visual recognition.',
+      mixed: 'A rare blend of nature and cultural layers.'
+    },
+    months: { all: 'Year-round', springAutumn: 'Apr-Jun, Sep-Oct', summer: 'May-Sep', winter: 'Dec-Mar', dry: 'Dry season', shoulder: 'Shoulder season' },
+    timeNeeded: { short: '2-4 hours', day: '1 day', days: '2-3 days', expedition: '3+ days' }
+  }
+};
 function ui() { return UI[currentLang] || UI.ru; }
+function travelUi() { return TRAVEL_UI[currentLang] || TRAVEL_UI.ru; }
 function catLabel(key) { return CAT_LABELS[currentLang]?.[key] || catConfig[key]?.label || key; }
 function tagLabel(key) { return TAG_LABELS[currentLang]?.[key]?.[0] || tagConfig[key]?.label || key; }
 function tagShort(key) { return TAG_LABELS[currentLang]?.[key]?.[1] || tagConfig[key]?.short || key; }
@@ -932,8 +1040,9 @@ function applyI18n() {
   const terrain = document.querySelector('[data-layer="terrain"]'); if (terrain) terrain.textContent = t.terrain; const satellite = document.querySelector('[data-layer="satellite"]'); if (satellite) satellite.textContent = t.satellite;
   setButtonText(document.getElementById('tabList'), t.list); setButtonText(document.getElementById('tabMap'), t.map);
   const modalOpen = document.getElementById('modalOpenMap'); if (modalOpen) modalOpen.title = t.mapTitle; const modalWiki = document.getElementById('modalWiki'); if (modalWiki) modalWiki.title = t.wikiTitle; const modalClose = document.querySelector('[onclick="closeGallery()"]'); if (modalClose) modalClose.title = t.closeTitle;
-  const sectionTitles = [...document.querySelectorAll('#modalContent .section-title')]; if (sectionTitles[0]) sectionTitles[0].textContent = t.about; if (sectionTitles[1]) sectionTitles[1].textContent = t.why; if (sectionTitles[2]) sectionTitles[2].textContent = t.gallery; const source = document.querySelector('#galleryGrid + p'); if (source) source.textContent = t.source;
+  const sectionTitles = [...document.querySelectorAll('#modalContent .section-title')].filter(el => el.id !== 'modalBoardTitle'); if (sectionTitles[0]) sectionTitles[0].textContent = t.about; if (sectionTitles[1]) sectionTitles[1].textContent = t.why; if (sectionTitles[2]) sectionTitles[2].textContent = t.gallery; const source = document.querySelector('#galleryGrid + p'); if (source) source.textContent = t.source;
   updateProgress();
+  renderBoardPanel();
 }
 function setLanguage(lang, options = {}) { if (lang !== 'ru' && lang !== 'en') lang = 'ru'; currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n(); if (options.sync !== false) syncUrlFilters(); if (options.render !== false && typeof markerCluster !== 'undefined' && markerCluster) { renderStats(); renderEverything(); if (selectedLocationIndex !== null && !document.getElementById('galleryModal')?.classList.contains('hidden')) openGallery(selectedLocationIndex); } }
 
@@ -1038,13 +1147,39 @@ function hasTag(loc, tag) { return getTags(loc).includes(tag); }
 // ═══════════════════════════════════════════════════════════════════════
 const VISIT_KEY = 'atlas-naturae:visited';
 const visited = new Set(JSON.parse(localStorage.getItem(VISIT_KEY) || '[]'));
+const BOARD_KEY = 'atlas-naturae:board-v1';
+const board = new Map(Object.entries(JSON.parse(localStorage.getItem(BOARD_KEY) || '{}')));
 function visitKey(loc) { return loc.en || loc.name; }
 function isVisited(loc) { return visited.has(visitKey(loc)); }
-function toggleVisited(loc) {
-  const k = visitKey(loc);
-  if (visited.has(k)) visited.delete(k); else visited.add(k);
+function boardStatus(loc) { return board.get(visitKey(loc)) || ''; }
+function persistBoard() { localStorage.setItem(BOARD_KEY, JSON.stringify(Object.fromEntries(board))); }
+function setBoardStatus(loc, status, options = {}) {
+  const key = visitKey(loc);
+  if (!status || board.get(key) === status) {
+    board.delete(key);
+    if (status === 'visited') visited.delete(key);
+  } else {
+    board.set(key, status);
+    if (status === 'visited' && options.syncVisit !== false) visited.add(key);
+  }
+  persistBoard();
   localStorage.setItem(VISIT_KEY, JSON.stringify([...visited]));
   updateProgress();
+  renderBoardPanel();
+}
+function toggleVisited(loc) {
+  const k = visitKey(loc);
+  if (visited.has(k)) {
+    visited.delete(k);
+    if (board.get(k) === 'visited') board.delete(k);
+  } else {
+    visited.add(k);
+    board.set(k, 'visited');
+  }
+  localStorage.setItem(VISIT_KEY, JSON.stringify([...visited]));
+  persistBoard();
+  updateProgress();
+  renderBoardPanel();
 }
 function updateProgress() {
   const n = locations.filter(isVisited).length;
@@ -1066,6 +1201,85 @@ function updateProgress() {
     else if (n < 100) lbl.textContent = t.progress3;
     else lbl.textContent = t.progress4(pctText);
   }
+}
+function renderBoardPanel() {
+  const t = travelUi();
+  const title = document.getElementById('boardTitle');
+  const total = document.getElementById('boardTotal');
+  const counts = document.getElementById('boardStatusCounts');
+  const list = document.getElementById('boardMiniList');
+  if (!title || !total || !counts || !list) return;
+  const entries = [...board.entries()];
+  title.textContent = t.boardTitle;
+  total.textContent = t.boardTotal(entries.length);
+  const byStatus = { dream: 0, planning: 0, going: 0, visited: 0 };
+  entries.forEach(([, status]) => { if (byStatus[status] !== undefined) byStatus[status] += 1; });
+  counts.innerHTML = ['dream','planning','going','visited'].map(status =>
+    '<div class="travel-metric !p-2 text-center"><span class="k">' + escapeHtml(t.status[status]) + '</span><span class="v">' + byStatus[status] + '</span></div>'
+  ).join('');
+  if (!entries.length) {
+    list.innerHTML = '<p class="text-[11px] leading-snug" style="color: var(--ink-mute);">' + escapeHtml(t.boardEmpty) + '</p>';
+    return;
+  }
+  list.innerHTML = entries.slice(-4).reverse().map(([key, status]) => {
+    const loc = locations.find(item => visitKey(item) === key);
+    if (!loc) return '';
+    return '<button type="button" class="board-panel-row w-full text-left" data-board-open="' + escapeHtml(key) + '"><span class="board-mini-name">' + escapeHtml(displayName(loc)) + '</span><span class="board-mini-status">' + escapeHtml(t.status[status] || status) + '</span></button>';
+  }).join('');
+}
+function computeTravelVerdict(loc) {
+  const t = travelUi();
+  const tags = getTags(loc);
+  const iconic = tags.some(tag => ['7nat','new7','new7world','ancient7','engineering7','industrial7','iconic'].includes(tag));
+  const hardCategory = ['mountain','volcano','ice_cave','desert'].includes(loc.category);
+  const remoteCategory = ['forest','desert','volcano','ice_cave','mountain','water'].includes(loc.category) && kindOf(loc) !== 'human';
+  let badge = 'worth_detour';
+  if (tags.includes('extreme') || (hardCategory && !iconic)) badge = 'hard_adventure';
+  else if (iconic || tags.includes('unesco')) badge = 'must_see';
+  else if (tags.includes('underrated')) badge = 'hidden_gem';
+  else if (kindOf(loc) === 'natural') badge = 'hidden_gem';
+  const access = hardCategory ? 'hard' : remoteCategory ? 'moderate' : 'easy';
+  const safety = ['volcano','ice_cave','mountain','desert','water'].includes(loc.category) ? (access === 'hard' ? 'high' : 'mid') : 'low';
+  const family = ['volcano','ice_cave','mountain','desert'].includes(loc.category) ? 'caution' : 'yes';
+  const season = loc.category === 'desert' ? t.months.springAutumn
+    : loc.category === 'ice_cave' ? t.months.winter
+    : loc.category === 'mountain' ? t.months.summer
+    : loc.category === 'water' ? t.months.dry
+    : kindOf(loc) === 'human' ? t.months.all
+    : t.months.shoulder;
+  const time = access === 'hard' ? t.timeNeeded.days : access === 'moderate' ? t.timeNeeded.day : t.timeNeeded.short;
+  const reasons = [];
+  if (iconic) reasons.push(t.reasons.iconic);
+  if (tags.includes('unesco')) reasons.push(t.reasons.unesco);
+  if (remoteCategory) reasons.push(t.reasons.remote);
+  if (loc.category === 'city') reasons.push(t.reasons.city);
+  reasons.push(t.reasons[kindOf(loc)] || t.reasons.natural);
+  return { badge, access, safety, family, season, time, reasons: [...new Set(reasons)].slice(0, 4) };
+}
+function renderTravelPanel(loc) {
+  const t = travelUi();
+  const verdict = computeTravelVerdict(loc);
+  const panel = document.getElementById('modalTravelPanel');
+  if (!panel) return;
+  panel.innerHTML = '<div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4"><div><div class="section-title mb-1">' + escapeHtml(t.verdictTitle) + '</div><div class="font-display text-2xl italic" style="color: var(--accent);">' + escapeHtml(t.badges[verdict.badge]) + '</div></div><p class="text-[11px] leading-relaxed md:max-w-sm" style="color: var(--ink-mute);">' + escapeHtml(t.verdictNote) + '</p></div>' +
+    '<div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">' +
+    '<div class="travel-metric"><span class="k">' + escapeHtml(t.metrics.season) + '</span><span class="v">' + escapeHtml(verdict.season) + '</span></div>' +
+    '<div class="travel-metric"><span class="k">' + escapeHtml(t.metrics.time) + '</span><span class="v">' + escapeHtml(verdict.time) + '</span></div>' +
+    '<div class="travel-metric"><span class="k">' + escapeHtml(t.metrics.access) + '</span><span class="v">' + escapeHtml(t.access[verdict.access]) + '</span></div>' +
+    '<div class="travel-metric"><span class="k">' + escapeHtml(t.metrics.family) + '</span><span class="v">' + escapeHtml(t.family[verdict.family]) + '</span></div>' +
+    '<div class="travel-metric"><span class="k">' + escapeHtml(t.metrics.safety) + '</span><span class="v">' + escapeHtml(t.safety[verdict.safety]) + '</span></div>' +
+    '</div><ul class="facts-list">' + verdict.reasons.map(reason => '<li>' + escapeHtml(reason) + '</li>').join('') + '</ul>';
+}
+function syncModalBoard(loc) {
+  const t = travelUi();
+  const status = boardStatus(loc);
+  const title = document.getElementById('modalBoardTitle');
+  if (title) title.textContent = t.boardTitle;
+  document.querySelectorAll('[data-board-status]').forEach(button => {
+    const value = button.dataset.boardStatus;
+    button.textContent = t.status[value] || value;
+    button.classList.toggle('active', value === status);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -3909,7 +4123,9 @@ function renderList(filtered) {
       if (!tc) return '';
       return '<span class="tag tag-' + tk + '" title="' + escapeHtml(tagLabel(tk)) + '">' + tc.emoji + ' ' + escapeHtml(tagShort(tk)) + '</span>';
     }).join('');
-    card.innerHTML = '<div class="flex items-start gap-3 min-w-0"><div class="card-thumb" data-idx="' + loc._i + '"><div class="ph">' + cat.emoji + '</div></div><div class="loc-card-body flex-1"><div class="flex items-start justify-between gap-2 min-w-0"><h4 class="loc-card-title font-display text-[15px] font-medium leading-tight flex-1" style="color: var(--ink);">' + escapeHtml(displayName(loc)) + '</h4><input type="checkbox" class="visit-check" ' + (visitedNow ? 'checked' : '') + ' title="' + escapeHtml(t.visitTitle) + '" data-visit="' + loc._i + '"></div><p class="loc-card-country text-[11px] italic mt-0.5" style="color: var(--ink-mute);">' + escapeHtml(displayCountry(loc)) + '</p><div class="loc-card-badges flex items-center gap-1.5 mt-1.5 flex-wrap"><span class="pill" style="color: ' + kc.hex + ';">' + kc.emoji + ' ' + escapeHtml(kindLabel(kindOf(loc))) + '</span><span class="pill" style="color: ' + cat.hex + ';">' + cat.emoji + ' ' + escapeHtml(catLabel(loc.category)) + '</span>' + tagsHtml + '</div></div></div>';
+    const status = boardStatus(loc);
+    const boardHtml = status ? '<span class="tag board-chip">' + escapeHtml(travelUi().status[status] || status) + '</span>' : '';
+    card.innerHTML = '<div class="flex items-start gap-3 min-w-0"><div class="card-thumb" data-idx="' + loc._i + '"><div class="ph">' + cat.emoji + '</div></div><div class="loc-card-body flex-1"><div class="flex items-start justify-between gap-2 min-w-0"><h4 class="loc-card-title font-display text-[15px] font-medium leading-tight flex-1" style="color: var(--ink);">' + escapeHtml(displayName(loc)) + '</h4><input type="checkbox" class="visit-check" ' + (visitedNow ? 'checked' : '') + ' title="' + escapeHtml(t.visitTitle) + '" data-visit="' + loc._i + '"></div><p class="loc-card-country text-[11px] italic mt-0.5" style="color: var(--ink-mute);">' + escapeHtml(displayCountry(loc)) + '</p><div class="loc-card-badges flex items-center gap-1.5 mt-1.5 flex-wrap"><span class="pill" style="color: ' + kc.hex + ';">' + kc.emoji + ' ' + escapeHtml(kindLabel(kindOf(loc))) + '</span><span class="pill" style="color: ' + cat.hex + ';">' + cat.emoji + ' ' + escapeHtml(catLabel(loc.category)) + '</span>' + boardHtml + tagsHtml + '</div></div></div>';
     card.addEventListener('click', (e) => { if (e.target.classList.contains('visit-check')) return; flyToAndOpen(loc._i); });
     const cb = card.querySelector('.visit-check');
     cb.addEventListener('click', (e) => e.stopPropagation());
@@ -4105,9 +4321,12 @@ window.openGallery = async function(index) {
 
   const visitBtn = document.getElementById('modalVisitBtn');
   syncModalVisit(loc);
+  renderTravelPanel(loc);
+  syncModalBoard(loc);
   visitBtn.onclick = () => {
     toggleVisited(loc);
     syncModalVisit(loc);
+    syncModalBoard(loc);
     const cb = document.querySelector('.visit-check[data-visit="' + index + '"]');
     if (cb) {
       cb.checked = isVisited(loc);
@@ -4115,6 +4334,16 @@ window.openGallery = async function(index) {
     }
     toast(isVisited(loc) ? t.added(locName) : t.removed);
   };
+  document.querySelectorAll('[data-board-status]').forEach(button => {
+    button.onclick = () => {
+      const nextStatus = button.dataset.boardStatus;
+      setBoardStatus(loc, nextStatus);
+      syncModalBoard(loc);
+      syncModalVisit(loc);
+      renderList(getFilteredLocations());
+      toast(boardStatus(loc) ? travelUi().boardAdded(locName) : travelUi().boardRemoved);
+    };
+  });
 
   document.getElementById('modalOpenMap').onclick = () => { closeGallery(); flyToAndOpen(index); };
   document.getElementById('modalWiki').onclick = () => {
@@ -4308,6 +4537,12 @@ document.getElementById('quickFilters').addEventListener('click', (event) => {
   }
   renderAndSync();
 });
+document.getElementById('boardPanel').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-board-open]');
+  if (!button) return;
+  const index = locations.findIndex(loc => visitKey(loc) === button.dataset.boardOpen);
+  if (index >= 0) flyToAndOpen(index);
+});
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
 });
@@ -4325,7 +4560,10 @@ document.getElementById('resetVisited').addEventListener('click', () => {
   if (!visited.size) { toast(ui().emptyVisits); return; }
   if (!confirm(ui().confirmReset(visited.size))) return;
   visited.clear();
+  [...board.entries()].forEach(([key, status]) => { if (status === 'visited') board.delete(key); });
   localStorage.setItem(VISIT_KEY, '[]');
+  persistBoard();
+  renderBoardPanel();
   renderEverything();
   toast(ui().visitsCleared);
 });
@@ -4356,6 +4594,7 @@ applyInitialUrlFilters();
 renderQuickFilters();
 renderEverything();
 updateProgress();
+renderBoardPanel();
 
 // ═══════════════════════════════════════════════════════════════════════
 //   МОБИЛЬНЫЕ ТАБЫ — переключение между списком и картой
