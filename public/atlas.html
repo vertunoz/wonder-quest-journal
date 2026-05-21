@@ -527,6 +527,17 @@
   .filter-chip:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
   .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
   .filter-chip .count { font-family: var(--mono); font-size: 10px; opacity: .75; }
+  .load-more-btn {
+    width: 100%; min-height: 42px; border-radius: 9px;
+    border: 1px dashed color-mix(in oklab, var(--accent) 48%, var(--line));
+    background: color-mix(in oklab, var(--bg) 78%, var(--bg-2));
+    color: var(--accent); font-size: 12px; font-weight: 750;
+    transition: background .15s ease, border-color .15s ease, transform .15s ease;
+  }
+  .load-more-btn:hover {
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg));
+    border-color: var(--accent); transform: translateY(-1px);
+  }
   .advanced-filters summary {
     list-style: none; cursor: pointer; user-select: none;
     display: flex; align-items: center; justify-content: space-between;
@@ -563,6 +574,19 @@
     font-size: 12px; font-weight: 650; color: var(--ink);
   }
   .board-mini-status { font-family: var(--mono); font-size: 10px; color: var(--accent); flex-shrink: 0; }
+  .board-compact-counts {
+    display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .board-compact-pill {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 5px 8px; background: var(--bg-2);
+    font-size: 10px; color: var(--ink-mute);
+  }
+  .board-compact-pill strong {
+    color: var(--accent); font-family: var(--mono); font-size: 10px;
+  }
   .board-chip {
     border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--line));
     color: var(--accent); background: color-mix(in oklab, var(--accent) 9%, transparent);
@@ -984,10 +1008,7 @@ function quickFilterItems() {
     { id:'all', label:t.allPlaces, emoji:'✦', action:() => { setFilterValue('kindFilter','all'); setFilterValue('categoryFilter','all'); setFilterValue('tagFilter','all'); setFilterValue('visitedFilter','all'); } },
     { id:'natural', label:kindLabel('natural'), emoji:KIND_CONFIG.natural.emoji, kind:'natural' },
     { id:'human', label:kindLabel('human'), emoji:KIND_CONFIG.human.emoji, kind:'human' },
-    { id:'mixed', label:kindLabel('mixed'), emoji:KIND_CONFIG.mixed.emoji, kind:'mixed' },
     { id:'unesco', label:tagShort('unesco'), emoji:tagConfig.unesco.emoji, tag:'unesco' },
-    { id:'ancient7', label:tagShort('ancient7'), emoji:tagConfig.ancient7.emoji, tag:'ancient7' },
-    { id:'new7world', label:tagShort('new7world'), emoji:tagConfig.new7world.emoji, tag:'new7world' },
     { id:'instagram', label:tagShort('instagram'), emoji:tagConfig.instagram.emoji, tag:'instagram' },
   ];
 }
@@ -1215,13 +1236,14 @@ function renderBoardPanel() {
   const byStatus = { dream: 0, planning: 0, going: 0, visited: 0 };
   entries.forEach(([, status]) => { if (byStatus[status] !== undefined) byStatus[status] += 1; });
   counts.innerHTML = ['dream','planning','going','visited'].map(status =>
-    '<div class="travel-metric !p-2 text-center"><span class="k">' + escapeHtml(t.status[status]) + '</span><span class="v">' + byStatus[status] + '</span></div>'
+    '<span class="board-compact-pill"><span>' + escapeHtml(t.status[status]) + '</span><strong>' + byStatus[status] + '</strong></span>'
   ).join('');
+  counts.className = 'board-compact-counts mb-2';
   if (!entries.length) {
-    list.innerHTML = '<p class="text-[11px] leading-snug" style="color: var(--ink-mute);">' + escapeHtml(t.boardEmpty) + '</p>';
+    list.innerHTML = '';
     return;
   }
-  list.innerHTML = entries.slice(-4).reverse().map(([key, status]) => {
+  list.innerHTML = entries.slice(-2).reverse().map(([key, status]) => {
     const loc = locations.find(item => visitKey(item) === key);
     if (!loc) return '';
     return '<button type="button" class="board-panel-row w-full text-left" data-board-open="' + escapeHtml(key) + '"><span class="board-mini-name">' + escapeHtml(displayName(loc)) + '</span><span class="board-mini-status">' + escapeHtml(t.status[status] || status) + '</span></button>';
@@ -3989,7 +4011,10 @@ function initMap() {
     showCoverageOnHover: false,
     spiderfyOnMaxZoom: true,
     maxClusterRadius: 45,
-    disableClusteringAtZoom: 8
+    disableClusteringAtZoom: 8,
+    chunkedLoading: true,
+    chunkDelay: 25,
+    chunkInterval: 120
   });
 
   map.addLayer(markerCluster);
@@ -4052,6 +4077,7 @@ function renderMarkers(filtered) {
   markerByIndex.clear();
 
   const filteredIndices = new Set(filtered.map(f => f._i));
+  const markers = [];
 
   locations.forEach((loc, index) => {
     if (!filteredIndices.has(index)) return;
@@ -4068,12 +4094,46 @@ function renderMarkers(filtered) {
 
     const popup = '\n      <div style="padding: 14px 16px 12px; min-width: 220px; max-width: 260px;">\n        <div class="pill" style="color:' + kc.hex + '; font-weight: 600; margin-bottom: 6px;">' + kc.emoji + ' ' + escapeHtml(kindLabel(kindOf(loc))) + ' · ' + cat.emoji + ' ' + catText + '</div>\n        <h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; margin: 0 0 4px; overflow-wrap: anywhere;">' + locName + '</h3>\n        <p style="font-size: 12px; color: var(--ink-mute); font-style: italic; margin: 0 0 10px;">' + locCountry + '</p>\n        <p style="font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin: 0 0 10px;">' + formatCoords(loc) + '</p>\n        <button onclick="openGallery(' + index + ')" style="width: 100%; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s;" onmouseover="this.style.background=\'' + kc.hex + '\'" onmouseout="this.style.background=\'var(--ink)\'">\n          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>\n          ' + escapeHtml(ui().openCard) + '\n        </button>\n      </div>\n    ';
     marker.bindPopup(popup, { className: 'custom-popup', closeButton: true, autoPan: true });
-    markerCluster.addLayer(marker);
+    markers.push(marker);
     markerByIndex.set(index, marker);
   });
+  markerCluster.addLayers(markers);
 }
 
 let cardThumbObserver = null;
+const LIST_PAGE_SIZE = 80;
+let listRenderLimit = LIST_PAGE_SIZE;
+let lastListSignature = '';
+
+function currentListSignature(filtered) {
+  return [
+    currentLang,
+    document.getElementById('searchInput')?.value || '',
+    document.getElementById('kindFilter')?.value || 'all',
+    document.getElementById('categoryFilter')?.value || 'all',
+    document.getElementById('tagFilter')?.value || 'all',
+    document.getElementById('visitedFilter')?.value || 'all',
+    document.getElementById('sortSelect')?.value || 'name',
+    filtered.length
+  ].join('|');
+}
+
+function resetListWindow() {
+  listRenderLimit = LIST_PAGE_SIZE;
+  lastListSignature = '';
+}
+
+function loadMoreList() {
+  listRenderLimit += LIST_PAGE_SIZE;
+  renderList(getFilteredLocations());
+}
+window.loadMoreList = loadMoreList;
+
+function listMoreLabel(remaining) {
+  const next = Math.min(LIST_PAGE_SIZE, remaining);
+  return currentLang === 'ru' ? 'Показать еще ' + next : 'Show ' + next + ' more';
+}
+
 function ensureThumbObserver() {
   if (cardThumbObserver) return cardThumbObserver;
   cardThumbObserver = new IntersectionObserver((entries) => {
@@ -4100,6 +4160,16 @@ function ensureThumbObserver() {
 
 function renderList(filtered) {
   const container = document.getElementById('location-list');
+  const signature = currentListSignature(filtered);
+  if (signature !== lastListSignature) {
+    listRenderLimit = LIST_PAGE_SIZE;
+    lastListSignature = signature;
+    container.scrollTop = 0;
+  }
+  if (cardThumbObserver) {
+    cardThumbObserver.disconnect();
+    cardThumbObserver = null;
+  }
   container.innerHTML = '';
   const t = ui();
 
@@ -4109,8 +4179,9 @@ function renderList(filtered) {
   }
 
   const obs = ensureThumbObserver();
+  const visible = filtered.slice(0, listRenderLimit);
 
-  filtered.forEach((loc, i) => {
+  visible.forEach((loc, i) => {
     const cat = catConfig[loc.category] || catConfig.architecture;
     const kc = kindConfig(kindOf(loc));
     const tags = getTags(loc);
@@ -4129,10 +4200,25 @@ function renderList(filtered) {
     card.addEventListener('click', (e) => { if (e.target.classList.contains('visit-check')) return; flyToAndOpen(loc._i); });
     const cb = card.querySelector('.visit-check');
     cb.addEventListener('click', (e) => e.stopPropagation());
-    cb.addEventListener('change', () => { toggleVisited(loc); card.classList.toggle('visited', isVisited(loc)); if (selectedLocationIndex === loc._i) syncModalVisit(loc); });
+    cb.addEventListener('change', () => {
+      toggleVisited(loc);
+      card.classList.toggle('visited', isVisited(loc));
+      if (selectedLocationIndex === loc._i) syncModalVisit(loc);
+      if ((document.getElementById('visitedFilter')?.value || 'all') !== 'all') renderAndSync();
+    });
     container.appendChild(card);
     obs.observe(card.querySelector('.card-thumb'));
   });
+
+  if (visible.length < filtered.length) {
+    const remaining = filtered.length - visible.length;
+    const more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'load-more-btn';
+    more.textContent = listMoreLabel(remaining);
+    more.addEventListener('click', loadMoreList);
+    container.appendChild(more);
+  }
 }
 
 function syncModalVisit(loc) {
@@ -4160,23 +4246,22 @@ function updateCounters(filtered) {
 }
 
 function renderStats() {
-  const counts = {};
   const kindCounts = {};
-  Object.keys(catConfig).forEach(k => counts[k] = 0);
   Object.keys(KIND_CONFIG).forEach(k => kindCounts[k] = 0);
   locations.forEach(l => {
-    if (counts[l.category] !== undefined) counts[l.category]++;
     const k = kindOf(l);
     if (kindCounts[k] !== undefined) kindCounts[k]++;
   });
   const bar = document.getElementById('statsBar');
-  const kindButtons = Object.entries(KIND_CONFIG).map(([k, c]) => '<button onclick="setFilterKind(\'' + k + '\')" class="flex items-center gap-1.5 hover:opacity-100 opacity-90 transition-opacity" title="' + escapeHtml(kindLabel(k)) + '"><span style="color: ' + c.hex + ';">' + c.emoji + '</span><span class="font-mono" style="color: var(--ink-mute);">' + kindCounts[k] + '</span></button>');
-  const catButtons = Object.entries(catConfig).map(([k, c]) => '<button onclick="setFilterCategory(\'' + k + '\')" class="flex items-center gap-1.5 hover:opacity-100 opacity-70 transition-opacity" title="' + escapeHtml(catLabel(k)) + '"><span style="color: ' + c.hex + ';">' + c.emoji + '</span><span class="font-mono" style="color: var(--ink-mute);">' + counts[k] + '</span></button>');
-  bar.innerHTML = [...kindButtons, ...catButtons].join('');
+  bar.innerHTML = Object.entries(KIND_CONFIG).map(([k, c]) =>
+    '<button onclick="setFilterKind(\'' + k + '\')" class="flex items-center gap-1.5 hover:opacity-100 opacity-90 transition-opacity" title="' + escapeHtml(kindLabel(k)) + '"><span style="color: ' + c.hex + ';">' + c.emoji + '</span><span>' + escapeHtml(kindLabel(k)) + '</span><span class="font-mono" style="color: var(--ink-mute);">' + kindCounts[k] + '</span></button>'
+  ).join('');
 }
 
 function setFilterKind(kind) {
   document.getElementById('kindFilter').value = kind;
+  document.getElementById('categoryFilter').value = 'all';
+  document.getElementById('tagFilter').value = 'all';
   renderAndSync();
 }
 
@@ -4501,6 +4586,7 @@ function syncUrlFilters() {
 }
 
 function renderAndSync() {
+  resetListWindow();
   syncUrlFilters();
   renderQuickFilters();
   renderEverything();
@@ -4516,7 +4602,11 @@ document.getElementById('searchInput').addEventListener('input', () => {
 });
 document.getElementById('kindFilter').addEventListener('change', renderAndSync);
 document.getElementById('categoryFilter').addEventListener('change', renderAndSync);
-document.getElementById('sortSelect').addEventListener('change', renderEverything);
+document.getElementById('sortSelect').addEventListener('change', () => {
+  const filtered = getFilteredLocations();
+  renderList(filtered);
+  updateCounters(filtered);
+});
 document.getElementById('tagFilter').addEventListener('change', renderAndSync);
 document.getElementById('visitedFilter').addEventListener('change', renderAndSync);
 document.getElementById('quickFilters').addEventListener('click', (event) => {
