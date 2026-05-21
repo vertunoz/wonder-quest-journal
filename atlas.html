@@ -1467,6 +1467,58 @@ function syncModalBoard(loc) {
 //   WIKIPEDIA — краткое описание + thumbnail (REST summary)
 // ═══════════════════════════════════════════════════════════════════════
 const summaryCache = new Map();
+const SUMMARY_TITLE_OVERRIDES = {
+  'Malaysia|George Town': { en: 'George Town, Penang', ru: 'Джорджтаун (Пинанг)' },
+  'Bermuda|St George': { en: "St. George's, Bermuda", ru: 'Сент-Джордж (Бермуды)' },
+  'Iran|Bam': { en: 'Bam, Iran', ru: 'Бам (Иран)' },
+  'Mexico|Campeche': { en: 'Campeche City', ru: 'Кампече (город)' },
+  'Colombia|Cartagena': { en: 'Cartagena, Colombia', ru: 'Картахена (Колумбия)' },
+  'Spain|Cordoba': { en: 'Córdoba, Spain', ru: 'Кордова (Испания)' },
+  'Venezuela|Coro': { en: 'Coro, Venezuela', ru: 'Коро' },
+  'Ecuador|Cuenca': { en: 'Cuenca, Ecuador', ru: 'Куэнка (Эквадор)' },
+  'Brazil|Diamantina': { en: 'Diamantina, Minas Gerais', ru: 'Диамантина' },
+  'Vietnam|Hue': { en: 'Huế', ru: 'Хюэ' },
+  'Canada|Lunenburg': { en: 'Lunenburg, Nova Scotia', ru: 'Луненберг' },
+  'Spain|Mérida': { en: 'Mérida, Spain', ru: 'Мерида (Испания)' },
+  'Panama|Panama': { en: 'Panama City', ru: 'Панама (город)' },
+  'Canada|Quebec': { en: 'Quebec City', ru: 'Квебек (город)' },
+  'Finland|Rauma': { en: 'Rauma, Finland', ru: 'Раума' },
+  'Greece|Rhodes': { en: 'Rhodes (city)', ru: 'Родос (город)' },
+  'Cuba|Trinidad': { en: 'Trinidad, Cuba', ru: 'Тринидад (Куба)' }
+};
+
+function summaryTitleOverride(loc) {
+  return SUMMARY_TITLE_OVERRIDES[(loc.country || '') + '|' + (loc.en || loc.name)] || null;
+}
+
+function uniqueTitles(titles) {
+  return [...new Set(titles.map(title => String(title || '').trim()).filter(Boolean))];
+}
+
+function distanceKm(aLat, aLng, bLat, bLng) {
+  const rad = Math.PI / 180;
+  const dLat = (bLat - aLat) * rad;
+  const dLng = (bLng - aLng) * rad;
+  const s1 = Math.sin(dLat / 2);
+  const s2 = Math.sin(dLng / 2);
+  const a = s1 * s1 + Math.cos(aLat * rad) * Math.cos(bLat * rad) * s2 * s2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function summaryMatchesLocation(loc, data) {
+  const coords = data?.coordinates;
+  if (!coords || typeof coords.lat !== 'number' || typeof coords.lon !== 'number') return true;
+  return distanceKm(loc.lat, loc.lng, coords.lat, coords.lon) <= 180;
+}
+
+function summaryTitleCandidates(loc, lang) {
+  const override = summaryTitleOverride(loc);
+  const ruTitle = loc.wikiRuTitle || loc.name.replace(/\(.*?\)/g,'').trim();
+  const enTitle = loc.wikiEnTitle || loc.en;
+  if (lang === 'ru') return uniqueTitles([override?.ru, ruTitle, loc.name, override?.en, enTitle]);
+  return uniqueTitles([override?.en, enTitle, loc.en, override?.ru, ruTitle]);
+}
+
 async function fetchSummary(loc) {
   const key = currentLang + '|' + (loc.wikiEnTitle || loc.en || loc.name);
   if (summaryCache.has(key)) return summaryCache.get(key);
@@ -1477,12 +1529,13 @@ async function fetchSummary(loc) {
       if (!r.ok) return null;
       const d = await r.json();
       if (d.type === 'disambiguation' || !d.extract) return null;
+      if (!summaryMatchesLocation(loc, d)) return null;
       return { extract: d.extract, thumb: d.thumbnail?.source || null, thumbWide: d.originalimage?.source || d.thumbnail?.source || null, lang };
     } catch { return null; }
   };
-  const ruTitle = loc.wikiRuTitle || loc.name.replace(/\(.*?\)/g,'').trim();
-  const enTitle = loc.wikiEnTitle || loc.en;
-  const order = currentLang === 'en' ? [['en', enTitle], ['ru', ruTitle]] : [['ru', ruTitle], ['en', enTitle]];
+  const order = currentLang === 'en'
+    ? [...summaryTitleCandidates(loc, 'en').map(title => ['en', title]), ...summaryTitleCandidates(loc, 'ru').map(title => ['ru', title])]
+    : [...summaryTitleCandidates(loc, 'ru').map(title => ['ru', title]), ...summaryTitleCandidates(loc, 'en').map(title => ['en', title])];
   let res = null;
   for (const [lang, title] of order) {
     res = await tryLang(lang, title);
@@ -3976,7 +4029,7 @@ const locations = [
   { name: "Аугсбург", lat: 48.37154, lng: 10.89851, country: "Germany", category: "city", kind: "human", en: "Augsburg", wikiEnTitle: "Augsburg", wikiRuTitle: "Аугсбург", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Augsburg_-_Markt.jpg/960px-Augsburg_-_Markt.jpg" },
   { name: "Авила", lat: 40.65724, lng: -4.69951, country: "Spain", category: "city", kind: "human", en: "Avila", wikiEnTitle: "Ávila", wikiRuTitle: "Авила", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Avila_001.jpg/960px-Avila_001.jpg" },
   { name: "Баэса", lat: 37.99384, lng: -3.47103, country: "Spain", category: "city", kind: "human", en: "Baeza", wikiEnTitle: "Baeza", wikiRuTitle: "Баэса", tags: ["unesco","heritage_city"] },
-  { name: "Бам", lat: 29.106, lng: 58.357, country: "Iran", category: "city", kind: "human", en: "Bam", wikiEnTitle: "Bam", wikiRuTitle: "Бам", tags: ["unesco","heritage_city"] },
+  { name: "Бам", lat: 29.106, lng: 58.357, country: "Iran", category: "city", kind: "human", en: "Bam", wikiEnTitle: "Bam, Iran", wikiRuTitle: "Бам (Иран)", tags: ["unesco","heritage_city"] },
   { name: "Бардеёв", lat: 49.29175, lng: 21.27271, country: "Slovakia", category: "city", kind: "human", en: "Bardejov", wikiEnTitle: "Bardejov", wikiRuTitle: "Бардеёв", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Market_Square_of_Bardejov.jpg/960px-Market_Square_of_Bardejov.jpg" },
   { name: "Бат", lat: 51.3751, lng: -2.36172, country: "United Kingdom", category: "city", kind: "human", en: "Bath", wikiEnTitle: "Bath", wikiRuTitle: "Бат", tags: ["unesco","heritage_city"] },
   { name: "Берген", lat: 60.39299, lng: 5.32415, country: "Norway", category: "city", kind: "human", en: "Bergen", wikiEnTitle: "Bergen", wikiRuTitle: "Берген", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bergen_panorama_at_night_-_panoramio_%281%29.jpg/960px-Bergen_panorama_at_night_-_panoramio_%281%29.jpg" },
@@ -3992,24 +4045,24 @@ const locations = [
   { name: "Пуё", lat: 36.27472, lng: 126.90906, country: "Republic of Korea", category: "city", kind: "human", en: "Buyeo County", wikiEnTitle: "Buyeo County", wikiRuTitle: "Пуё", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Buyeo_National_Museum_%2820160719_1%29.png/960px-Buyeo_National_Museum_%2820160719_1%29.png" },
   { name: "Касерес", lat: 39.47649, lng: -6.37224, country: "Spain", category: "city", kind: "human", en: "Cáceres", wikiEnTitle: "Cáceres", wikiRuTitle: "Касерес", tags: ["unesco","heritage_city"] },
   { name: "Каир", lat: 30.06263, lng: 31.24967, country: "Egypt", category: "city", kind: "human", en: "Cairo", wikiEnTitle: "Cairo", wikiRuTitle: "Каир", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cairo_Opera_House%2C_Al_Hurriyah_Park_and_the_Nile_river_%2814797782354%29.jpg/960px-Cairo_Opera_House%2C_Al_Hurriyah_Park_and_the_Nile_river_%2814797782354%29.jpg" },
-  { name: "Кампече", lat: 19.84386, lng: -90.52554, country: "Mexico", category: "city", kind: "human", en: "Campeche", wikiEnTitle: "Campeche", wikiRuTitle: "Кампече", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Calakmul_bio_reserve.jpg/960px-Calakmul_bio_reserve.jpg" },
-  { name: "Картахена", lat: 10.39972, lng: -75.51444, country: "Colombia", category: "city", kind: "human", en: "Cartagena", wikiEnTitle: "Cartagena", wikiRuTitle: "Картахена", tags: ["unesco","heritage_city"] },
+  { name: "Кампече", lat: 19.84386, lng: -90.52554, country: "Mexico", category: "city", kind: "human", en: "Campeche", wikiEnTitle: "Campeche City", wikiRuTitle: "Кампече (город)", tags: ["unesco","heritage_city"] },
+  { name: "Картахена", lat: 10.39972, lng: -75.51444, country: "Colombia", category: "city", kind: "human", en: "Cartagena", wikiEnTitle: "Cartagena, Colombia", wikiRuTitle: "Картахена (Колумбия)", tags: ["unesco","heritage_city"] },
   { name: "Чэндэ", lat: 40.9519, lng: 117.95883, country: "China", category: "city", kind: "human", en: "Chengde", wikiEnTitle: "Chengde", wikiRuTitle: "Чэндэ", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Jinshangling2.jpg/960px-Jinshangling2.jpg" },
   { name: "Черновцы", lat: 48.29045, lng: 25.93241, country: "Ukraine", category: "city", kind: "human", en: "Chernivtsi", wikiEnTitle: "Chernivtsi", wikiRuTitle: "Черновцы", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/%D0%9F%D0%BB.%D0%A6%D0%B5%D0%BD%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%2C_10_DSC_8826.jpg/960px-%D0%9F%D0%BB.%D0%A6%D0%B5%D0%BD%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%2C_10_DSC_8826.jpg" },
   { name: "Хора острова Патмос", lat: 37.308, lng: 26.546, country: "Greece", category: "city", kind: "human", en: "Chorá of Patmos", wikiEnTitle: "Chorá of Patmos", wikiRuTitle: "Хора острова Патмос", tags: ["unesco","heritage_city"] },
   { name: "Сидади-Велья", lat: 14.91531, lng: -23.60527, country: "Cape Verde", category: "city", kind: "human", en: "Cidade Velha", wikiEnTitle: "Cidade Velha", wikiRuTitle: "Сидади-Велья", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cidade_Velha_Pelourinho_square_b_2011.jpg/960px-Cidade_Velha_Pelourinho_square_b_2011.jpg" },
-  { name: "Кордова", lat: 37.89155, lng: -4.77275, country: "Spain", category: "city", kind: "human", en: "Cordoba", wikiEnTitle: "Córdoba", wikiRuTitle: "Кордова", tags: ["unesco","heritage_city"] },
-  { name: "Коро", lat: 11.4045, lng: -69.67344, country: "Venezuela", category: "city", kind: "human", en: "Coro", wikiEnTitle: "Coro", wikiRuTitle: "Коро", tags: ["unesco","heritage_city"] },
-  { name: "Куэнка", lat: -2.90055, lng: -79.00453, country: "Ecuador", category: "city", kind: "human", en: "Cuenca", wikiEnTitle: "Cuenca", wikiRuTitle: "Куэнка", tags: ["unesco","heritage_city"] },
+  { name: "Кордова", lat: 37.89155, lng: -4.77275, country: "Spain", category: "city", kind: "human", en: "Cordoba", wikiEnTitle: "Córdoba, Spain", wikiRuTitle: "Кордова (Испания)", tags: ["unesco","heritage_city"] },
+  { name: "Коро", lat: 11.4045, lng: -69.67344, country: "Venezuela", category: "city", kind: "human", en: "Coro", wikiEnTitle: "Coro, Venezuela", wikiRuTitle: "Коро", tags: ["unesco","heritage_city"] },
+  { name: "Куэнка", lat: -2.90055, lng: -79.00453, country: "Ecuador", category: "city", kind: "human", en: "Cuenca", wikiEnTitle: "Cuenca, Ecuador", wikiRuTitle: "Куэнка (Эквадор)", tags: ["unesco","heritage_city"] },
   { name: "Дакар", lat: 14.6937, lng: -17.44406, country: "Senegal", category: "city", kind: "human", en: "Dakar", wikiEnTitle: "Dakar", wikiRuTitle: "Дакар", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Dakar-place-de-l%27Ind%C3%A9pendance.jpg/960px-Dakar-place-de-l%27Ind%C3%A9pendance.jpg" },
   { name: "Дамаск", lat: 33.5102, lng: 36.29128, country: "Syria", category: "city", kind: "human", en: "Damascus", wikiEnTitle: "Damascus", wikiRuTitle: "Дамаск", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Damascus_from_qasioun_mountain.jpg/960px-Damascus_from_qasioun_mountain.jpg" },
   { name: "Денпасар", lat: -8.65, lng: 115.21667, country: "Indonesia", category: "city", kind: "human", en: "Denpasar", wikiEnTitle: "Denpasar", wikiRuTitle: "Денпасар", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg/960px-Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg" },
-  { name: "Дайамантина", lat: -18.24692, lng: -43.60345, country: "Brazil", category: "city", kind: "human", en: "Diamantina", wikiEnTitle: "Diamantina", wikiRuTitle: "Дайамантина (значения)", tags: ["unesco","heritage_city"] },
+  { name: "Диамантина", lat: -18.24692, lng: -43.60345, country: "Brazil", category: "city", kind: "human", en: "Diamantina", wikiEnTitle: "Diamantina, Minas Gerais", wikiRuTitle: "Диамантина", tags: ["unesco","heritage_city"] },
   { name: "Дженне", lat: 13.90608, lng: -4.55332, country: "Mali", category: "city", kind: "human", en: "Djenné", wikiEnTitle: "Djenné", wikiRuTitle: "Дженне", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Moschee_von_Djenn%C3%A9.jpg/960px-Moschee_von_Djenn%C3%A9.jpg" },
   { name: "Фес", lat: 34.03313, lng: -5.00028, country: "Morocco", category: "city", kind: "human", en: "Fez", wikiEnTitle: "Fez", wikiRuTitle: "Фес", tags: ["unesco","heritage_city"] },
   { name: "Фонтенбло", lat: 48.40908, lng: 2.70177, country: "France", category: "city", kind: "human", en: "Fontainebleau", wikiEnTitle: "Fontainebleau", wikiRuTitle: "Фонтенбло", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/L%27%C3%A9tang_aux_carpes_vue_du_ciel.jpg/960px-L%27%C3%A9tang_aux_carpes_vue_du_ciel.jpg" },
   { name: "Фрай-Бентос", lat: -33.11651, lng: -58.31067, country: "Uruguay", category: "city", kind: "human", en: "Fray Bentos", wikiEnTitle: "Fray Bentos", wikiRuTitle: "Фрай-Бентос", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Glorieta_kiosco_-_Pergola_Plaza_Pueblo_-_Fray_Bentos_-_Rio_Negro_-_Uruguay.JPG/960px-Glorieta_kiosco_-_Pergola_Plaza_Pueblo_-_Fray_Bentos_-_Rio_Negro_-_Uruguay.JPG" },
-  { name: "Джорджтаун", lat: 5.41123, lng: 100.33543, country: "Malaysia", category: "city", kind: "human", en: "George Town", wikiEnTitle: "Georgetown", wikiRuTitle: "Джорджтаун", tags: ["unesco","heritage_city"] },
+  { name: "Джорджтаун", lat: 5.41123, lng: 100.33543, country: "Malaysia", category: "city", kind: "human", en: "George Town", wikiEnTitle: "George Town, Penang", wikiRuTitle: "Джорджтаун (Пинанг)", tags: ["unesco","heritage_city"] },
   { name: "Гадамес", lat: 30.13366, lng: 9.50072, country: "Libya", category: "city", kind: "human", en: "Ghadames", wikiEnTitle: "Ghadames", wikiRuTitle: "Гадамес", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Ghadames_Mosque.jpg" },
   { name: "Гардая", lat: 32.49094, lng: 3.67347, country: "Algeria", category: "city", kind: "human", en: "Ghardaïa", wikiEnTitle: "Ghardaïa", wikiRuTitle: "Гардая", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Ksar_Ghardaia_place_march%C3%A9_1.jpg/960px-Ksar_Ghardaia_place_march%C3%A9_1.jpg" },
   { name: "Гианьяр", lat: -8.5435, lng: 115.3272, country: "Indonesia", category: "city", kind: "human", en: "Gianyar", wikiEnTitle: "Gianyar Regency", wikiRuTitle: "Гианьяр", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Perpustakaan_Daerah_Gianyar_%2826607745465%29.jpg/960px-Perpustakaan_Daerah_Gianyar_%2826607745465%29.jpg" },
@@ -4023,7 +4076,7 @@ const locations = [
   { name: "Кёнджу", lat: 35.84278, lng: 129.21167, country: "Republic of Korea", category: "city", kind: "human", en: "Gyeongju", wikiEnTitle: "Gyeongju", wikiRuTitle: "Кёнджу", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/2/24/Gyeongju_montage.png" },
   { name: "Хэнам", lat: 34.57111, lng: 126.59889, country: "Republic of Korea", category: "city", kind: "human", en: "Haenam", wikiEnTitle: "Haenam County", wikiRuTitle: "Хэнам", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Jeolla_Woosuyeong_National_Tourist_Site_in_Haenam_City%2C_South_Jeolla_Province%2C_South_Korea_09.jpg/960px-Jeolla_Woosuyeong_National_Tourist_Site_in_Haenam_City%2C_South_Jeolla_Province%2C_South_Korea_09.jpg" },
   { name: "Хойан", lat: 15.87944, lng: 108.335, country: "Vietnam", category: "city", kind: "human", en: "Hoi An", wikiEnTitle: "Hội An", wikiRuTitle: "Хойан", tags: ["unesco","heritage_city"] },
-  { name: "тон", lat: 16.4619, lng: 107.59546, country: "Vietnam", category: "city", kind: "human", en: "Hue", wikiEnTitle: "Hue", wikiRuTitle: "тон", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/9/90/Colors-i54-ring.png" },
+  { name: "Хюэ", lat: 16.4619, lng: 107.59546, country: "Vietnam", category: "city", kind: "human", en: "Hue", wikiEnTitle: "Huế", wikiRuTitle: "Хюэ", tags: ["unesco","heritage_city"] },
   { name: "Хвасун", lat: 35.06125, lng: 126.98746, country: "Republic of Korea", category: "city", kind: "human", en: "Hwasun County", wikiEnTitle: "Hwasun County", wikiRuTitle: "Хвасун", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/South_Jeolla-Hwasun.svg/960px-South_Jeolla-Hwasun.svg.png" },
   { name: "Ивиса", lat: 38.90883, lng: 1.43296, country: "Spain", category: "city", kind: "human", en: "Ibiza", wikiEnTitle: "Ibiza", wikiRuTitle: "Ивиса", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Ibiza_flag.svg/960px-Ibiza_flag.svg.png" },
   { name: "Ичери-шехер", lat: 40.3667, lng: 49.8333, country: "Azerbaijan", category: "city", kind: "human", en: "Icherisheher", wikiEnTitle: "Administration of the State Historical-Architectural Reserve \"Icherisheher\"", wikiRuTitle: "Ичери-шехер", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/0/05/Baku_Old_City.png" },
@@ -4042,11 +4095,11 @@ const locations = [
   { name: "Лалитпур (Патан)", lat: 27.67658, lng: 85.31417, country: "Nepal", category: "city", kind: "human", en: "Lalitpur (Patan)", wikiEnTitle: "Lalitpur (Patan)", wikiRuTitle: "Лалитпур (Патан)", tags: ["unesco","heritage_city"] },
   { name: "Лицзян", lat: 26.86879, lng: 100.22072, country: "China", category: "city", kind: "human", en: "Lijiang", wikiEnTitle: "Lijiang", wikiRuTitle: "Лицзян", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Black_Dragon_%E9%BB%91%E9%BE%99%E6%BD%AD_%285496141333%29.jpg/960px-Black_Dragon_%E9%BB%91%E9%BE%99%E6%BD%AD_%285496141333%29.jpg" },
   { name: "Лима", lat: -12.04318, lng: -77.02824, country: "Peru", category: "city", kind: "human", en: "Lima", wikiEnTitle: "Lima", wikiRuTitle: "Лима", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bas%C3%ADlica_Catedral_Metropolitana_de_Lima_%28cropped%29.jpg/960px-Bas%C3%ADlica_Catedral_Metropolitana_de_Lima_%28cropped%29.jpg" },
-  { name: "Луненберг", lat: 44.37847, lng: -64.31658, country: "Canada", category: "city", kind: "human", en: "Lunenburg", wikiEnTitle: "Luneberg", wikiRuTitle: "Луненберг", tags: ["unesco","heritage_city"] },
+  { name: "Луненберг", lat: 44.37847, lng: -64.31658, country: "Canada", category: "city", kind: "human", en: "Lunenburg", wikiEnTitle: "Lunenburg, Nova Scotia", wikiRuTitle: "Луненберг", tags: ["unesco","heritage_city"] },
   { name: "Люксембург", lat: 49.61167, lng: 6.13, country: "Luxembourg", category: "city", kind: "human", en: "Luxembourg", wikiEnTitle: "Luxembourg", wikiRuTitle: "Люксембург", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Flag_of_Luxembourg.svg/960px-Flag_of_Luxembourg.svg.png" },
   { name: "Макао", lat: 22.20056, lng: 113.54611, country: "China", category: "city", kind: "human", en: "Macao", wikiEnTitle: "Macau", wikiRuTitle: "Макао", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Flag_of_Macau.svg/960px-Flag_of_Macau.svg.png" },
   { name: "Малакка", lat: 2.196, lng: 102.2405, country: "Malaysia", category: "city", kind: "human", en: "Melaka", wikiEnTitle: "Malacca", wikiRuTitle: "Малакка", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Flag_of_Malacca.svg/960px-Flag_of_Malacca.svg.png" },
-  { name: "Мерида", lat: 38.91611, lng: -6.34366, country: "Spain", category: "city", kind: "human", en: "Mérida", wikiEnTitle: "Merida", wikiRuTitle: "Мерида", tags: ["unesco","heritage_city"] },
+  { name: "Мерида", lat: 38.91611, lng: -6.34366, country: "Spain", category: "city", kind: "human", en: "Mérida", wikiEnTitle: "Mérida, Spain", wikiRuTitle: "Мерида (Испания)", tags: ["unesco","heritage_city"] },
   { name: "Миагао", lat: 10.644, lng: 122.236, country: "Philippines", category: "city", kind: "human", en: "Miagao", wikiEnTitle: "Miagao", wikiRuTitle: "Миагао", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Santo_Tomas_de_Villanueva_Parish_-_Miag-ao_Church.jpg/960px-Santo_Tomas_de_Villanueva_Parish_-_Miag-ao_Church.jpg" },
   { name: "Момбаса", lat: -4.05466, lng: 39.66359, country: "Kenya", category: "city", kind: "human", en: "Mombasa", wikiEnTitle: "Mombasa", wikiRuTitle: "Момбаса", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Mombasa_Island.jpg/960px-Mombasa_Island.jpg" },
   { name: "Москва", lat: 55.75222, lng: 37.61556, country: "Russia", category: "city", kind: "human", en: "Moscow", wikiEnTitle: "Moscow", wikiRuTitle: "Москва", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Saint_Basil%27s_Cathedral_and_the_Red_Square.jpg/960px-Saint_Basil%27s_Cathedral_and_the_Red_Square.jpg" },
@@ -4062,16 +4115,16 @@ const locations = [
   { name: "Порту", lat: 41.14961, lng: -8.61099, country: "Portugal", category: "city", kind: "human", en: "Oporto", wikiEnTitle: "Porto", wikiRuTitle: "Порту", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Puente_Don_Luis_I%2C_Oporto%2C_Portugal%2C_2012-05-09%2C_DD_13.JPG/960px-Puente_Don_Luis_I%2C_Oporto%2C_Portugal%2C_2012-05-09%2C_DD_13.JPG" },
   { name: "Падула", lat: 40.337, lng: 15.656, country: "Italy", category: "city", kind: "human", en: "Padula", wikiEnTitle: "Padula", wikiRuTitle: "Падула", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Padula_Panoramica.jpg/960px-Padula_Panoramica.jpg" },
   { name: "Палаццоло-Акрейде", lat: 37.062, lng: 14.904, country: "Italy", category: "city", kind: "human", en: "Palazzolo Acreide", wikiEnTitle: "Palazzolo Acreide", wikiRuTitle: "Палаццоло-Акрейде", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Palazzolo_Acreide_overview_AvL.jpg/960px-Palazzolo_Acreide_overview_AvL.jpg" },
-  { name: "Панама", lat: 8.9936, lng: -79.51973, country: "Panama", category: "city", kind: "human", en: "Panama", wikiEnTitle: "Panama", wikiRuTitle: "Панама", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Flag_of_Panama.svg/960px-Flag_of_Panama.svg.png" },
+  { name: "Панама", lat: 8.9936, lng: -79.51973, country: "Panama", category: "city", kind: "human", en: "Panama", wikiEnTitle: "Panama City", wikiRuTitle: "Панама (город)", tags: ["unesco","heritage_city"] },
   { name: "Филадельфия", lat: 39.95238, lng: -75.16362, country: "United States", category: "city", kind: "human", en: "Philadelphia", wikiEnTitle: "Philadelphia", wikiRuTitle: "Филадельфия", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Philadelphia_skyline_20240528_%28cropped_2-1%29.jpg/960px-Philadelphia_skyline_20240528_%28cropped_2-1%29.jpg" },
   { name: "Потсдам", lat: 52.39886, lng: 13.06566, country: "Germany", category: "city", kind: "human", en: "Potsdam", wikiEnTitle: "Potsdam", wikiRuTitle: "Потсдам", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Havel-Park-Lake-Babelsberg-Downtown-Potsdam-Green.jpg/960px-Havel-Park-Lake-Babelsberg-Downtown-Potsdam-Green.jpg" },
   { name: "Пуэбла", lat: 19.03793, lng: -98.20346, country: "Mexico", category: "city", kind: "human", en: "Puebla", wikiEnTitle: "Puebla", wikiRuTitle: "Пуэбла", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Mexico-Popocatepetl.jpg/960px-Mexico-Popocatepetl.jpg" },
   { name: "Пюрмеренд", lat: 52.505, lng: 4.95972, country: "Netherlands", category: "city", kind: "human", en: "Purmerend", wikiEnTitle: "Purmerend", wikiRuTitle: "Пюрмеренд", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Koemarkt_Purmerend_in_de_zomer.JPG/960px-Koemarkt_Purmerend_in_de_zomer.JPG" },
-  { name: "Квебек", lat: 46.81228, lng: -71.21454, country: "Canada", category: "city", kind: "human", en: "Quebec", wikiEnTitle: "Quebec", wikiRuTitle: "Квебек", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Quebec.svg/960px-Flag_of_Quebec.svg.png" },
+  { name: "Квебек", lat: 46.81228, lng: -71.21454, country: "Canada", category: "city", kind: "human", en: "Quebec", wikiEnTitle: "Quebec City", wikiRuTitle: "Квебек (город)", tags: ["unesco","heritage_city"] },
   { name: "Кведлинбург", lat: 51.78843, lng: 11.15006, country: "Germany", category: "city", kind: "human", en: "Quedlinburg", wikiEnTitle: "Quedlinburg", wikiRuTitle: "Кведлинбург", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Quedlinburg_asv2018-10_img11_Markt.jpg/960px-Quedlinburg_asv2018-10_img11_Markt.jpg" },
   { name: "Керетаро", lat: 20.58806, lng: -100.38806, country: "Mexico", category: "city", kind: "human", en: "Querétaro", wikiEnTitle: "Querétaro", wikiRuTitle: "Керетаро", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pinal_de_Amoles%2C_Qro%2C_M%C3%A9xico.jpg/960px-Pinal_de_Amoles%2C_Qro%2C_M%C3%A9xico.jpg" },
-  { name: "Рёума", lat: 61.12724, lng: 21.51127, country: "Finland", category: "city", kind: "human", en: "Rauma", wikiEnTitle: "Rauma", wikiRuTitle: "Рёума (значения)", tags: ["unesco","heritage_city"] },
-  { name: "Родос", lat: 36.43556, lng: 28.22199, country: "Greece", category: "city", kind: "human", en: "Rhodes", wikiEnTitle: "Rhodes", wikiRuTitle: "Родос", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Rhodes_sentinel2_%28cropped%29.jpg/960px-Rhodes_sentinel2_%28cropped%29.jpg" },
+  { name: "Раума", lat: 61.12724, lng: 21.51127, country: "Finland", category: "city", kind: "human", en: "Rauma", wikiEnTitle: "Rauma, Finland", wikiRuTitle: "Раума", tags: ["unesco","heritage_city"] },
+  { name: "Родос", lat: 36.43556, lng: 28.22199, country: "Greece", category: "city", kind: "human", en: "Rhodes", wikiEnTitle: "Rhodes (city)", wikiRuTitle: "Родос (город)", tags: ["unesco","heritage_city"] },
   { name: "Рига", lat: 56.946, lng: 24.10589, country: "Latvia", category: "city", kind: "human", en: "Riga", wikiEnTitle: "Riga", wikiRuTitle: "Рига", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Riga_%2833844464828%29.jpg/960px-Riga_%2833844464828%29.jpg" },
   { name: "Рёрус", lat: 62.57468, lng: 11.3842, country: "Norway", category: "city", kind: "human", en: "Roros", wikiEnTitle: "Røros", wikiRuTitle: "Рёрус", tags: ["unesco","heritage_city"] },
   { name: "Сен-Луи", lat: 16.01793, lng: -16.48962, country: "Senegal", category: "city", kind: "human", en: "Saint-Louis", wikiEnTitle: "Saint Louis", wikiRuTitle: "Сен-Луи", tags: ["unesco","heritage_city"] },
@@ -4091,7 +4144,7 @@ const locations = [
   { name: "Синтра", lat: 38.80097, lng: -9.37826, country: "Portugal", category: "city", kind: "human", en: "Sintra", wikiEnTitle: "Sintra", wikiRuTitle: "Синтра", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Sintra_-_Palacio_da_Pena_%2820332995770%29_%28cropped2%29.jpg/960px-Sintra_-_Palacio_da_Pena_%2820332995770%29_%28cropped2%29.jpg" },
   { name: "Сус", lat: 35.82539, lng: 10.63699, country: "Tunisia", category: "city", kind: "human", en: "Sousse", wikiEnTitle: "Sousse", wikiRuTitle: "Сус", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Tunezja%2C_Sousse_-_panoramio_%283%29.jpg/960px-Tunezja%2C_Sousse_-_panoramio_%283%29.jpg" },
   { name: "Сплит", lat: 43.50891, lng: 16.43915, country: "Croatia", category: "city", kind: "human", en: "Split", wikiEnTitle: "Split", wikiRuTitle: "Сплит", tags: ["unesco","heritage_city"] },
-  { name: "Георгий Победоносец", lat: 32.381, lng: -64.678, country: "Bermuda", category: "city", kind: "human", en: "St George", wikiEnTitle: "Saint George", wikiRuTitle: "Георгий Победоносец", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Martorell_-_Sant_Jordi.jpg/960px-Martorell_-_Sant_Jordi.jpg" },
+  { name: "Сент-Джордж", lat: 32.381, lng: -64.678, country: "Bermuda", category: "city", kind: "human", en: "St George", wikiEnTitle: "St. George's, Bermuda", wikiRuTitle: "Сент-Джордж (Бермуды)", tags: ["unesco","heritage_city"] },
   { name: "Штральзунд", lat: 54.30911, lng: 13.0818, country: "Germany", category: "city", kind: "human", en: "Stralsund", wikiEnTitle: "Stralsund", wikiRuTitle: "Штральзунд", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/WLM_-_2020_-_Stralsund_-_St._Nikolai_Kirche.jpg/960px-WLM_-_2020_-_Stralsund_-_St._Nikolai_Kirche.jpg" },
   { name: "Страсбург", lat: 48.58392, lng: 7.74553, country: "France", category: "city", kind: "human", en: "Strasbourg", wikiEnTitle: "Strasbourg", wikiRuTitle: "Страсбург", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Strasbourg_Cathedral.jpg/960px-Strasbourg_Cathedral.jpg" },
   { name: "Суракарта", lat: -7.55611, lng: 110.83167, country: "Indonesia", category: "city", kind: "human", en: "Surakarta", wikiEnTitle: "Surakarta", wikiRuTitle: "Суракарта", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Kraton_Solo.jpg/960px-Kraton_Solo.jpg" },
@@ -4104,7 +4157,7 @@ const locations = [
   { name: "Толедо", lat: 39.8581, lng: -4.02263, country: "Spain", category: "city", kind: "human", en: "Toledo", wikiEnTitle: "Toledo", wikiRuTitle: "Толедо", tags: ["unesco","heritage_city"] },
   { name: "Торунь", lat: 53.01375, lng: 18.59814, country: "Poland", category: "city", kind: "human", en: "Torun", wikiEnTitle: "Toruń", wikiRuTitle: "Торунь", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Stare_Miasto%2C_Ratusz_Staromiejski_w_Toruniu.jpg/960px-Stare_Miasto%2C_Ratusz_Staromiejski_w_Toruniu.jpg" },
   { name: "Тршебич", lat: 49.21492, lng: 15.88166, country: "Czechia", category: "city", kind: "human", en: "Trebíc", wikiEnTitle: "Třebíč", wikiRuTitle: "Тршебич", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Leteck%C3%BD_pohled_na_centrum_T%C5%99eb%C3%AD%C4%8De_od_severoz%C3%A1padu.jpg/960px-Leteck%C3%BD_pohled_na_centrum_T%C5%99eb%C3%AD%C4%8De_od_severoz%C3%A1padu.jpg" },
-  { name: "Тринидад", lat: 21.80224, lng: -79.98467, country: "Cuba", category: "city", kind: "human", en: "Trinidad", wikiEnTitle: "Trinidad", wikiRuTitle: "Тринидад", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Td-map.png" },
+  { name: "Тринидад", lat: 21.80224, lng: -79.98467, country: "Cuba", category: "city", kind: "human", en: "Trinidad", wikiEnTitle: "Trinidad, Cuba", wikiRuTitle: "Тринидад (Куба)", tags: ["unesco","heritage_city"] },
   { name: "Тунис", lat: 36.81897, lng: 10.16579, country: "Tunisia", category: "city", kind: "human", en: "Tunis", wikiEnTitle: "Tunis", wikiRuTitle: "Тунис", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Minaret_et_patio_de_la_mosqu%C3%A9e_Zitouna_au_centre_de_la_M%C3%A9dina_de_Tunis.jpg/960px-Minaret_et_patio_de_la_mosqu%C3%A9e_Zitouna_au_centre_de_la_M%C3%A9dina_de_Tunis.jpg" },
   { name: "Туркестан", lat: 43.29733, lng: 68.25175, country: "Kazakhstan", category: "city", kind: "human", en: "Turkistan", wikiEnTitle: "Turkestan", wikiRuTitle: "Туркестан", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/1914_map_of_Asia.jpg/960px-1914_map_of_Asia.jpg" },
   { name: "Убеда", lat: 38.01328, lng: -3.3705, country: "Spain", category: "city", kind: "human", en: "Úbeda", wikiEnTitle: "Úbeda", wikiRuTitle: "Убеда", tags: ["unesco","heritage_city"], image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/37132-Ubeda.jpg/960px-37132-Ubeda.jpg" },
@@ -4293,6 +4346,32 @@ function listMoreLabel(remaining) {
   return currentLang === 'ru' ? 'Показать еще ' + next : 'Show ' + next + ' more';
 }
 
+function setCardThumbImage(el, loc, thumb) {
+  if (!el || !thumb || el.dataset.loaded === '1') return;
+  el.dataset.loaded = '1';
+  const img = document.createElement('img');
+  img.src = thumb;
+  img.alt = displayName(loc);
+  img.loading = 'eager';
+  img.decoding = 'async';
+  img.onload = () => { const ph = el.querySelector('.ph'); if (ph) ph.remove(); };
+  el.appendChild(img);
+}
+
+async function loadCardThumb(el) {
+  if (!el || el.dataset.loaded === '1') return;
+  const idx = +el.dataset.idx;
+  const loc = locations[idx];
+  if (!loc) return;
+  if (loc.image) {
+    setCardThumbImage(el, loc, loc.image);
+    return;
+  }
+  const summary = await fetchSummary(loc);
+  const thumb = summary?.thumb;
+  if (thumb) setCardThumbImage(el, loc, thumb);
+}
+
 function ensureThumbObserver() {
   if (cardThumbObserver) return cardThumbObserver;
   cardThumbObserver = new IntersectionObserver((entries) => {
@@ -4300,20 +4379,9 @@ function ensureThumbObserver() {
       if (!entry.isIntersecting) return;
       const el = entry.target;
       cardThumbObserver.unobserve(el);
-      const idx = +el.dataset.idx;
-      const loc = locations[idx];
-      const summary = await fetchSummary(loc);
-      const thumb = summary?.thumb || loc.image;
-      if (thumb) {
-        const img = document.createElement('img');
-        img.src = thumb;
-        img.alt = displayName(loc);
-        img.loading = 'lazy';
-        img.onload = () => { const ph = el.querySelector('.ph'); if (ph) ph.remove(); };
-        el.appendChild(img);
-      }
+      await loadCardThumb(el);
     });
-  }, { rootMargin: '200px' });
+  }, { root: document.getElementById('location-list') || null, rootMargin: '200px' });
   return cardThumbObserver;
 }
 
@@ -4366,7 +4434,9 @@ function renderList(filtered) {
       if ((document.getElementById('visitedFilter')?.value || 'all') !== 'all') renderAndSync();
     });
     container.appendChild(card);
-    obs.observe(card.querySelector('.card-thumb'));
+    const thumbEl = card.querySelector('.card-thumb');
+    if (loc.image) loadCardThumb(thumbEl);
+    else obs.observe(thumbEl);
   });
 
   if (visible.length < filtered.length) {
