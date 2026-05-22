@@ -150,11 +150,30 @@ function splitFacts(value) {
   return repairMojibake(value)
     .split(/\r?\n|\s*\|\s*|(?:^|\s+)•\s*/u)
     .map((part) => part.replace(/^[-–—*•]\s*/u, "").trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((fact) => !isMetaFact(fact));
 }
 
 function cleanText(value) {
   return repairMojibake(value).replace(/\s+/g, " ").trim();
+}
+
+function isMetaFact(value) {
+  const text = cleanText(value).toLowerCase();
+  return [
+    "в таблице",
+    "исходном файле",
+    "wikipedia-поле",
+    "координат",
+    "для карточки",
+    "тег instagram",
+    "the table already includes",
+    "in the source file",
+    "wikipedia field",
+    "coordinates",
+    "for the card",
+    "the instagram tag",
+  ].some((needle) => text.includes(needle));
 }
 
 function contentKey(index) {
