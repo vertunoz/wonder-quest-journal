@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://wonder-quest-journal.lovable.app/sitemap.xml
+Sitemap: https://vertunoz.github.io/wonder-quest-journal/sitemap.xml

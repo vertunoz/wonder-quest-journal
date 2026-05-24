@@ -72,26 +72,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Atlas Naturae — 989 Wonders" },
+      { title: "World Wonders Atlas — 2607 Wonders" },
       {
         name: "description",
         content:
-          "Atlas Naturae — объединённый атлас оригинальных природных чудес, Instagram Wonders и UNESCO Wonders с картой, категориями, описаниями, фактами и отметками о посещённых местах.",
+          "World Wonders Atlas — мировой атлас природных, рукотворных и смешанных чудес с картой, категориями, описаниями, галереями и отметками посещений.",
       },
-      { name: "author", content: "Atlas Naturae" },
-      { property: "og:title", content: "Atlas Naturae — 989 Wonders" },
+      { name: "author", content: "World Wonders Atlas" },
+      { property: "og:title", content: "World Wonders Atlas — 2607 Wonders" },
       {
         property: "og:description",
         content:
-          "Объединённый атлас оригинальных природных чудес, Instagram Wonders и UNESCO Wonders с картой, категориями, описаниями и отметками посещений.",
+          "Мировой атлас природных, рукотворных и смешанных чудес с интерактивной картой, категориями, описаниями и отметками посещений.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Atlas Naturae — 989 Wonders" },
+      { name: "twitter:title", content: "World Wonders Atlas — 2607 Wonders" },
       {
         name: "twitter:description",
         content:
-          "Объединённый атлас природных чудес, Instagram Wonders и UNESCO Wonders с картой, категориями и отметками посещений.",
+          "Мировой атлас природных, рукотворных и смешанных чудес с интерактивной картой, категориями и отметками посещений.",
       },
     ],
     links: [
