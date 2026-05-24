@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>World Wonders Atlas — 2607 Wonders</title>
 <meta name="description" content="World Wonders Atlas — мировой атлас природных, рукотворных и смешанных чудес с картой, категориями, описаниями, галереями и отметками посещений.">
-<link rel="canonical" href="https://wonder-quest-journal.lovable.app/atlas.html">
+<link rel="canonical" href="https://vertunoz.github.io/wonder-quest-journal/atlas.html">
 <meta property="og:title" content="World Wonders Atlas — 2607 Wonders">
 <meta property="og:description" content="Мировой атлас природных, рукотворных и смешанных чудес с интерактивной картой, категориями, описаниями и отметками посещений.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://wonder-quest-journal.lovable.app/atlas.html">
+<meta property="og:url" content="https://vertunoz.github.io/wonder-quest-journal/atlas.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="World Wonders Atlas — 2607 Wonders">
 <meta name="twitter:description" content="Мировой атлас природных, рукотворных и смешанных чудес с интерактивной картой, категориями и отметками посещений.">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"World Wonders Atlas","url":"https://wonder-quest-journal.lovable.app/atlas.html","description":"Мировой атлас природных, рукотворных и смешанных чудес с картой, категориями, описаниями, галереями и отметками посещений.","inLanguage":"ru"}
+{"@context":"https://schema.org","@type":"WebSite","name":"World Wonders Atlas","url":"https://vertunoz.github.io/wonder-quest-journal/atlas.html","description":"Мировой атлас природных, рукотворных и смешанных чудес с картой, категориями, описаниями, галереями и отметками посещений.","inLanguage":"ru"}
 </script>
 
 <!-- Шрифты с характером (editorial / cartographer feel) -->
@@ -1013,7 +1013,8 @@ const tagConfig = {
   endangered: { label: "Под угрозой", short: "Риск", emoji: "⚠️" }
 };
 
-const LANG_KEY = 'atlas-naturae:lang';
+const LANG_KEY = 'world-wonders:lang';
+const LEGACY_LANG_KEY = 'atlas-naturae:lang';
 const KIND_CONFIG = {
   natural: { emoji: '🌿', hex: '#2F7A4A' },
   human: { emoji: '🏛️', hex: '#9A5B34' },
@@ -1076,8 +1077,9 @@ const RU_NAME_OVERRIDES = {
 const COUNTRY_RU = { "Albania":"Албания","Algeria":"Алжир","Andorra":"Андорра","Antigua and Barbuda":"Антигуа и Барбуда","Argentina":"Аргентина","Australia":"Австралия","Austria":"Австрия","Azerbaijan":"Азербайджан","Belarus":"Беларусь","Belgium":"Бельгия","Belize":"Белиз","Bolivia":"Боливия","Bolivia (Plurinational State of)":"Боливия","Botswana":"Ботсвана","Brazil":"Бразилия","Bulgaria":"Болгария","Burkina Faso":"Буркина-Фасо","Cameroon":"Камерун","Canada":"Канада","Cape Verde":"Кабо-Верде","Central African Republic":"Центральноафриканская Республика","Chad":"Чад","Chile":"Чили","China":"Китай","Colombia":"Колумбия","Costa Rica":"Коста-Рика","Croatia":"Хорватия","Cuba":"Куба","Cyprus":"Кипр","Czech Republic":"Чехия","Czechia":"Чехия","Democratic Republic of the Congo":"ДР Конго","Denmark":"Дания","Ecuador":"Эквадор","Egypt":"Египет","Ethiopia":"Эфиопия","Finland":"Финляндия","France":"Франция","Georgia":"Грузия","Germany":"Германия","Ghana":"Гана","Greece":"Греция","Grenada":"Гренада","Guatemala":"Гватемала","Guyana":"Гайана","Haiti":"Гаити","Hungary":"Венгрия","Iceland":"Исландия","India":"Индия","Indonesia":"Индонезия","Iran":"Иран","Iran (Islamic Republic of)":"Иран","Iran / Iraq":"Иран / Ирак","Ireland":"Ирландия","Italy":"Италия","Jamaica":"Ямайка","Japan":"Япония","Jordan":"Иордания","Kazakhstan":"Казахстан","Kenya":"Кения","Kiribati":"Кирибати","Kosovo":"Республика Косово","Kuwait":"Кувейт","Kyrgyzstan":"Кыргызстан","Lebanon":"Ливан","Libya":"Ливия","Luxembourg":"Люксембург","Madagascar":"Мадагаскар","Malawi":"Малави","Malaysia":"Малайзия","Maldives":"Мальдивы","Mali":"Мали","Malta":"Мальта","Mexico":"Мексика","Moldova":"Молдова","Mongolia":"Монголия","Montenegro":"Черногория","Morocco":"Марокко","Namibia":"Намибия","Nepal":"Непал","Netherlands":"Нидерланды","New Zealand":"Новая Зеландия","Nicaragua":"Никарагуа","Nigeria":"Нигерия","Norway":"Норвегия","Oman":"Оман","Pakistan":"Пакистан","Palau":"Палау","Papua New Guinea":"Папуа — Новая Гвинея","Peru":"Перу","Philippines":"Филиппины","Poland":"Польша","Portugal":"Португалия","Puerto Rico":"Пуэрто-Рико","Republic of Korea":"Южная Корея","Romania":"Румыния","Russia":"Россия","Russian Federation":"Россия","Rwanda":"Руанда","Saint Lucia":"Сент-Люсия","Samoa":"Самоа","San Marino":"Сан-Марино","São Tomé and Príncipe":"Сан-Томе и Принсипи","Saudi Arabia":"Саудовская Аравия","Serbia":"Сербия","Serbia / Bosnia and Herzegovina":"Сербия / Босния и Герцеговина","Seychelles":"Сейшелы","Singapore":"Сингапур","Slovakia":"Словакия","Slovenia":"Словения","Somaliland":"Сомалиленд","South Africa":"ЮАР","South Korea":"Южная Корея","South Sudan":"Южный Судан","Spain":"Испания","Sri Lanka":"Шри-Ланка","Sweden":"Швеция","Switzerland":"Швейцария","Tajikistan":"Таджикистан","Tanzania":"Танзания","Thailand":"Таиланд","Togo":"Того","Tonga":"Тонга","Turkey":"Турция","Turkmenistan":"Туркменистан","Uganda":"Уганда","Ukraine":"Украина","United Arab Emirates":"ОАЭ","United Kingdom":"Великобритания","United Kingdom of Great Britain and Northern Ireland":"Великобритания","United Republic of Tanzania":"Танзания","United States":"США","United States of America":"США","Uzbekistan":"Узбекистан","Vatican City":"Ватикан","Venezuela":"Венесуэла","Venezuela (Bolivarian Republic of)":"Венесуэла","Viet Nam":"Вьетнам","Yemen":"Йемен","Zambia":"Замбия","Zimbabwe":"Зимбабве" };
 const COUNTRY_EN = Object.fromEntries(Object.entries(COUNTRY_RU).map(([en, ru]) => [ru, en]));
 Object.assign(COUNTRY_EN, { 'Абхазия':'Abkhazia','Англия':'England','Антарктида':'Antarctica','Великобритания':'United Kingdom','Гренландия':'Greenland','Греция (Крит)':'Greece (Crete)','ДР Конго':'Democratic Republic of the Congo','Испания (Канары)':'Spain (Canary Islands)','Испания (Ла-Гомера)':'Spain (La Gomera)','Испания (Тенерифе)':'Spain (Tenerife)','Китай (Гонконг)':'China (Hong Kong)','Китай (Тибет)':'China (Tibet)','Китай / КНДР':'China / North Korea','КНДР':'North Korea','Кыргызстан':'Kyrgyzstan','Македония':'North Macedonia','Острова Кука':'Cook Islands','Реюньон (Франция)':'Réunion (France)','Россия / Иран / Казахстан / Азерб. / Туркм.':'Russia / Iran / Kazakhstan / Azerbaijan / Turkmenistan','Северная Африка':'North Africa','Северная Ирландия':'Northern Ireland','США':'United States','США (Аляска)':'United States (Alaska)','США (Гавайи)':'United States (Hawaii)','США (Кауаи)':'United States (Kauai)','Уэльс':'Wales','Фарерские острова':'Faroe Islands','Французская Полинезия':'French Polynesia','Шотландия':'Scotland','ЮАР':'South Africa' });
-function getInitialLanguage() { const p = new URLSearchParams(window.location.search).get('lang'); if (p === 'en' || p === 'ru') return p; return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'ru'; }
+function getInitialLanguage() { const p = new URLSearchParams(window.location.search).get('lang'); if (p === 'en' || p === 'ru') return p; const stored = localStorage.getItem(LANG_KEY) || localStorage.getItem(LEGACY_LANG_KEY); return stored === 'en' ? 'en' : 'ru'; }
 let currentLang = getInitialLanguage();
+if (!localStorage.getItem(LANG_KEY) && localStorage.getItem(LEGACY_LANG_KEY)) localStorage.setItem(LANG_KEY, currentLang);
 const TRAVEL_UI = {
   ru: {
     boardTitle: 'Доска мечты',
@@ -1185,7 +1187,7 @@ function setButtonText(button, text) { if (!button) return; const node = [...but
 function setSelectOptions(id, options) { const select = document.getElementById(id); if (!select) return; const current = select.value; select.innerHTML = options.map(o => '<option value="' + o.value + '">' + escapeHtml(o.label) + '</option>').join(''); if (options.some(o => o.value === current)) select.value = current; }
 function applyI18n() {
   const t = ui(); document.documentElement.lang = t.htmlLang; document.title = t.metaTitle;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[property="og:description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', t.metaDescription);
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[property="og:title"]')?.setAttribute('content', t.metaTitle); document.querySelector('meta[property="og:description"]')?.setAttribute('content', t.metaDescription); document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', t.metaTitle); document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', t.metaDescription);
   document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
   const title = document.querySelector('#sidePanel h1'); if (title) title.textContent = locations.length + ' ' + t.heroTitle;
   const lead = document.getElementById('sidebarInfoText') || document.querySelector('#sidePanel .p-5 > p'); if (lead) lead.textContent = t.lead; const dark = document.getElementById('darkToggle'); if (dark) dark.title = t.theme; const search = document.getElementById('searchInput'); if (search) search.placeholder = t.searchPlaceholder;
@@ -1316,10 +1318,19 @@ function hasTag(loc, tag) { return getTags(loc).includes(tag); }
 // ═══════════════════════════════════════════════════════════════════════
 //   ПОСЕЩЁННЫЕ — localStorage
 // ═══════════════════════════════════════════════════════════════════════
-const VISIT_KEY = 'atlas-naturae:visited';
-const visited = new Set(JSON.parse(localStorage.getItem(VISIT_KEY) || '[]'));
-const BOARD_KEY = 'atlas-naturae:board-v1';
-const board = new Map(Object.entries(JSON.parse(localStorage.getItem(BOARD_KEY) || '{}')));
+function readJsonStorage(primaryKey, legacyKey, fallback) {
+  const raw = localStorage.getItem(primaryKey) || (legacyKey ? localStorage.getItem(legacyKey) : null);
+  if (!raw) return fallback;
+  try { return JSON.parse(raw); } catch { return fallback; }
+}
+const VISIT_KEY = 'world-wonders:visited-v1';
+const LEGACY_VISIT_KEY = 'atlas-naturae:visited';
+const visited = new Set(readJsonStorage(VISIT_KEY, LEGACY_VISIT_KEY, []));
+const BOARD_KEY = 'world-wonders:board-v1';
+const LEGACY_BOARD_KEY = 'atlas-naturae:board-v1';
+const board = new Map(Object.entries(readJsonStorage(BOARD_KEY, LEGACY_BOARD_KEY, {})));
+if (!localStorage.getItem(VISIT_KEY) && localStorage.getItem(LEGACY_VISIT_KEY)) localStorage.setItem(VISIT_KEY, JSON.stringify([...visited]));
+if (!localStorage.getItem(BOARD_KEY) && localStorage.getItem(LEGACY_BOARD_KEY)) localStorage.setItem(BOARD_KEY, JSON.stringify(Object.fromEntries(board)));
 function visitKey(loc) { return loc.en || loc.name; }
 function isVisited(loc) { return visited.has(visitKey(loc)); }
 function boardStatus(loc) { return board.get(visitKey(loc)) || ''; }
@@ -16023,7 +16034,7 @@ flyToAndOpen = function(...args) {
 };
 
 // Лог
-console.log(`%c✦ Atlas Naturae`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
+console.log(`%c✦ World Wonders Atlas`, 'font-family: serif; font-size: 18px; color: #A85A2A;');
 console.log(`%c${locations.length} places in the database. Shortcuts: / search, Esc close, Ctrl+R surprise.`, 'color: #6E6856;');
 </script>
 

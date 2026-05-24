@@ -1,9 +1,9 @@
-# Atlas Naturae
+# World Wonders Atlas
 
-> Объединённый атлас оригинальных природных чудес, Instagram Wonders и UNESCO Wonders с картой, категориями, описаниями, интересными фактами и отметками о посещённых местах.
+> A world atlas of natural, human-made, and mixed wonders with an interactive map, categories, descriptions, galleries, visited marks, and dream-board planning.
 
-Atlas Naturae — это веб-приложение для путешественников и любителей природы. В атласе объединены оригинальные природные чудеса проекта, Instagram Wonders и импорт UNESCO Wonders; после очистки дублей 989 мест размечены на карте, снабжены описанием с Wikipedia на русском языке, интересными фактами и ярлыками (Instagram top, классические чудеса света, ЮНЕСКО, недооценённые, экстремальные).
+World Wonders Atlas is a travel discovery app for people collecting beautiful and meaningful places around the planet. The current atlas contains 2607 mapped places across natural, human-made, and mixed wonders, with labels such as UNESCO, Instagram Wonders, classic wonder lists, heritage cities, and endangered sites.
 
 ## Pages
 
-- [Atlas Naturae](/atlas.html): интерактивный атлас 989 Wonders с картой и фильтрами.
+- [World Wonders Atlas](/atlas.html): interactive atlas with 2607 wonders, map filters, place cards, visited tracking, and dream-board status.
