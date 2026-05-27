@@ -15449,6 +15449,7 @@ function buildOverpassQuery(bbox) {
     '(SAMPLE(?preferredArticle) AS ?preferredArticle) ' +
     '(SAMPLE(?enArticle) AS ?enArticle) ' +
     '(SAMPLE(?localArticle) AS ?localArticle) ' +
+    '(SAMPLE(?image) AS ?wikidataImage) ' +
     '(GROUP_CONCAT(DISTINCT ?localLang; separator="|") AS ?localLangs) ' +
     '(GROUP_CONCAT(DISTINCT ?class; separator="|") AS ?classes) ' +
     '(COUNT(DISTINCT ?heritage) AS ?heritageCount) WHERE {\n' +
@@ -15469,6 +15470,7 @@ function buildOverpassQuery(bbox) {
     '    OPTIONAL { ?localArticle schema:about ?item ; schema:isPartOf ?localWiki . }\n' +
     '  }\n' +
     '  FILTER(BOUND(?preferredArticle) || BOUND(?enArticle) || BOUND(?localArticle))\n' +
+    '  OPTIONAL { ?item wdt:P18 ?image . }\n' +
     '  OPTIONAL { ?item wdt:P1435 ?heritage . }\n' +
     '  SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '" . }\n' +
     '}\nGROUP BY ?item ?itemLabel ?coord\nLIMIT ' + OVERPASS_RAW_LIMIT;
@@ -15501,6 +15503,9 @@ function wikipediaTitleFromUrl(url) {
   } catch {
     return rawTitle.replace(/_/g, ' ');
   }
+}
+function normalizeMediaUrl(url) {
+  return String(url || '').replace(/^http:/i, 'https:');
 }
 function chooseOverpassArticle(articles, localLangs = []) {
   const list = (articles || []).filter(Boolean);
@@ -15608,6 +15613,7 @@ function parseOverpassElements(elements, center) {
       heritageCount: overpassHeritageCount(element),
       articleCount: overpassArticleCount(element),
       articleLang: wikipediaLangFromUrl(sourceUrl),
+      wikidataImage: normalizeMediaUrl(element.wikidataImage?.value),
       sourceUrl,
       distance: center ? nearbyDistanceKm(center, latlng) : 0,
       score: 0
@@ -15657,7 +15663,11 @@ async function fetchOverpassCard(item) {
   const key = overpassCardKey(item);
   if (overpassCardCache.has(key)) return overpassCardCache.get(key);
   const endpoint = overpassSummaryEndpoint(item);
-  if (!endpoint) return null;
+  if (!endpoint) {
+    const card = item.wikidataImage ? { extract: '', image: item.wikidataImage, page: overpassSourceUrl(item) } : null;
+    overpassCardCache.set(key, card);
+    return card;
+  }
   try {
     const response = await fetch(endpoint);
     if (!response.ok) throw new Error('Wikipedia summary ' + response.status);
@@ -15665,7 +15675,7 @@ async function fetchOverpassCard(item) {
     if (data.type === 'disambiguation') return null;
     const card = {
       extract: data.extract || '',
-      image: data.originalimage?.source || data.thumbnail?.source || '',
+      image: normalizeMediaUrl(data.originalimage?.source || data.thumbnail?.source || item.wikidataImage),
       page: data.content_urls?.desktop?.page || overpassSourceUrl(item)
     };
     overpassCardCache.set(key, card);
