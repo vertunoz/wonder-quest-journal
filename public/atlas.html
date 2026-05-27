@@ -15234,6 +15234,7 @@ const OVERPASS_MIN_ZOOM = 10;
 const OVERPASS_RESULT_LIMIT = 30;
 const OVERPASS_RAW_LIMIT = 80;
 const OVERPASS_TIMEOUT_MS = 12000;
+const OVERPASS_CARD_TIMEOUT_MS = 4500;
 const OVERPASS_ENDPOINTS = [
   'https://query.wikidata.org/sparql'
 ];
@@ -15663,16 +15664,18 @@ async function fetchOverpassCard(item) {
   const key = overpassCardKey(item);
   if (overpassCardCache.has(key)) return overpassCardCache.get(key);
   const endpoint = overpassSummaryEndpoint(item);
+  const fallbackCard = item.wikidataImage ? { extract: '', image: item.wikidataImage, page: overpassSourceUrl(item) } : null;
   if (!endpoint) {
-    const card = item.wikidataImage ? { extract: '', image: item.wikidataImage, page: overpassSourceUrl(item) } : null;
-    overpassCardCache.set(key, card);
-    return card;
+    overpassCardCache.set(key, fallbackCard);
+    return fallbackCard;
   }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OVERPASS_CARD_TIMEOUT_MS);
   try {
-    const response = await fetch(endpoint);
+    const response = await fetch(endpoint, { signal: controller.signal });
     if (!response.ok) throw new Error('Wikipedia summary ' + response.status);
     const data = await response.json();
-    if (data.type === 'disambiguation') return null;
+    if (data.type === 'disambiguation') return fallbackCard;
     const card = {
       extract: data.extract || '',
       image: normalizeMediaUrl(data.originalimage?.source || data.thumbnail?.source || item.wikidataImage),
@@ -15681,8 +15684,10 @@ async function fetchOverpassCard(item) {
     overpassCardCache.set(key, card);
     return card;
   } catch {
-    overpassCardCache.set(key, null);
-    return null;
+    overpassCardCache.set(key, fallbackCard);
+    return fallbackCard;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 function overpassCardHtml(item, card, loading = false) {
@@ -15690,7 +15695,7 @@ function overpassCardHtml(item, card, loading = false) {
   const name = escapeHtml(overpassItemName(item));
   const type = escapeHtml(overpassItemType(item));
   const source = escapeHtml(card?.page || overpassSourceUrl(item));
-  const image = card?.image || '';
+  const image = card?.image || item.wikidataImage || '';
   const desc = loading ? t.cardLoading : (card?.extract || t.cardUnavailable);
   const media = image
     ? '<img src="' + escapeHtml(image) + '" alt="' + name + '" loading="lazy">'
