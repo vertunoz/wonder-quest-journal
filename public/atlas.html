@@ -766,6 +766,30 @@
     line-height: 1.35; padding: 0 2px;
   }
   .overpass-status.error { color: #C0382E; }
+  .overpass-progress {
+    height: 3px; border-radius: 999px; overflow: hidden;
+    background: color-mix(in oklab, var(--line) 80%, transparent);
+  }
+  .overpass-progress.hidden { display: none; }
+  .overpass-progress-bar {
+    width: 28%; height: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: overpass-loading 1.05s ease-in-out infinite;
+  }
+  @keyframes overpass-loading {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(360%); }
+  }
+  .overpass-refresh {
+    min-height: 28px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: 10px; font-weight: 800;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .overpass-refresh:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg));
+  }
+  .overpass-refresh.hidden { display: none; }
   .overpass-marker {
     width: 28px; height: 28px; border-radius: 999px;
     display: grid; place-items: center;
@@ -940,7 +964,11 @@
         </span>
         <span id="overpassCount">0</span>
       </button>
-      <div id="overpassStatus" class="overpass-status">Zoom 8+</div>
+      <div id="overpassStatus" class="overpass-status">Zoom 10+</div>
+      <div id="overpassProgress" class="overpass-progress hidden" aria-hidden="true">
+        <div class="overpass-progress-bar"></div>
+      </div>
+      <button id="overpassRefresh" type="button" class="overpass-refresh hidden">Обновить рядом</button>
     </div>
 
     <div id="osmDataAttribution" class="map-control osm-data-attribution hidden">
@@ -15111,7 +15139,10 @@ const markerByIndex = new Map();
 let overpassLayer;
 let overpassEnabled = false;
 let overpassAbort = null;
+let overpassAbortReason = '';
 let overpassTimer = null;
+let overpassLoadingTimer = null;
+let overpassLoadingStartedAt = 0;
 let overpassLastKey = '';
 let overpassLastCount = 0;
 let overpassLastState = 'off';
@@ -15167,37 +15198,24 @@ function initMap() {
   });
 }
 
-const OVERPASS_MIN_ZOOM = 8;
-const OVERPASS_RESULT_LIMIT = 120;
+const OVERPASS_MIN_ZOOM = 10;
+const OVERPASS_RESULT_LIMIT = 30;
 const OVERPASS_TIMEOUT_MS = 12000;
 const OVERPASS_ENDPOINTS = [
   'https://query.wikidata.org/sparql'
-];
-const WIKIDATA_PLACE_CLASSES = [
-  'wd:Q570116',  // tourist attraction
-  'wd:Q839954',  // archaeological site
-  'wd:Q9259',    // UNESCO World Heritage Site
-  'wd:Q8502',    // mountain
-  'wd:Q46831',   // mountain range
-  'wd:Q34038',   // waterfall
-  'wd:Q8072',    // volcano
-  'wd:Q35509',   // cave
-  'wd:Q23397',   // lake
-  'wd:Q23442',   // island
-  'wd:Q4989906', // monument
-  'wd:Q12280',   // bridge
-  'wd:Q23413',   // castle
-  'wd:Q41176',   // building
-  'wd:Q22698'    // park
 ];
 const OVERPASS_TEXT = {
   ru: {
     toggle: 'Ещё места рядом',
     off: 'Выключен',
     zoom: 'Приблизьте карту до города или места',
-    loading: 'Ищу дополнительные места рядом...',
+    preparing: sec => 'Готовлю поиск... ' + sec + 'с',
+    loading: sec => 'Запрашиваю Wikidata... ' + sec + 'с',
+    slow: sec => 'Источник отвечает медленно... ' + sec + 'с',
     empty: 'Дополнительных мест здесь не найдено',
     loaded: n => 'Найдено рядом: ' + n,
+    stale: 'Карта сдвинута — обновите поиск',
+    refresh: 'Обновить рядом',
     error: 'Wikidata временно недоступна',
     source: 'Открыть источник',
     live: 'nearby places',
@@ -15219,9 +15237,13 @@ const OVERPASS_TEXT = {
     toggle: 'Nearby places',
     off: 'Off',
     zoom: 'Zoom in to a city or place',
-    loading: 'Looking for additional nearby places...',
+    preparing: sec => 'Preparing search... ' + sec + 's',
+    loading: sec => 'Querying Wikidata... ' + sec + 's',
+    slow: sec => 'Source is responding slowly... ' + sec + 's',
     empty: 'No additional places found here',
     loaded: n => 'Nearby places found: ' + n,
+    stale: 'Map moved — refresh nearby search',
+    refresh: 'Refresh nearby',
     error: 'Wikidata is temporarily unavailable',
     source: 'Open source',
     live: 'nearby places',
@@ -15296,7 +15318,9 @@ function overpassBbox() {
   const area = Math.abs((north - south) * (east - west));
   const latKm = Math.abs(north - south) * 111;
   const lngKm = Math.abs(east - west) * 111 * Math.max(0.2, Math.cos(center.lat * Math.PI / 180));
-  const radiusKm = Math.max(2, Math.min(35, Math.max(latKm, lngKm) / 2));
+  const zoom = map.getZoom();
+  const maxRadius = zoom >= 13 ? 5 : (zoom >= 11 ? 10 : 16);
+  const radiusKm = Math.max(2, Math.min(maxRadius, Math.max(latKm, lngKm) / 2));
   return { south, west, north, east, area, centerLat: center.lat, centerLng: center.lng, radiusKm };
 }
 function overpassCacheKey(bbox) {
@@ -15307,15 +15331,14 @@ function overpassCacheKey(bbox) {
 }
 function buildOverpassQuery(bbox) {
   const lang = currentLang === 'ru' ? 'ru,en' : 'en,ru';
-  return 'SELECT DISTINCT ?item ?itemLabel ?coord ?classLabel ?article WHERE {\n' +
+  return 'SELECT DISTINCT ?item ?itemLabel ?coord ?article WHERE {\n' +
     '  SERVICE wikibase:around {\n' +
     '    ?item wdt:P625 ?coord .\n' +
     '    bd:serviceParam wikibase:center "Point(' + bbox.centerLng.toFixed(6) + ' ' + bbox.centerLat.toFixed(6) + ')"^^geo:wktLiteral .\n' +
     '    bd:serviceParam wikibase:radius "' + bbox.radiusKm.toFixed(1) + '" .\n' +
     '  }\n' +
-    '  ?item wdt:P31/wdt:P279* ?class .\n' +
-    '  VALUES ?class { ' + WIKIDATA_PLACE_CLASSES.join(' ') + ' }\n' +
-    '  OPTIONAL { ?article schema:about ?item ; schema:isPartOf <https://' + (currentLang === 'ru' ? 'ru' : 'en') + '.wikipedia.org/> . }\n' +
+    '  ?article schema:about ?item ; schema:isPartOf ?wiki .\n' +
+    '  VALUES ?wiki { <https://ru.wikipedia.org/> <https://en.wikipedia.org/> }\n' +
     '  SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '" . }\n' +
     '}\nLIMIT ' + OVERPASS_RESULT_LIMIT;
 }
@@ -15327,7 +15350,16 @@ function scoreOverpassItem(item) {
   if (item.typeLabel) score += 1;
   return score;
 }
-function parseOverpassElements(elements) {
+function nearbyDistanceKm(a, b) {
+  const toRad = value => value * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+function parseOverpassElements(elements, center) {
   const seen = new Set();
   const items = [];
   (elements || []).forEach(element => {
@@ -15350,11 +15382,12 @@ function parseOverpassElements(elements) {
       wikiTitle: sourceUrl.split('/wiki/')[1]?.replace(/_/g, ' ') || '',
       typeLabel: element.classLabel?.value || overpassText().data,
       sourceUrl,
+      distance: center ? nearbyDistanceKm(center, latlng) : 0,
       score: 0
     });
   });
   items.forEach(item => item.score = scoreOverpassItem(item));
-  return items.sort((a, b) => b.score - a.score || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
+  return items.sort((a, b) => (a.distance || 0) - (b.distance || 0) || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
 }
 function overpassItemName(item) {
   const tags = item.tags || {};
@@ -15408,7 +15441,28 @@ function renderOverpassMarkers(items) {
     overpassLayer.addLayer(marker);
   });
 }
+function overpassElapsedSeconds() {
+  return Math.max(0, Math.floor((Date.now() - overpassLoadingStartedAt) / 1000));
+}
+function overpassLoadingText() {
+  const t = overpassText();
+  const sec = overpassElapsedSeconds();
+  if (sec < 2) return t.preparing(sec);
+  if (sec < 7) return t.loading(sec);
+  return t.slow(sec);
+}
+function startOverpassLoadingTimer() {
+  overpassLoadingStartedAt = Date.now();
+  clearInterval(overpassLoadingTimer);
+  overpassLoadingTimer = setInterval(updateOverpassUi, 500);
+}
+function stopOverpassLoadingTimer() {
+  clearInterval(overpassLoadingTimer);
+  overpassLoadingTimer = null;
+}
 function setOverpassStatus(state, count = overpassLastCount) {
+  if (state === 'loading') startOverpassLoadingTimer();
+  else stopOverpassLoadingTimer();
   overpassLastState = state;
   overpassLastCount = count;
   updateOverpassUi();
@@ -15419,6 +15473,8 @@ function updateOverpassUi() {
   const label = document.getElementById('overpassToggleLabel');
   const count = document.getElementById('overpassCount');
   const status = document.getElementById('overpassStatus');
+  const progress = document.getElementById('overpassProgress');
+  const refresh = document.getElementById('overpassRefresh');
   const attribution = document.getElementById('osmDataAttribution');
   const attributionNote = document.getElementById('osmDataAttributionNote');
   if (label) label.textContent = t.toggle;
@@ -15432,12 +15488,18 @@ function updateOverpassUi() {
     const textByState = {
       off: t.off,
       zoom: t.zoom,
-      loading: t.loading,
+      loading: overpassLoadingText(),
       empty: t.empty,
       loaded: t.loaded(overpassLastCount),
+      stale: t.stale,
       error: t.error
     };
     status.textContent = textByState[overpassLastState] || t.off;
+  }
+  if (progress) progress.classList.toggle('hidden', overpassLastState !== 'loading');
+  if (refresh) {
+    refresh.textContent = t.refresh;
+    refresh.classList.toggle('hidden', !overpassEnabled || overpassLastState !== 'stale');
   }
   if (attribution) attribution.classList.toggle('hidden', !overpassEnabled || overpassLastCount === 0);
   if (attributionNote) attributionNote.textContent = ' · ' + t.live;
@@ -15447,14 +15509,15 @@ async function fetchOverpassJson(query) {
   for (const endpoint of OVERPASS_ENDPOINTS) {
     const controller = new AbortController();
     overpassAbort = controller;
-    const timeout = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
+    overpassAbortReason = '';
+    const timeout = setTimeout(() => { overpassAbortReason = 'timeout'; controller.abort(); }, OVERPASS_TIMEOUT_MS);
     try {
       const url = endpoint + '?format=json&query=' + encodeURIComponent(query);
       const response = await fetch(url, { headers: { 'Accept': 'application/sparql-results+json' }, signal: controller.signal });
       if (!response.ok) throw new Error('Wikidata HTTP ' + response.status);
       return await response.json();
     } catch (error) {
-      if (error.name === 'AbortError') throw error;
+      if (error.name === 'AbortError') throw overpassAbortReason === 'timeout' ? new Error('Wikidata timeout') : error;
       lastError = error;
     } finally {
       clearTimeout(timeout);
@@ -15465,6 +15528,7 @@ async function fetchOverpassJson(query) {
 async function refreshOverpassLayer({ force = false } = {}) {
   if (!overpassEnabled || !map || !overpassLayer) return;
   if (map.getZoom() < OVERPASS_MIN_ZOOM) {
+    if (overpassAbort) { overpassAbortReason = 'manual'; overpassAbort.abort(); }
     overpassLayer.clearLayers();
     overpassLastKey = '';
     setOverpassStatus('zoom', 0);
@@ -15485,7 +15549,7 @@ async function refreshOverpassLayer({ force = false } = {}) {
   setOverpassStatus('loading', 0);
   try {
     const json = await fetchOverpassJson(buildOverpassQuery(bbox));
-    const items = parseOverpassElements(json.results?.bindings);
+    const items = parseOverpassElements(json.results?.bindings, { lat: bbox.centerLat, lng: bbox.centerLng });
     if (overpassCache.size > 24) overpassCache.delete(overpassCache.keys().next().value);
     overpassCache.set(key, items);
     renderOverpassMarkers(items);
@@ -15496,9 +15560,25 @@ async function refreshOverpassLayer({ force = false } = {}) {
     setOverpassStatus('error', 0);
   }
 }
-function scheduleOverpassRefresh(delay = 450) {
+function markOverpassStale() {
+  if (!overpassEnabled || !map || !overpassLayer) return;
   clearTimeout(overpassTimer);
-  overpassTimer = setTimeout(() => refreshOverpassLayer(), delay);
+  if (map.getZoom() < OVERPASS_MIN_ZOOM) {
+    if (overpassAbort) { overpassAbortReason = 'manual'; overpassAbort.abort(); }
+    overpassLayer.clearLayers();
+    overpassLastKey = '';
+    setOverpassStatus('zoom', 0);
+    return;
+  }
+  if (overpassLastState === 'off' || overpassLastState === 'zoom') return;
+  if (overpassLastState === 'loading') {
+    if (overpassAbort) { overpassAbortReason = 'manual'; overpassAbort.abort(); }
+    overpassLayer.clearLayers();
+    overpassLastKey = '';
+    setOverpassStatus('stale', 0);
+    return;
+  }
+  setOverpassStatus('stale', overpassLastCount);
 }
 function setOverpassEnabled(next) {
   overpassEnabled = Boolean(next);
@@ -15506,9 +15586,10 @@ function setOverpassEnabled(next) {
   if (overpassEnabled) {
     if (!map.hasLayer(overpassLayer)) overpassLayer.addTo(map);
     setOverpassStatus(map.getZoom() < OVERPASS_MIN_ZOOM ? 'zoom' : 'loading', 0);
-    scheduleOverpassRefresh(40);
+    if (map.getZoom() >= OVERPASS_MIN_ZOOM) refreshOverpassLayer({ force: true });
   } else {
-    if (overpassAbort) overpassAbort.abort();
+    if (overpassAbort) { overpassAbortReason = 'manual'; overpassAbort.abort(); }
+    clearTimeout(overpassTimer);
     overpassLayer.clearLayers();
     overpassLastKey = '';
     setOverpassStatus('off', 0);
@@ -15522,7 +15603,8 @@ function initOverpassLayer() {
     L.DomEvent.disableScrollPropagation(control);
   }
   document.getElementById('overpassToggle')?.addEventListener('click', () => setOverpassEnabled(!overpassEnabled));
-  map.on('moveend zoomend', () => scheduleOverpassRefresh());
+  document.getElementById('overpassRefresh')?.addEventListener('click', () => refreshOverpassLayer({ force: true }));
+  map.on('moveend zoomend', markOverpassStale);
   setOverpassStatus('off', 0);
 }
 
