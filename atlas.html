@@ -733,6 +733,60 @@
     justify-self: end; color: var(--ink-mute); font-family: var(--mono);
     font-size: 10px; white-space: nowrap;
   }
+  .overpass-control {
+    position: absolute; top: 62px; right: 16px; z-index: 400;
+    width: min(244px, calc(100vw - 32px));
+    display: grid; gap: 6px; padding: 8px;
+  }
+  .overpass-toggle {
+    min-height: 34px; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 7px 9px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg);
+    color: var(--ink); font-size: 11px; font-weight: 800;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .overpass-toggle:hover,
+  .overpass-toggle.active {
+    border-color: var(--accent); color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg));
+  }
+  .overpass-toggle-main {
+    display: inline-flex; align-items: center; gap: 7px; min-width: 0;
+  }
+  .overpass-dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--ink-mute); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ink-mute) 18%, transparent);
+    flex: 0 0 auto;
+  }
+  .overpass-toggle.active .overpass-dot {
+    background: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+  .overpass-status {
+    color: var(--ink-mute); font-family: var(--mono); font-size: 10px;
+    line-height: 1.35; padding: 0 2px;
+  }
+  .overpass-status.error { color: #C0382E; }
+  .overpass-marker {
+    width: 28px; height: 28px; border-radius: 999px;
+    display: grid; place-items: center;
+    border: 2px solid #1E6F9F;
+    background: color-mix(in oklab, var(--bg) 88%, #1E6F9F);
+    color: var(--ink); font-size: 13px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.24);
+  }
+  .osm-data-attribution {
+    position: absolute; left: 16px; bottom: 54px; z-index: 400;
+    padding: 6px 8px; color: var(--ink-mute);
+    font-family: var(--mono); font-size: 10px;
+  }
+  .osm-data-attribution a {
+    color: var(--accent); text-decoration: none;
+  }
+  .osm-data-attribution a:hover { text-decoration: underline; }
+  @media (max-width: 768px) {
+    .overpass-control { top: 66px; right: 12px; width: min(230px, calc(100vw - 24px)); }
+    .osm-data-attribution { left: 12px; bottom: 70px; }
+  }
 </style>
 </head>
 
@@ -876,6 +930,22 @@
     <!-- Подсказка / атрибуция в углу -->
     <div class="absolute bottom-4 left-4 z-[400] map-control px-3 py-2 text-[10px] font-mono hidden md:block" style="color: var(--ink-mute);">
       <span id="coordsDisplay">—</span>
+    </div>
+
+    <div id="overpassControl" class="map-control overpass-control">
+      <button id="overpassToggle" type="button" class="overpass-toggle" aria-pressed="false">
+        <span class="overpass-toggle-main">
+          <span class="overpass-dot" aria-hidden="true"></span>
+          <span id="overpassToggleLabel">OSM слой</span>
+        </span>
+        <span id="overpassCount">0</span>
+      </button>
+      <div id="overpassStatus" class="overpass-status">Zoom 8+</div>
+    </div>
+
+    <div id="osmDataAttribution" class="map-control osm-data-attribution hidden">
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+      <span id="osmDataAttributionNote">live layer</span>
     </div>
   </main>
 
@@ -1216,6 +1286,7 @@ function applyI18n() {
   const sectionTitles = [...document.querySelectorAll('#modalContent .section-title')].filter(el => el.id !== 'modalBoardTitle'); if (sectionTitles[0]) sectionTitles[0].textContent = t.about; if (sectionTitles[1]) sectionTitles[1].textContent = t.why; if (sectionTitles[2]) sectionTitles[2].textContent = t.gallery; const source = document.querySelector('#galleryGrid + p'); if (source) source.textContent = t.source;
   updateProgress();
   renderBoardPanel();
+  if (typeof updateOverpassUi === 'function') updateOverpassUi();
 }
 function setLanguage(lang, options = {}) { if (lang !== 'ru' && lang !== 'en') lang = 'ru'; currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n(); if (options.sync !== false) syncUrlFilters(); if (options.render !== false && typeof markerCluster !== 'undefined' && markerCluster) { renderStats(); renderEverything(); if (selectedLocationIndex !== null && !document.getElementById('galleryModal')?.classList.contains('hidden')) openGallery(selectedLocationIndex); } }
 
@@ -15037,6 +15108,14 @@ let map, markerCluster;
 let currentLayer;
 let selectedLocationIndex = null;
 const markerByIndex = new Map();
+let overpassLayer;
+let overpassEnabled = false;
+let overpassAbort = null;
+let overpassTimer = null;
+let overpassLastKey = '';
+let overpassLastCount = 0;
+let overpassLastState = 'off';
+const overpassCache = new Map();
 
 // Слои карты
 const tileLayers = {
@@ -15086,6 +15165,358 @@ function initMap() {
       display.textContent = `${e.latlng.lat.toFixed(3)}° / ${e.latlng.lng.toFixed(3)}°`;
     }
   });
+}
+
+const OVERPASS_MIN_ZOOM = 8;
+const OVERPASS_MAX_BBOX_AREA = 80;
+const OVERPASS_RESULT_LIMIT = 120;
+const OVERPASS_TIMEOUT_MS = 12000;
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+const OVERPASS_RULES = [
+  { key: 'natural', values: ['peak','volcano','waterfall','cave_entrance','glacier','geyser','hot_spring','arch','cliff','rock','bay','beach','cape','spring'] },
+  { key: 'man_made', values: ['lighthouse','tower','obelisk','bridge','watermill','windmill'] },
+  { key: 'historic', values: ['archaeological_site','castle','monument','ruins','fort','memorial','city_gate','battlefield','tower'] },
+  { key: 'tourism', values: ['attraction','viewpoint'] },
+  { key: 'place', values: ['island','islet'] }
+];
+const OVERPASS_SIGNALS = ['wikidata', 'wikipedia', 'heritage', 'heritage:operator'];
+const OVERPASS_TEXT = {
+  ru: {
+    toggle: 'OSM слой',
+    off: 'Выключен',
+    zoom: 'Приблизьте карту до zoom 8+',
+    area: 'Слишком большая область, приблизьте карту',
+    loading: 'Ищу значимые места рядом...',
+    empty: 'Значимых OSM-мест здесь не найдено',
+    loaded: n => 'Найдено OSM-мест: ' + n,
+    error: 'Overpass временно недоступен',
+    source: 'Открыть источник',
+    live: 'live layer',
+    data: 'Данные OpenStreetMap',
+    curated: 'Основная база не меняется',
+    types: {
+      peak: 'Вершина', volcano: 'Вулкан', waterfall: 'Водопад', cave_entrance: 'Пещера',
+      glacier: 'Ледник', geyser: 'Гейзер', hot_spring: 'Горячий источник', arch: 'Арка',
+      cliff: 'Утёс', rock: 'Скала', bay: 'Залив', beach: 'Пляж', cape: 'Мыс',
+      spring: 'Источник', lighthouse: 'Маяк', tower: 'Башня', obelisk: 'Обелиск',
+      bridge: 'Мост', watermill: 'Водяная мельница', windmill: 'Ветряная мельница',
+      archaeological_site: 'Археологический объект', castle: 'Замок', monument: 'Монумент',
+      ruins: 'Руины', fort: 'Форт', memorial: 'Мемориал', city_gate: 'Городские ворота',
+      battlefield: 'Историческое поле', attraction: 'Достопримечательность',
+      viewpoint: 'Смотровая точка', island: 'Остров', islet: 'Малый остров'
+    }
+  },
+  en: {
+    toggle: 'OSM layer',
+    off: 'Off',
+    zoom: 'Zoom in to level 8+',
+    area: 'Area is too large, zoom in',
+    loading: 'Looking for meaningful nearby places...',
+    empty: 'No significant OSM places found here',
+    loaded: n => 'OSM places found: ' + n,
+    error: 'Overpass is temporarily unavailable',
+    source: 'Open source',
+    live: 'live layer',
+    data: 'OpenStreetMap data',
+    curated: 'Curated atlas stays unchanged',
+    types: {
+      peak: 'Peak', volcano: 'Volcano', waterfall: 'Waterfall', cave_entrance: 'Cave',
+      glacier: 'Glacier', geyser: 'Geyser', hot_spring: 'Hot spring', arch: 'Natural arch',
+      cliff: 'Cliff', rock: 'Rock', bay: 'Bay', beach: 'Beach', cape: 'Cape',
+      spring: 'Spring', lighthouse: 'Lighthouse', tower: 'Tower', obelisk: 'Obelisk',
+      bridge: 'Bridge', watermill: 'Watermill', windmill: 'Windmill',
+      archaeological_site: 'Archaeological site', castle: 'Castle', monument: 'Monument',
+      ruins: 'Ruins', fort: 'Fort', memorial: 'Memorial', city_gate: 'City gate',
+      battlefield: 'Historic battlefield', attraction: 'Attraction',
+      viewpoint: 'Viewpoint', island: 'Island', islet: 'Islet'
+    }
+  }
+};
+
+function overpassText() { return OVERPASS_TEXT[currentLang] || OVERPASS_TEXT.ru; }
+function normalizeOverpassKey(value) {
+  return String(value || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9а-яё]+/gi, ' ').trim();
+}
+const curatedNameIndex = (() => {
+  const index = new Set();
+  locations.forEach(loc => {
+    [loc.name, loc.en, loc.wikiEnTitle, loc.wikiRuTitle].forEach(value => {
+      const key = normalizeOverpassKey(value);
+      if (key) index.add(key);
+    });
+  });
+  return index;
+})();
+function overpassTagMatch(tags) {
+  return OVERPASS_RULES.find(rule => rule.values.includes(tags[rule.key]));
+}
+function overpassElementLatLng(element) {
+  if (Number.isFinite(element.lat) && Number.isFinite(element.lon)) return { lat: element.lat, lng: element.lon };
+  if (element.center && Number.isFinite(element.center.lat) && Number.isFinite(element.center.lon)) return { lat: element.center.lat, lng: element.center.lon };
+  return null;
+}
+function wikiTitleFromOverpass(tags) {
+  const wikipedia = tags.wikipedia || '';
+  const match = wikipedia.match(/^[a-z-]+:(.+)$/i);
+  return (match ? match[1] : wikipedia).replace(/_/g, ' ');
+}
+function isLikelyCuratedDuplicate(tags) {
+  const wikiTitle = wikiTitleFromOverpass(tags);
+  const candidates = [tags.name, tags['name:en'], tags['name:ru'], wikiTitle];
+  return candidates.some(value => {
+    const key = normalizeOverpassKey(value);
+    return key && curatedNameIndex.has(key);
+  });
+}
+function overpassBbox() {
+  if (!map || map.getZoom() < OVERPASS_MIN_ZOOM) return null;
+  const bounds = map.getBounds().pad(0.04);
+  const south = Math.max(-85, bounds.getSouth());
+  const north = Math.min(85, bounds.getNorth());
+  const west = Math.max(-180, bounds.getWest());
+  const east = Math.min(180, bounds.getEast());
+  if (south >= north || west >= east) return null;
+  const area = Math.abs((north - south) * (east - west));
+  return { south, west, north, east, area };
+}
+function overpassCacheKey(bbox) {
+  const step = 0.05;
+  const z = Math.floor(map.getZoom());
+  const round = value => (Math.round(value / step) * step).toFixed(2);
+  return [z, round(bbox.south), round(bbox.west), round(bbox.north), round(bbox.east)].join(':');
+}
+function buildOverpassQuery(bbox) {
+  const box = [bbox.south, bbox.west, bbox.north, bbox.east].map(v => v.toFixed(6)).join(',');
+  const selectors = [];
+  OVERPASS_RULES.forEach(rule => {
+    const regex = '^(' + rule.values.join('|') + ')$';
+    OVERPASS_SIGNALS.forEach(signal => {
+      selectors.push('nwr["name"]["' + signal + '"]["' + rule.key + '"~"' + regex + '"](' + box + ');');
+    });
+  });
+  return '[out:json][timeout:20];\n(\n  ' + selectors.join('\n  ') + '\n);\nout center;';
+}
+function scoreOverpassItem(item) {
+  const tags = item.tags || {};
+  let score = 0;
+  if (tags.wikidata) score += 5;
+  if (tags.wikipedia) score += 4;
+  if (tags.heritage || tags['heritage:operator']) score += 3;
+  if (item.element?.type === 'relation') score += 1;
+  if (tags.historic || tags.natural) score += 1;
+  return score;
+}
+function parseOverpassElements(elements) {
+  const seen = new Set();
+  const items = [];
+  (elements || []).forEach(element => {
+    const tags = element.tags || {};
+    if (!tags.name) return;
+    if (!OVERPASS_SIGNALS.some(signal => tags[signal])) return;
+    const rule = overpassTagMatch(tags);
+    if (!rule) return;
+    const latlng = overpassElementLatLng(element);
+    if (!latlng) return;
+    if (isLikelyCuratedDuplicate(tags)) return;
+    const wikiTitle = wikiTitleFromOverpass(tags);
+    const key = tags.wikidata || tags.wikipedia || [normalizeOverpassKey(tags.name), latlng.lat.toFixed(3), latlng.lng.toFixed(3)].join(':');
+    if (seen.has(key)) return;
+    seen.add(key);
+    items.push({ element, tags, rule, latlng, wikiTitle, score: 0 });
+  });
+  items.forEach(item => item.score = scoreOverpassItem(item));
+  return items.sort((a, b) => b.score - a.score || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
+}
+function overpassItemName(item) {
+  const tags = item.tags || {};
+  if (currentLang === 'ru') return tags['name:ru'] || tags.name || tags['name:en'];
+  return tags['name:en'] || tags.name || tags['name:ru'];
+}
+function overpassItemType(item) {
+  const labels = overpassText().types;
+  const value = item.tags[item.rule.key];
+  return labels[value] || value || overpassText().data;
+}
+function overpassItemEmoji(item) {
+  const tags = item.tags || {};
+  if (tags.natural === 'waterfall') return '💧';
+  if (tags.natural === 'volcano') return '🌋';
+  if (['peak','cliff','rock','arch'].includes(tags.natural)) return '⛰️';
+  if (['glacier','cave_entrance'].includes(tags.natural)) return '❄️';
+  if (tags.natural || tags.place) return '🌿';
+  if (tags.man_made === 'lighthouse') return '✦';
+  if (tags.tourism === 'viewpoint') return '⌖';
+  return '◆';
+}
+function overpassSourceUrl(item) {
+  const tags = item.tags || {};
+  if (tags.wikipedia) {
+    const match = tags.wikipedia.match(/^([a-z-]+):(.+)$/i);
+    const lang = match ? match[1] : 'en';
+    const title = match ? match[2] : tags.wikipedia;
+    return 'https://' + lang + '.wikipedia.org/wiki/' + encodeURIComponent(title.replace(/ /g, '_'));
+  }
+  if (tags.wikidata) return 'https://www.wikidata.org/wiki/' + encodeURIComponent(tags.wikidata);
+  return 'https://www.openstreetmap.org/' + item.element.type + '/' + item.element.id;
+}
+function renderOverpassMarkers(items) {
+  if (!overpassLayer) return;
+  overpassLayer.clearLayers();
+  items.forEach(item => {
+    const t = overpassText();
+    const name = escapeHtml(overpassItemName(item));
+    const type = escapeHtml(overpassItemType(item));
+    const source = escapeHtml(overpassSourceUrl(item));
+    const icon = L.divIcon({
+      html: '<div class="overpass-marker">' + overpassItemEmoji(item) + '</div>',
+      className: '',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+      popupAnchor: [0, -14]
+    });
+    const marker = L.marker([item.latlng.lat, item.latlng.lng], { icon });
+    marker.bindPopup(
+      '<div style="padding: 13px 15px 12px; min-width: 220px; max-width: 270px;">' +
+      '<div class="pill" style="color:#1E6F9F; margin-bottom: 7px;">OSM · ' + type + '</div>' +
+      '<h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; margin: 0 0 6px; overflow-wrap: anywhere;">' + name + '</h3>' +
+      '<p style="font-size: 11px; color: var(--ink-mute); margin: 0 0 8px;">' + escapeHtml(t.curated) + '</p>' +
+      '<a href="' + source + '" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 700; font-size: 11px;">' + escapeHtml(t.source) + '</a>' +
+      '</div>',
+      { className: 'custom-popup', closeButton: true, autoPan: true }
+    );
+    overpassLayer.addLayer(marker);
+  });
+}
+function setOverpassStatus(state, count = overpassLastCount) {
+  overpassLastState = state;
+  overpassLastCount = count;
+  updateOverpassUi();
+}
+function updateOverpassUi() {
+  const t = overpassText();
+  const button = document.getElementById('overpassToggle');
+  const label = document.getElementById('overpassToggleLabel');
+  const count = document.getElementById('overpassCount');
+  const status = document.getElementById('overpassStatus');
+  const attribution = document.getElementById('osmDataAttribution');
+  const attributionNote = document.getElementById('osmDataAttributionNote');
+  if (label) label.textContent = t.toggle;
+  if (button) {
+    button.classList.toggle('active', overpassEnabled);
+    button.setAttribute('aria-pressed', overpassEnabled ? 'true' : 'false');
+  }
+  if (count) count.textContent = String(overpassLastCount || 0);
+  if (status) {
+    status.classList.toggle('error', overpassLastState === 'error');
+    const textByState = {
+      off: t.off,
+      zoom: t.zoom,
+      area: t.area,
+      loading: t.loading,
+      empty: t.empty,
+      loaded: t.loaded(overpassLastCount),
+      error: t.error
+    };
+    status.textContent = textByState[overpassLastState] || t.off;
+  }
+  if (attribution) attribution.classList.toggle('hidden', !overpassEnabled || overpassLastCount === 0);
+  if (attributionNote) attributionNote.textContent = ' · ' + t.live;
+}
+async function fetchOverpassJson(query) {
+  let lastError;
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    const controller = new AbortController();
+    overpassAbort = controller;
+    const timeout = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: query,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error('Overpass HTTP ' + response.status);
+      return await response.json();
+    } catch (error) {
+      if (error.name === 'AbortError') throw error;
+      lastError = error;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+  throw lastError || new Error('Overpass failed');
+}
+async function refreshOverpassLayer({ force = false } = {}) {
+  if (!overpassEnabled || !map || !overpassLayer) return;
+  if (map.getZoom() < OVERPASS_MIN_ZOOM) {
+    overpassLayer.clearLayers();
+    overpassLastKey = '';
+    setOverpassStatus('zoom', 0);
+    return;
+  }
+  const bbox = overpassBbox();
+  if (!bbox) return;
+  if (bbox.area > OVERPASS_MAX_BBOX_AREA) {
+    overpassLayer.clearLayers();
+    overpassLastKey = '';
+    setOverpassStatus('area', 0);
+    return;
+  }
+  const key = overpassCacheKey(bbox);
+  if (!force && key === overpassLastKey) return;
+  overpassLastKey = key;
+  if (overpassCache.has(key)) {
+    const cached = overpassCache.get(key);
+    renderOverpassMarkers(cached);
+    setOverpassStatus(cached.length ? 'loaded' : 'empty', cached.length);
+    return;
+  }
+  if (overpassAbort) overpassAbort.abort();
+  setOverpassStatus('loading', 0);
+  try {
+    const json = await fetchOverpassJson(buildOverpassQuery(bbox));
+    const items = parseOverpassElements(json.elements);
+    if (overpassCache.size > 24) overpassCache.delete(overpassCache.keys().next().value);
+    overpassCache.set(key, items);
+    renderOverpassMarkers(items);
+    setOverpassStatus(items.length ? 'loaded' : 'empty', items.length);
+  } catch (error) {
+    if (error.name === 'AbortError') return;
+    overpassLayer.clearLayers();
+    setOverpassStatus('error', 0);
+  }
+}
+function scheduleOverpassRefresh(delay = 450) {
+  clearTimeout(overpassTimer);
+  overpassTimer = setTimeout(() => refreshOverpassLayer(), delay);
+}
+function setOverpassEnabled(next) {
+  overpassEnabled = Boolean(next);
+  if (!overpassLayer) return;
+  if (overpassEnabled) {
+    if (!map.hasLayer(overpassLayer)) overpassLayer.addTo(map);
+    setOverpassStatus(map.getZoom() < OVERPASS_MIN_ZOOM ? 'zoom' : 'loading', 0);
+    scheduleOverpassRefresh(40);
+  } else {
+    if (overpassAbort) overpassAbort.abort();
+    overpassLayer.clearLayers();
+    overpassLastKey = '';
+    setOverpassStatus('off', 0);
+  }
+}
+function initOverpassLayer() {
+  overpassLayer = L.layerGroup();
+  const control = document.getElementById('overpassControl');
+  if (control && L.DomEvent) {
+    L.DomEvent.disableClickPropagation(control);
+    L.DomEvent.disableScrollPropagation(control);
+  }
+  document.getElementById('overpassToggle')?.addEventListener('click', () => setOverpassEnabled(!overpassEnabled));
+  map.on('moveend zoomend', () => scheduleOverpassRefresh());
+  setOverpassStatus('off', 0);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -15989,6 +16420,7 @@ document.getElementById('galleryModal').addEventListener('click', (e) => {
 //   ЗАПУСК
 // ═══════════════════════════════════════════════════════════════════════
 initMap();
+initOverpassLayer();
 setLanguage(currentLang, { sync: false, render: false });
 renderStats();
 document.getElementById('visitedTotal').textContent = locations.length;
