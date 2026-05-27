@@ -15232,6 +15232,11 @@ const WIKIDATA_MEANINGFUL_CLASS_IDS = new Set([
   'Q179700',  // statue
   'Q17715832' // historic site
 ]);
+const WIKIDATA_CITY_CLASS_IDS = new Set([
+  'Q515',     // city
+  'Q3957',    // town
+  'Q1549591'  // big city
+]);
 const WIKIDATA_SETTLEMENT_CLASS_IDS = new Set([
   'Q486972',  // human settlement
   'Q532',     // village
@@ -15268,9 +15273,12 @@ const WIKIDATA_CLASS_LABELS = {
   Q16560: { ru: 'Дворец', en: 'Palace' },
   Q207694: { ru: 'Художественный музей', en: 'Art museum' },
   Q179700: { ru: 'Статуя', en: 'Statue' },
-  Q17715832: { ru: 'Историческое место', en: 'Historic site' }
+  Q17715832: { ru: 'Историческое место', en: 'Historic site' },
+  Q515: { ru: 'Исторический город', en: 'Historic city' },
+  Q3957: { ru: 'Исторический город', en: 'Historic town' },
+  Q1549591: { ru: 'Значимый город', en: 'Major city' }
 };
-const WIKIDATA_MEANINGFUL_CLASS_RE = /\b(tourist attraction|world heritage|unesco|heritage site|archaeological|castle|palace|temple|monastery|abbey|church|cathedral|mosque|synagogue|museum|historic|old town|waterfall|mountain|volcano|cave|lake|island|national park|nature reserve|garden|bridge|tower|lighthouse|monument|memorial|ruins|fort|fortress|landmark|viewpoint|scenic|cliff|glacier|geyser|hot spring)\b/i;
+const WIKIDATA_MEANINGFUL_CLASS_RE = /\b(tourist attraction|world heritage|unesco|heritage site|archaeological|castle|palace|temple|monastery|abbey|church|cathedral|mosque|synagogue|museum|historic|old town|waterfall|mountain|volcano|cave|lake|island|national park|nature reserve|garden|bridge|tower|lighthouse|monument|memorial|ruins|fort|fortress|landmark|viewpoint|scenic|cliff|glacier|geyser|hot spring|historic city|historic town|major city)\b/i;
 const WIKIDATA_SETTLEMENT_CLASS_RE = /\b(village|municipality|human settlement|town|city|commune|administrative territorial entity|district|neighborhood|ward|county|locality|hamlet|quarter|suburb|settlement)\b/i;
 const OVERPASS_TEXT = {
   ru: {
@@ -15399,19 +15407,32 @@ function overpassCacheKey(bbox) {
 }
 function buildOverpassQuery(bbox) {
   const lang = currentLang === 'ru' ? 'ru,en' : 'en,ru';
-  const meaningfulClasses = Array.from(WIKIDATA_MEANINGFUL_CLASS_IDS).map(id => 'wd:' + id).join(' ');
-  return 'SELECT ?item ?itemLabel ?coord (SAMPLE(?article) AS ?article) ' +
+  const preferredWiki = 'https://' + (currentLang === 'ru' ? 'ru' : 'en') + '.wikipedia.org/';
+  const searchClasses = Array.from(new Set([...WIKIDATA_MEANINGFUL_CLASS_IDS, ...WIKIDATA_CITY_CLASS_IDS])).map(id => 'wd:' + id).join(' ');
+  return 'SELECT ?item ?itemLabel ?coord ' +
+    '(SAMPLE(?preferredArticle) AS ?preferredArticle) ' +
+    '(SAMPLE(?enArticle) AS ?enArticle) ' +
+    '(SAMPLE(?localArticle) AS ?localArticle) ' +
+    '(GROUP_CONCAT(DISTINCT ?localLang; separator="|") AS ?localLangs) ' +
     '(GROUP_CONCAT(DISTINCT ?class; separator="|") AS ?classes) ' +
-    '(COUNT(DISTINCT ?heritage) AS ?heritageCount) (COUNT(DISTINCT ?article) AS ?articleCount) WHERE {\n' +
+    '(COUNT(DISTINCT ?heritage) AS ?heritageCount) WHERE {\n' +
     '  SERVICE wikibase:around {\n' +
     '    ?item wdt:P625 ?coord .\n' +
     '    bd:serviceParam wikibase:center "Point(' + bbox.centerLng.toFixed(6) + ' ' + bbox.centerLat.toFixed(6) + ')"^^geo:wktLiteral .\n' +
     '    bd:serviceParam wikibase:radius "' + bbox.radiusKm.toFixed(1) + '" .\n' +
     '  }\n' +
-    '  ?article schema:about ?item ; schema:isPartOf ?wiki .\n' +
-    '  VALUES ?wiki { <https://ru.wikipedia.org/> <https://en.wikipedia.org/> }\n' +
     '  ?item wdt:P31 ?class .\n' +
-    '  VALUES ?class { ' + meaningfulClasses + ' }\n' +
+    '  VALUES ?class { ' + searchClasses + ' }\n' +
+    '  OPTIONAL { ?preferredArticle schema:about ?item ; schema:isPartOf <' + preferredWiki + '> . }\n' +
+    '  OPTIONAL { ?enArticle schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> . }\n' +
+    '  OPTIONAL {\n' +
+    '    ?item wdt:P17 ?country .\n' +
+    '    ?country wdt:P37 ?officialLanguage .\n' +
+    '    ?officialLanguage wdt:P424 ?localLang .\n' +
+    '    BIND(IRI(CONCAT("https://", STR(?localLang), ".wikipedia.org/")) AS ?localWiki)\n' +
+    '    OPTIONAL { ?localArticle schema:about ?item ; schema:isPartOf ?localWiki . }\n' +
+    '  }\n' +
+    '  FILTER(BOUND(?preferredArticle) || BOUND(?enArticle) || BOUND(?localArticle))\n' +
     '  OPTIONAL { ?item wdt:P1435 ?heritage . }\n' +
     '  SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '" . }\n' +
     '}\nGROUP BY ?item ?itemLabel ?coord\nLIMIT ' + OVERPASS_RAW_LIMIT;
@@ -15424,6 +15445,36 @@ function splitOverpassValues(value) {
 }
 function parseOverpassClassIds(element) {
   return splitOverpassValues(element.classes?.value).map(qidFromWikidataUrl).filter(Boolean);
+}
+function parseOverpassArticles(element) {
+  return [
+    element.preferredArticle?.value,
+    element.enArticle?.value,
+    element.localArticle?.value,
+    element.article?.value
+  ].filter(Boolean);
+}
+function wikipediaLangFromUrl(url) {
+  const match = String(url || '').match(/^https:\/\/([a-z-]+)\.wikipedia\.org\//i);
+  return match ? match[1].toLowerCase() : '';
+}
+function wikipediaTitleFromUrl(url) {
+  const rawTitle = String(url || '').split('/wiki/')[1] || '';
+  try {
+    return decodeURIComponent(rawTitle).replace(/_/g, ' ');
+  } catch {
+    return rawTitle.replace(/_/g, ' ');
+  }
+}
+function chooseOverpassArticle(articles, localLangs = []) {
+  const list = (articles || []).filter(Boolean);
+  if (!list.length) return '';
+  const preferred = currentLang === 'ru' ? 'ru' : 'en';
+  const byLang = lang => list.find(url => wikipediaLangFromUrl(url) === lang);
+  return byLang(preferred) ||
+    byLang('en') ||
+    (localLangs || []).map(lang => byLang(String(lang).toLowerCase())).find(Boolean) ||
+    list[0];
 }
 function wikidataClassLabel(id) {
   const labels = WIKIDATA_CLASS_LABELS[id];
@@ -15438,10 +15489,16 @@ function overpassHeritageCount(element) {
   return Number(element.heritageCount?.value || 0) || 0;
 }
 function overpassArticleCount(element) {
-  return Number(element.articleCount?.value || 0) || 0;
+  return new Set(parseOverpassArticles(element)).size;
 }
 function hasAnyWikidataClass(classIds, sourceSet) {
   return classIds.some(id => sourceSet.has(id));
+}
+function hasOnlyCitySignal(item) {
+  const classIds = item.classIds || [];
+  return hasAnyWikidataClass(classIds, WIKIDATA_CITY_CLASS_IDS) &&
+    !hasAnyWikidataClass(classIds, WIKIDATA_MEANINGFUL_CLASS_IDS) &&
+    item.heritageCount <= 0;
 }
 function overpassHasMeaningfulSignal(item) {
   const classIds = item.classIds || [];
@@ -15449,6 +15506,7 @@ function overpassHasMeaningfulSignal(item) {
   const hasHeritage = item.heritageCount > 0;
   const hasMeaningfulClass = hasAnyWikidataClass(classIds, WIKIDATA_MEANINGFUL_CLASS_IDS) || WIKIDATA_MEANINGFUL_CLASS_RE.test(classText);
   const hasSettlementClass = hasAnyWikidataClass(classIds, WIKIDATA_SETTLEMENT_CLASS_IDS) || WIKIDATA_SETTLEMENT_CLASS_RE.test(classText);
+  if (hasOnlyCitySignal(item)) return false;
   if (hasSettlementClass && !hasHeritage && !hasMeaningfulClass) return false;
   return hasHeritage || hasMeaningfulClass;
 }
@@ -15465,6 +15523,7 @@ function scoreOverpassItem(item) {
   let score = 0;
   if (item.heritageCount > 0) score += 40;
   if (hasAnyWikidataClass(item.classIds || [], WIKIDATA_MEANINGFUL_CLASS_IDS)) score += 28;
+  if (hasAnyWikidataClass(item.classIds || [], WIKIDATA_CITY_CLASS_IDS) && item.heritageCount > 0) score += 16;
   if (WIKIDATA_MEANINGFUL_CLASS_RE.test(classText)) score += 18;
   if (tags.wikidata) score += 5;
   if (item.sourceUrl) score += 4;
@@ -15491,11 +15550,15 @@ function parseOverpassElements(elements, center) {
     const latlng = overpassElementLatLng(element);
     if (!name) return;
     if (!latlng) return;
-    const sourceUrl = element.article?.value || element.item?.value || '';
+    const articles = parseOverpassArticles(element);
+    const localLangs = splitOverpassValues(element.localLangs?.value);
+    const sourceUrl = chooseOverpassArticle(articles, localLangs) || element.item?.value || '';
+    const fallbackName = wikipediaTitleFromUrl(sourceUrl);
     const qid = qidFromWikidataUrl(element.item?.value);
-    const tags = { name, wikidata: qid, wikipedia: sourceUrl };
+    const displayName = /^Q\d+$/.test(name) && fallbackName ? fallbackName : name;
+    const tags = { name: displayName, wikidata: qid, wikipedia: sourceUrl };
     if (isLikelyCuratedDuplicate(tags)) return;
-    const key = qid || [normalizeOverpassKey(name), latlng.lat.toFixed(3), latlng.lng.toFixed(3)].join(':');
+    const key = qid || [normalizeOverpassKey(displayName), latlng.lat.toFixed(3), latlng.lng.toFixed(3)].join(':');
     if (seen.has(key)) return;
     seen.add(key);
     const item = {
@@ -15503,11 +15566,12 @@ function parseOverpassElements(elements, center) {
       tags,
       rule: overpassTagMatch(tags),
       latlng,
-      wikiTitle: sourceUrl.split('/wiki/')[1]?.replace(/_/g, ' ') || '',
+      wikiTitle: fallbackName,
       classIds: parseOverpassClassIds(element),
       classLabels: [],
       heritageCount: overpassHeritageCount(element),
       articleCount: overpassArticleCount(element),
+      articleLang: wikipediaLangFromUrl(sourceUrl),
       sourceUrl,
       distance: center ? nearbyDistanceKm(center, latlng) : 0,
       score: 0
