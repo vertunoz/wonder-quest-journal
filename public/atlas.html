@@ -15434,8 +15434,8 @@ async function fetchOverpassJson(query) {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        body: query,
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: 'data=' + encodeURIComponent(query),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         signal: controller.signal
       });
       if (!response.ok) throw new Error('Overpass HTTP ' + response.status);
