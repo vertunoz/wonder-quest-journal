@@ -790,6 +790,37 @@
     background: color-mix(in oklab, var(--accent) 8%, var(--bg));
   }
   .overpass-refresh.hidden { display: none; }
+  .overpass-card {
+    min-width: 238px; max-width: 292px; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+  }
+  .overpass-card-media {
+    width: 100%; aspect-ratio: 16 / 9; background: var(--bg-2);
+    display: grid; place-items: center; color: var(--ink-mute);
+    overflow: hidden;
+  }
+  .overpass-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .overpass-card-body { padding: 12px 14px 13px; }
+  .overpass-card-title {
+    font-family: var(--serif); font-size: 18px; font-weight: 500;
+    color: var(--ink); line-height: 1.18; margin: 0 0 6px;
+    overflow-wrap: anywhere;
+  }
+  .overpass-card-desc {
+    font-size: 11px; line-height: 1.5; color: var(--ink-mute);
+    margin: 0 0 10px;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .overpass-card-source {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--accent); font-weight: 800; font-size: 11px;
+  }
+  .overpass-card-skel {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, var(--bg-2) 25%, var(--line) 50%, var(--bg-2) 75%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  }
   .overpass-marker {
     width: 28px; height: 28px; border-radius: 999px;
     display: grid; place-items: center;
@@ -15147,6 +15178,7 @@ let overpassLastKey = '';
 let overpassLastCount = 0;
 let overpassLastState = 'off';
 const overpassCache = new Map();
+const overpassCardCache = new Map();
 
 // Слои карты
 const tileLayers = {
@@ -15297,6 +15329,8 @@ const OVERPASS_TEXT = {
     live: 'nearby places',
     data: 'Данные Wikidata',
     curated: 'Основная база не меняется',
+    cardLoading: 'Собираю карточку...',
+    cardUnavailable: 'Краткая карточка пока недоступна. Можно открыть источник.',
     types: {
       peak: 'Вершина', volcano: 'Вулкан', waterfall: 'Водопад', cave_entrance: 'Пещера',
       glacier: 'Ледник', geyser: 'Гейзер', hot_spring: 'Горячий источник', arch: 'Арка',
@@ -15325,6 +15359,8 @@ const OVERPASS_TEXT = {
     live: 'nearby places',
     data: 'Wikidata data',
     curated: 'Curated atlas stays unchanged',
+    cardLoading: 'Building card...',
+    cardUnavailable: 'A preview card is not available yet. You can open the source.',
     types: {
       peak: 'Peak', volcano: 'Volcano', waterfall: 'Waterfall', cave_entrance: 'Cave',
       glacier: 'Glacier', geyser: 'Geyser', hot_spring: 'Hot spring', arch: 'Natural arch',
@@ -15608,6 +15644,69 @@ function overpassSourceUrl(item) {
   if (tags.wikidata) return 'https://www.wikidata.org/wiki/' + encodeURIComponent(tags.wikidata);
   return 'https://www.wikidata.org/';
 }
+function overpassCardKey(item) {
+  return item.sourceUrl || item.tags?.wikidata || overpassItemName(item);
+}
+function overpassSummaryEndpoint(item) {
+  const source = overpassSourceUrl(item);
+  const match = source.match(/^https:\/\/([a-z-]+)\.wikipedia\.org\/wiki\/(.+)$/i);
+  if (!match) return '';
+  return 'https://' + match[1].toLowerCase() + '.wikipedia.org/api/rest_v1/page/summary/' + match[2] + '?redirect=true';
+}
+async function fetchOverpassCard(item) {
+  const key = overpassCardKey(item);
+  if (overpassCardCache.has(key)) return overpassCardCache.get(key);
+  const endpoint = overpassSummaryEndpoint(item);
+  if (!endpoint) return null;
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error('Wikipedia summary ' + response.status);
+    const data = await response.json();
+    if (data.type === 'disambiguation') return null;
+    const card = {
+      extract: data.extract || '',
+      image: data.originalimage?.source || data.thumbnail?.source || '',
+      page: data.content_urls?.desktop?.page || overpassSourceUrl(item)
+    };
+    overpassCardCache.set(key, card);
+    return card;
+  } catch {
+    overpassCardCache.set(key, null);
+    return null;
+  }
+}
+function overpassCardHtml(item, card, loading = false) {
+  const t = overpassText();
+  const name = escapeHtml(overpassItemName(item));
+  const type = escapeHtml(overpassItemType(item));
+  const source = escapeHtml(card?.page || overpassSourceUrl(item));
+  const image = card?.image || '';
+  const desc = loading ? t.cardLoading : (card?.extract || t.cardUnavailable);
+  const media = image
+    ? '<img src="' + escapeHtml(image) + '" alt="' + name + '" loading="lazy">'
+    : (loading ? '<div class="overpass-card-skel"></div>' : '<span style="font-size: 24px;">' + overpassItemEmoji(item) + '</span>');
+  return '<div class="overpass-card">' +
+    '<div class="overpass-card-media">' + media + '</div>' +
+    '<div class="overpass-card-body">' +
+    '<div class="pill" style="color:#1E6F9F; margin-bottom: 7px;">Wikidata · ' + type + '</div>' +
+    '<h3 class="overpass-card-title">' + name + '</h3>' +
+    '<p class="overpass-card-desc">' + escapeHtml(desc) + '</p>' +
+    '<a class="overpass-card-source" href="' + source + '" target="_blank" rel="noopener">' + escapeHtml(t.source) + '</a>' +
+    '</div></div>';
+}
+function hydrateOverpassPopup(marker, item) {
+  const popup = marker.getPopup();
+  const root = popup?.getElement()?.querySelector('[data-overpass-card]');
+  if (!root || root.dataset.loaded === 'true') return;
+  root.innerHTML = overpassCardHtml(item, null, true);
+  fetchOverpassCard(item).then(card => {
+    const liveRoot = popup?.getElement()?.querySelector('[data-overpass-card]');
+    if (!liveRoot) return;
+    liveRoot.dataset.loaded = 'true';
+    liveRoot.innerHTML = overpassCardHtml(item, card, false);
+    popup.update();
+  });
+}
 function renderOverpassMarkers(items) {
   if (!overpassLayer) return;
   overpassLayer.clearLayers();
@@ -15633,6 +15732,10 @@ function renderOverpassMarkers(items) {
       '</div>',
       { className: 'custom-popup', closeButton: true, autoPan: true }
     );
+    marker.on('popupopen', () => {
+      marker.getPopup().setContent('<div data-overpass-card="' + escapeHtml(overpassCardKey(item)) + '">' + overpassCardHtml(item, null, true) + '</div>');
+      hydrateOverpassPopup(marker, item);
+    });
     overpassLayer.addLayer(marker);
   });
 }
