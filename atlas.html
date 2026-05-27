@@ -15200,10 +15200,78 @@ function initMap() {
 
 const OVERPASS_MIN_ZOOM = 10;
 const OVERPASS_RESULT_LIMIT = 30;
+const OVERPASS_RAW_LIMIT = 80;
 const OVERPASS_TIMEOUT_MS = 12000;
 const OVERPASS_ENDPOINTS = [
   'https://query.wikidata.org/sparql'
 ];
+const WIKIDATA_MEANINGFUL_CLASS_IDS = new Set([
+  'Q570116',  // tourist attraction
+  'Q839954',  // archaeological site
+  'Q9259',    // World Heritage Site
+  'Q8502',    // mountain
+  'Q46831',   // mountain range
+  'Q34038',   // waterfall
+  'Q8072',    // volcano
+  'Q35509',   // cave
+  'Q23397',   // lake
+  'Q23442',   // island
+  'Q12280',   // bridge
+  'Q23413',   // castle
+  'Q4989906', // monument
+  'Q22698',   // park
+  'Q33506',   // museum
+  'Q44613',   // monastery
+  'Q16970',   // church
+  'Q44539',   // temple
+  'Q32815',   // mosque
+  'Q12518',   // tower
+  'Q39715',   // lighthouse
+  'Q16560',   // palace
+  'Q207694',  // art museum
+  'Q179700',  // statue
+  'Q17715832' // historic site
+]);
+const WIKIDATA_SETTLEMENT_CLASS_IDS = new Set([
+  'Q486972',  // human settlement
+  'Q532',     // village
+  'Q515',     // city
+  'Q3957',    // town
+  'Q15284',   // municipality
+  'Q56061',   // administrative territorial entity
+  'Q5084',    // hamlet
+  'Q123705',  // neighborhood
+  'Q2983893'  // quarter
+]);
+const WIKIDATA_CLASS_LABELS = {
+  Q570116: { ru: 'Достопримечательность', en: 'Attraction' },
+  Q839954: { ru: 'Археологический объект', en: 'Archaeological site' },
+  Q9259: { ru: 'Объект наследия', en: 'World Heritage Site' },
+  Q8502: { ru: 'Гора', en: 'Mountain' },
+  Q46831: { ru: 'Горный хребет', en: 'Mountain range' },
+  Q34038: { ru: 'Водопад', en: 'Waterfall' },
+  Q8072: { ru: 'Вулкан', en: 'Volcano' },
+  Q35509: { ru: 'Пещера', en: 'Cave' },
+  Q23397: { ru: 'Озеро', en: 'Lake' },
+  Q23442: { ru: 'Остров', en: 'Island' },
+  Q12280: { ru: 'Мост', en: 'Bridge' },
+  Q23413: { ru: 'Замок', en: 'Castle' },
+  Q4989906: { ru: 'Монумент', en: 'Monument' },
+  Q22698: { ru: 'Парк', en: 'Park' },
+  Q33506: { ru: 'Музей', en: 'Museum' },
+  Q44613: { ru: 'Монастырь', en: 'Monastery' },
+  Q16970: { ru: 'Церковь', en: 'Church' },
+  Q44539: { ru: 'Храм', en: 'Temple' },
+  Q32815: { ru: 'Мечеть', en: 'Mosque' },
+  Q12518: { ru: 'Башня', en: 'Tower' },
+  Q39715: { ru: 'Маяк', en: 'Lighthouse' },
+  Q16560: { ru: 'Дворец', en: 'Palace' },
+  Q207694: { ru: 'Художественный музей', en: 'Art museum' },
+  Q179700: { ru: 'Статуя', en: 'Statue' },
+  Q17715832: { ru: 'Историческое место', en: 'Historic site' }
+};
+const WIKIDATA_MEANINGFUL_CLASS_RE = /\b(tourist attraction|world heritage|unesco|heritage site|archaeological|castle|palace|temple|monastery|abbey|church|cathedral|mosque|synagogue|museum|historic|old town|waterfall|mountain|volcano|cave|lake|island|national park|nature reserve|garden|bridge|tower|lighthouse|monument|memorial|ruins|fort|fortress|landmark|viewpoint|scenic|cliff|glacier|geyser|hot spring)\b/i;
+const WIKIDATA_SETTLEMENT_CLASS_RE = /\b(village|municipality|human settlement|town|city|commune|administrative territorial entity|district|neighborhood|ward|county|locality|hamlet|quarter|suburb|settlement)\b/i;
 const OVERPASS_TEXT = {
   ru: {
     toggle: 'Ещё места рядом',
@@ -15331,7 +15399,10 @@ function overpassCacheKey(bbox) {
 }
 function buildOverpassQuery(bbox) {
   const lang = currentLang === 'ru' ? 'ru,en' : 'en,ru';
-  return 'SELECT DISTINCT ?item ?itemLabel ?coord ?article WHERE {\n' +
+  const meaningfulClasses = Array.from(WIKIDATA_MEANINGFUL_CLASS_IDS).map(id => 'wd:' + id).join(' ');
+  return 'SELECT ?item ?itemLabel ?coord (SAMPLE(?article) AS ?article) ' +
+    '(GROUP_CONCAT(DISTINCT ?class; separator="|") AS ?classes) ' +
+    '(COUNT(DISTINCT ?heritage) AS ?heritageCount) (COUNT(DISTINCT ?article) AS ?articleCount) WHERE {\n' +
     '  SERVICE wikibase:around {\n' +
     '    ?item wdt:P625 ?coord .\n' +
     '    bd:serviceParam wikibase:center "Point(' + bbox.centerLng.toFixed(6) + ' ' + bbox.centerLat.toFixed(6) + ')"^^geo:wktLiteral .\n' +
@@ -15339,15 +15410,68 @@ function buildOverpassQuery(bbox) {
     '  }\n' +
     '  ?article schema:about ?item ; schema:isPartOf ?wiki .\n' +
     '  VALUES ?wiki { <https://ru.wikipedia.org/> <https://en.wikipedia.org/> }\n' +
+    '  ?item wdt:P31 ?class .\n' +
+    '  VALUES ?class { ' + meaningfulClasses + ' }\n' +
+    '  OPTIONAL { ?item wdt:P1435 ?heritage . }\n' +
     '  SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '" . }\n' +
-    '}\nLIMIT ' + OVERPASS_RESULT_LIMIT;
+    '}\nGROUP BY ?item ?itemLabel ?coord\nLIMIT ' + OVERPASS_RAW_LIMIT;
+}
+function qidFromWikidataUrl(value) {
+  return String(value || '').split('/').pop();
+}
+function splitOverpassValues(value) {
+  return String(value || '').split('|').map(part => part.trim()).filter(Boolean);
+}
+function parseOverpassClassIds(element) {
+  return splitOverpassValues(element.classes?.value).map(qidFromWikidataUrl).filter(Boolean);
+}
+function wikidataClassLabel(id) {
+  const labels = WIKIDATA_CLASS_LABELS[id];
+  return labels ? (labels[currentLang] || labels.en) : '';
+}
+function parseOverpassClassLabels(element, classIds) {
+  const remoteLabels = splitOverpassValues(element.classLabels?.value);
+  if (remoteLabels.length) return remoteLabels;
+  return (classIds || []).map(wikidataClassLabel).filter(Boolean);
+}
+function overpassHeritageCount(element) {
+  return Number(element.heritageCount?.value || 0) || 0;
+}
+function overpassArticleCount(element) {
+  return Number(element.articleCount?.value || 0) || 0;
+}
+function hasAnyWikidataClass(classIds, sourceSet) {
+  return classIds.some(id => sourceSet.has(id));
+}
+function overpassHasMeaningfulSignal(item) {
+  const classIds = item.classIds || [];
+  const classText = (item.classLabels || []).join(' | ');
+  const hasHeritage = item.heritageCount > 0;
+  const hasMeaningfulClass = hasAnyWikidataClass(classIds, WIKIDATA_MEANINGFUL_CLASS_IDS) || WIKIDATA_MEANINGFUL_CLASS_RE.test(classText);
+  const hasSettlementClass = hasAnyWikidataClass(classIds, WIKIDATA_SETTLEMENT_CLASS_IDS) || WIKIDATA_SETTLEMENT_CLASS_RE.test(classText);
+  if (hasSettlementClass && !hasHeritage && !hasMeaningfulClass) return false;
+  return hasHeritage || hasMeaningfulClass;
+}
+function pickOverpassTypeLabel(item) {
+  const labels = item.classLabels || [];
+  return labels.find(label => WIKIDATA_MEANINGFUL_CLASS_RE.test(label)) ||
+    labels.find(label => !WIKIDATA_SETTLEMENT_CLASS_RE.test(label)) ||
+    labels[0] ||
+    overpassText().data;
 }
 function scoreOverpassItem(item) {
   const tags = item.tags || {};
+  const classText = (item.classLabels || []).join(' | ');
   let score = 0;
+  if (item.heritageCount > 0) score += 40;
+  if (hasAnyWikidataClass(item.classIds || [], WIKIDATA_MEANINGFUL_CLASS_IDS)) score += 28;
+  if (WIKIDATA_MEANINGFUL_CLASS_RE.test(classText)) score += 18;
   if (tags.wikidata) score += 5;
   if (item.sourceUrl) score += 4;
-  if (item.typeLabel) score += 1;
+  if (item.articleCount > 1) score += 4;
+  if (item.typeLabel && item.typeLabel !== overpassText().data) score += 2;
+  if (hasAnyWikidataClass(item.classIds || [], WIKIDATA_SETTLEMENT_CLASS_IDS) || WIKIDATA_SETTLEMENT_CLASS_RE.test(classText)) score -= 18;
+  if (item.distance) score -= Math.min(8, item.distance * 0.4);
   return score;
 }
 function nearbyDistanceKm(a, b) {
@@ -15368,26 +15492,33 @@ function parseOverpassElements(elements, center) {
     if (!name) return;
     if (!latlng) return;
     const sourceUrl = element.article?.value || element.item?.value || '';
-    const qid = (element.item?.value || '').split('/').pop();
+    const qid = qidFromWikidataUrl(element.item?.value);
     const tags = { name, wikidata: qid, wikipedia: sourceUrl };
     if (isLikelyCuratedDuplicate(tags)) return;
     const key = qid || [normalizeOverpassKey(name), latlng.lat.toFixed(3), latlng.lng.toFixed(3)].join(':');
     if (seen.has(key)) return;
     seen.add(key);
-    items.push({
+    const item = {
       element: { type: 'wikidata', id: qid },
       tags,
       rule: overpassTagMatch(tags),
       latlng,
       wikiTitle: sourceUrl.split('/wiki/')[1]?.replace(/_/g, ' ') || '',
-      typeLabel: element.classLabel?.value || overpassText().data,
+      classIds: parseOverpassClassIds(element),
+      classLabels: [],
+      heritageCount: overpassHeritageCount(element),
+      articleCount: overpassArticleCount(element),
       sourceUrl,
       distance: center ? nearbyDistanceKm(center, latlng) : 0,
       score: 0
-    });
+    };
+    item.classLabels = parseOverpassClassLabels(element, item.classIds);
+    item.typeLabel = pickOverpassTypeLabel(item);
+    if (!overpassHasMeaningfulSignal(item)) return;
+    items.push(item);
   });
   items.forEach(item => item.score = scoreOverpassItem(item));
-  return items.sort((a, b) => (a.distance || 0) - (b.distance || 0) || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
+  return items.sort((a, b) => b.score - a.score || (a.distance || 0) - (b.distance || 0) || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
 }
 function overpassItemName(item) {
   const tags = item.tags || {};
