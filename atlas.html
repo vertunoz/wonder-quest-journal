@@ -15732,10 +15732,10 @@ function overpassCardHtml(item, card, loading = false) {
   const type = escapeHtml(overpassItemType(item));
   const source = escapeHtml(card?.page || overpassSourceUrl(item));
   const image = card?.image || item.wikidataImage || '';
-  const desc = loading ? t.cardLoading : (card?.extract || t.cardUnavailable);
+  const desc = card?.extract || (loading ? t.cardLoading : t.cardUnavailable);
   const media = image
     ? '<img src="' + escapeHtml(image) + '" alt="' + name + '" loading="lazy">'
-    : (loading ? '<div class="overpass-card-skel"></div>' : '<span style="font-size: 24px;">' + overpassItemEmoji(item) + '</span>');
+    : '<span style="font-size: 24px;">' + overpassItemEmoji(item) + '</span>';
   return '<div class="overpass-card">' +
     '<div class="overpass-card-media">' + media + '</div>' +
     '<div class="overpass-card-body">' +
@@ -15749,14 +15749,22 @@ function hydrateOverpassPopup(marker, item) {
   const popup = marker.getPopup();
   const root = popup?.getElement()?.querySelector('[data-overpass-card]');
   if (!root || root.dataset.loaded === 'true') return;
-  root.innerHTML = overpassCardHtml(item, null, true);
-  fetchOverpassCard(item).then(card => {
+  let finished = false;
+  const fallbackCard = { extract: '', image: item.wikidataImage || '', page: overpassSourceUrl(item) };
+  root.innerHTML = overpassCardHtml(item, fallbackCard, false);
+  const settle = card => {
+    if (finished) return;
+    finished = true;
     const liveRoot = popup?.getElement()?.querySelector('[data-overpass-card]');
     if (!liveRoot) return;
     liveRoot.dataset.loaded = 'true';
-    liveRoot.innerHTML = overpassCardHtml(item, card, false);
+    liveRoot.innerHTML = overpassCardHtml(item, card || fallbackCard, false);
     popup.update();
-  });
+  };
+  setTimeout(() => settle(fallbackCard), 5200);
+  fetchOverpassCard(item).then(card => {
+    settle(card || fallbackCard);
+  }).catch(() => settle(fallbackCard));
 }
 function renderOverpassMarkers(items) {
   if (!overpassLayer) return;
@@ -15784,7 +15792,7 @@ function renderOverpassMarkers(items) {
       { className: 'custom-popup', closeButton: true, autoPan: true }
     );
     marker.on('popupopen', () => {
-      marker.getPopup().setContent('<div data-overpass-card="' + escapeHtml(overpassCardKey(item)) + '">' + overpassCardHtml(item, null, true) + '</div>');
+      marker.getPopup().setContent('<div data-overpass-card="' + escapeHtml(overpassCardKey(item)) + '">' + overpassCardHtml(item, { extract: '', image: item.wikidataImage || '', page: overpassSourceUrl(item) }, false) + '</div>');
       hydrateOverpassPopup(marker, item);
     });
     overpassLayer.addLayer(marker);
