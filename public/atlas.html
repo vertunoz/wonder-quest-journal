@@ -15179,6 +15179,7 @@ let overpassLastCount = 0;
 let overpassLastState = 'off';
 const overpassCache = new Map();
 const overpassCardCache = new Map();
+const overpassImageCache = new Map();
 
 // Слои карты
 const tileLayers = {
@@ -15232,9 +15233,10 @@ function initMap() {
 
 const OVERPASS_MIN_ZOOM = 10;
 const OVERPASS_RESULT_LIMIT = 30;
-const OVERPASS_RAW_LIMIT = 80;
+const OVERPASS_RAW_LIMIT = 50;
 const OVERPASS_TIMEOUT_MS = 12000;
 const OVERPASS_CARD_TIMEOUT_MS = 4500;
+const OVERPASS_IMAGE_TIMEOUT_MS = 4500;
 const OVERPASS_ENDPOINTS = [
   'https://query.wikidata.org/sparql'
 ];
@@ -15270,6 +15272,12 @@ const WIKIDATA_CITY_CLASS_IDS = new Set([
   'Q3957',    // town
   'Q1549591'  // big city
 ]);
+const WIKIDATA_SEARCH_CLASS_IDS = new Set([...WIKIDATA_MEANINGFUL_CLASS_IDS].filter(id => ![
+  'Q16970', // church: too broad for live nearby search
+  'Q44539', // temple: included through attraction/heritage/monument signals
+  'Q32815', // mosque: included through attraction/heritage/monument signals
+  'Q22698'  // park: too broad unless separately marked as attraction/heritage
+].includes(id)));
 const WIKIDATA_SETTLEMENT_CLASS_IDS = new Set([
   'Q486972',  // human settlement
   'Q532',     // village
@@ -15445,13 +15453,9 @@ function overpassCacheKey(bbox) {
 function buildOverpassQuery(bbox) {
   const lang = currentLang === 'ru' ? 'ru,en' : 'en,ru';
   const preferredWiki = 'https://' + (currentLang === 'ru' ? 'ru' : 'en') + '.wikipedia.org/';
-  const searchClasses = Array.from(new Set([...WIKIDATA_MEANINGFUL_CLASS_IDS, ...WIKIDATA_CITY_CLASS_IDS])).map(id => 'wd:' + id).join(' ');
   return 'SELECT ?item ?itemLabel ?coord ' +
     '(SAMPLE(?preferredArticle) AS ?preferredArticle) ' +
     '(SAMPLE(?enArticle) AS ?enArticle) ' +
-    '(SAMPLE(?localArticle) AS ?localArticle) ' +
-    '(SAMPLE(?image) AS ?wikidataImage) ' +
-    '(GROUP_CONCAT(DISTINCT ?localLang; separator="|") AS ?localLangs) ' +
     '(GROUP_CONCAT(DISTINCT ?class; separator="|") AS ?classes) ' +
     '(COUNT(DISTINCT ?heritage) AS ?heritageCount) WHERE {\n' +
     '  SERVICE wikibase:around {\n' +
@@ -15459,19 +15463,10 @@ function buildOverpassQuery(bbox) {
     '    bd:serviceParam wikibase:center "Point(' + bbox.centerLng.toFixed(6) + ' ' + bbox.centerLat.toFixed(6) + ')"^^geo:wktLiteral .\n' +
     '    bd:serviceParam wikibase:radius "' + bbox.radiusKm.toFixed(1) + '" .\n' +
     '  }\n' +
-    '  ?item wdt:P31 ?class .\n' +
-    '  VALUES ?class { ' + searchClasses + ' }\n' +
     '  OPTIONAL { ?preferredArticle schema:about ?item ; schema:isPartOf <' + preferredWiki + '> . }\n' +
     '  OPTIONAL { ?enArticle schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> . }\n' +
-    '  OPTIONAL {\n' +
-    '    ?item wdt:P17 ?country .\n' +
-    '    ?country wdt:P37 ?officialLanguage .\n' +
-    '    ?officialLanguage wdt:P424 ?localLang .\n' +
-    '    BIND(IRI(CONCAT("https://", STR(?localLang), ".wikipedia.org/")) AS ?localWiki)\n' +
-    '    OPTIONAL { ?localArticle schema:about ?item ; schema:isPartOf ?localWiki . }\n' +
-    '  }\n' +
-    '  FILTER(BOUND(?preferredArticle) || BOUND(?enArticle) || BOUND(?localArticle))\n' +
-    '  OPTIONAL { ?item wdt:P18 ?image . }\n' +
+    '  FILTER(BOUND(?preferredArticle) || BOUND(?enArticle))\n' +
+    '  OPTIONAL { ?item wdt:P31 ?class . }\n' +
     '  OPTIONAL { ?item wdt:P1435 ?heritage . }\n' +
     '  SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '" . }\n' +
     '}\nGROUP BY ?item ?itemLabel ?coord\nLIMIT ' + OVERPASS_RAW_LIMIT;
@@ -15507,6 +15502,28 @@ function wikipediaTitleFromUrl(url) {
 }
 function normalizeMediaUrl(url) {
   return String(url || '').replace(/^http:/i, 'https:');
+}
+async function fetchOverpassImage(item) {
+  const qid = item.tags?.wikidata || item.element?.id || '';
+  if (!/^Q\d+$/.test(qid)) return '';
+  if (overpassImageCache.has(qid)) return overpassImageCache.get(qid);
+  const query = 'SELECT ?image WHERE { wd:' + qid + ' wdt:P18 ?image . } LIMIT 1';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OVERPASS_IMAGE_TIMEOUT_MS);
+  try {
+    const url = OVERPASS_ENDPOINTS[0] + '?format=json&query=' + encodeURIComponent(query);
+    const response = await fetch(url, { headers: { 'Accept': 'application/sparql-results+json' }, signal: controller.signal });
+    if (!response.ok) throw new Error('Wikidata image ' + response.status);
+    const json = await response.json();
+    const image = normalizeMediaUrl(json.results?.bindings?.[0]?.image?.value);
+    overpassImageCache.set(qid, image);
+    return image;
+  } catch {
+    overpassImageCache.set(qid, '');
+    return '';
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 function chooseOverpassArticle(articles, localLangs = []) {
   const list = (articles || []).filter(Boolean);
@@ -15552,6 +15569,17 @@ function overpassHasMeaningfulSignal(item) {
   if (hasSettlementClass && !hasHeritage && !hasMeaningfulClass) return false;
   return hasHeritage || hasMeaningfulClass;
 }
+function overpassCanUseAsFallback(item) {
+  const classIds = item.classIds || [];
+  const classText = (item.classLabels || []).join(' | ');
+  const name = overpassItemName(item);
+  if (!item.sourceUrl) return false;
+  if (/^(category|list of|template|wikimedia)/i.test(name)) return false;
+  if (/\b(disambiguation|wikimedia category|surname|given name|family name)\b/i.test(classText)) return false;
+  const isVillageOrAdmin = hasAnyWikidataClass(classIds, WIKIDATA_SETTLEMENT_CLASS_IDS) || WIKIDATA_SETTLEMENT_CLASS_RE.test(classText);
+  const isCity = hasAnyWikidataClass(classIds, WIKIDATA_CITY_CLASS_IDS);
+  return !isVillageOrAdmin || isCity || item.heritageCount > 0;
+}
 function pickOverpassTypeLabel(item) {
   const labels = item.classLabels || [];
   return labels.find(label => WIKIDATA_MEANINGFUL_CLASS_RE.test(label)) ||
@@ -15586,7 +15614,7 @@ function nearbyDistanceKm(a, b) {
 }
 function parseOverpassElements(elements, center) {
   const seen = new Set();
-  const items = [];
+  const candidates = [];
   (elements || []).forEach(element => {
     const name = element.itemLabel?.value || '';
     const latlng = overpassElementLatLng(element);
@@ -15614,18 +15642,20 @@ function parseOverpassElements(elements, center) {
       heritageCount: overpassHeritageCount(element),
       articleCount: overpassArticleCount(element),
       articleLang: wikipediaLangFromUrl(sourceUrl),
-      wikidataImage: normalizeMediaUrl(element.wikidataImage?.value),
+      wikidataImage: '',
       sourceUrl,
       distance: center ? nearbyDistanceKm(center, latlng) : 0,
       score: 0
     };
     item.classLabels = parseOverpassClassLabels(element, item.classIds);
     item.typeLabel = pickOverpassTypeLabel(item);
-    if (!overpassHasMeaningfulSignal(item)) return;
-    items.push(item);
+    item.strictMatch = overpassHasMeaningfulSignal(item);
+    candidates.push(item);
   });
-  items.forEach(item => item.score = scoreOverpassItem(item));
-  return items.sort((a, b) => b.score - a.score || (a.distance || 0) - (b.distance || 0) || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
+  candidates.forEach(item => item.score = scoreOverpassItem(item));
+  const strictItems = candidates.filter(item => item.strictMatch);
+  const source = strictItems.length ? strictItems : candidates.filter(overpassCanUseAsFallback);
+  return source.sort((a, b) => b.score - a.score || (a.distance || 0) - (b.distance || 0) || String(a.tags.name).localeCompare(String(b.tags.name))).slice(0, OVERPASS_RESULT_LIMIT);
 }
 function overpassItemName(item) {
   const tags = item.tags || {};
@@ -15664,30 +15694,36 @@ async function fetchOverpassCard(item) {
   const key = overpassCardKey(item);
   if (overpassCardCache.has(key)) return overpassCardCache.get(key);
   const endpoint = overpassSummaryEndpoint(item);
-  const fallbackCard = item.wikidataImage ? { extract: '', image: item.wikidataImage, page: overpassSourceUrl(item) } : null;
-  if (!endpoint) {
-    overpassCardCache.set(key, fallbackCard);
-    return fallbackCard;
-  }
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), OVERPASS_CARD_TIMEOUT_MS);
+  const imagePromise = fetchOverpassImage(item);
+  const summaryPromise = endpoint ? (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OVERPASS_CARD_TIMEOUT_MS);
+    try {
+      const response = await fetch(endpoint, { signal: controller.signal });
+      if (!response.ok) throw new Error('Wikipedia summary ' + response.status);
+      const data = await response.json();
+      return data.type === 'disambiguation' ? null : data;
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  })() : Promise.resolve(null);
   try {
-    const response = await fetch(endpoint, { signal: controller.signal });
-    if (!response.ok) throw new Error('Wikipedia summary ' + response.status);
-    const data = await response.json();
-    if (data.type === 'disambiguation') return fallbackCard;
+    const [summaryResult, imageResult] = await Promise.allSettled([summaryPromise, imagePromise]);
+    const data = summaryResult.status === 'fulfilled' ? summaryResult.value : null;
+    const image = imageResult.status === 'fulfilled' ? imageResult.value : '';
     const card = {
-      extract: data.extract || '',
-      image: normalizeMediaUrl(data.originalimage?.source || data.thumbnail?.source || item.wikidataImage),
-      page: data.content_urls?.desktop?.page || overpassSourceUrl(item)
+      extract: data?.extract || '',
+      image: normalizeMediaUrl(data?.originalimage?.source || data?.thumbnail?.source || image),
+      page: data?.content_urls?.desktop?.page || overpassSourceUrl(item)
     };
     overpassCardCache.set(key, card);
     return card;
   } catch {
-    overpassCardCache.set(key, fallbackCard);
-    return fallbackCard;
-  } finally {
-    clearTimeout(timeout);
+    const card = { extract: '', image: await imagePromise.catch(() => ''), page: overpassSourceUrl(item) };
+    overpassCardCache.set(key, card);
+    return card;
   }
 }
 function overpassCardHtml(item, card, loading = false) {
