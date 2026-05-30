@@ -800,6 +800,13 @@
     overflow: hidden;
   }
   .overpass-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .overpass-card-placeholder {
+    width: 100%; height: 100%; display: grid; place-items: center;
+    background:
+      radial-gradient(circle at 25% 20%, color-mix(in oklab, var(--accent) 26%, transparent), transparent 30%),
+      linear-gradient(135deg, color-mix(in oklab, var(--bg-2) 86%, var(--accent)), var(--bg));
+    color: var(--accent);
+  }
   .overpass-card-body { padding: 12px 14px 13px; }
   .overpass-card-title {
     font-family: var(--serif); font-size: 18px; font-weight: 500;
@@ -820,6 +827,30 @@
     height: 100%; width: 100%;
     background: linear-gradient(90deg, var(--bg-2) 25%, var(--line) 50%, var(--bg-2) 75%);
     background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  }
+  .quiz-modal-card {
+    width: min(520px, calc(100vw - 32px));
+    max-height: min(680px, calc(100dvh - 32px));
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: 0 24px 70px rgba(0,0,0,.35);
+  }
+  .quiz-choice {
+    min-height: 42px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg-2); color: var(--ink); padding: 9px 10px;
+    font-size: 12px; font-weight: 800; text-align: left;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .quiz-choice:hover,
+  .quiz-choice.active {
+    border-color: var(--accent); color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 9%, var(--bg));
+  }
+  .quiz-result {
+    border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--line));
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg-2));
   }
   .overpass-marker {
     width: 28px; height: 28px; border-radius: 999px;
@@ -917,10 +948,14 @@
       </details>
 
       <!-- Кнопки действий -->
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-3 gap-2">
         <button onclick="randomLocation()" class="btn-primary text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           Сюрприз
+        </button>
+        <button onclick="openTravelQuiz()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h6"/><path d="M12 8v6"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2"/><path d="M7 5H5a2 2 0 0 0 0 4h2"/></svg>
+          Квиз
         </button>
         <button onclick="copyShareLink()" class="btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center gap-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -1098,6 +1133,24 @@
     </div>
   </div>
 
+  <div id="quizModal" class="fixed inset-0 z-[1100] hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4"
+       style="background: rgba(22,20,15,.72); backdrop-filter: blur(5px);">
+    <div class="quiz-modal-card rounded-2xl p-5 md:p-6 transform scale-95 transition-transform duration-200">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div id="quizEyebrow" class="pill mb-2" style="color: var(--accent);">Маршрутный квиз</div>
+          <h2 id="quizTitle" class="font-display text-3xl font-light leading-tight">Что вам ближе?</h2>
+          <p id="quizIntro" class="text-xs leading-relaxed mt-2" style="color: var(--ink-mute);">Ответьте на три вопроса, и атлас подскажет, какие чудеса искать первыми.</p>
+        </div>
+        <button onclick="closeTravelQuiz()" class="btn-ghost p-2 rounded-full" title="Закрыть">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="quizQuestions" class="space-y-4"></div>
+      <div id="quizResult" class="quiz-result rounded-xl p-4 mt-5 hidden"></div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="toast"></div>
 
@@ -1216,9 +1269,31 @@ const TRAVEL_UI = {
     boardTotal: n => n + ' в борде',
     boardAdded: name => 'Добавлено в доску: ' + name,
     boardRemoved: 'Убрано из доски',
+    quizButton: 'Квиз',
+    quizEyebrow: 'Маршрутный квиз',
+    quizTitle: 'Что вам ближе?',
+    quizIntro: 'Ответьте на три вопроса, и атлас подскажет, какие чудеса искать первыми.',
+    quizResultTitle: 'Ваш стартовый маршрут',
+    quizResultEmpty: 'Выберите хотя бы один вариант, чтобы получить подсказку.',
+    quizSaved: 'Квиз сохранён',
+    quizQuestions: [
+      { id: 'kind', title: 'Что тянет сильнее?', choices: [
+        { value: 'natural', label: 'Природа', result: 'Начните с природных чудес: гор, водопадов, островов и заповедников.' },
+        { value: 'human', label: 'Архитектура', result: 'Вам стоит чаще открывать рукотворные чудеса: города, храмы, дворцы и древние комплексы.' },
+        { value: 'mixed', label: 'Микс', result: 'Лучше всего зайдут места, где природа и история работают вместе.' }
+      ] },
+      { id: 'pace', title: 'Какой темп поездки?', choices: [
+        { value: 'easy', label: 'Комфортно', result: 'Ставьте в приоритет места с простым доступом и понятной логистикой.' },
+        { value: 'adventure', label: 'Приключение', result: 'Добавляйте удалённые и экстремальные точки, где путь сам становится частью впечатления.' }
+      ] },
+      { id: 'mood', title: 'Что хочется почувствовать?', choices: [
+        { value: 'iconic', label: 'Вау-символ', result: 'Ищите ярлыки UNESCO, iconic и 7 wonders: это самые сильные ориентиры.' },
+        { value: 'quiet', label: 'Скрытая находка', result: 'Смотрите кандидатов в атлас рядом с маршрутом: там могут быть редкие места вне стандартных подборок.' }
+      ] }
+    ],
     status: { dream: 'Мечтаю', planning: 'Планирую', going: 'Еду', visited: 'Был тут' },
     verdictTitle: 'Стоит ли ехать',
-    verdictNote: 'Персональный слой появится после квиза. Сейчас оценка основана на типе места, ярлыках и логистике.',
+    verdictNote: 'Персональный слой учитывает ответы квиза, тип места, ярлыки и логистику.',
     metrics: { season: 'Лучшее время', time: 'Сколько нужно', access: 'Доступ', family: 'С ребёнком', safety: 'Риски' },
     badges: { must_see: 'Обязательно увидеть', worth_detour: 'Стоит крюка', hidden_gem: 'Скрытая жемчужина', hard_adventure: 'Сложное приключение', overrated: 'Спорно' },
     access: { easy: 'Просто', moderate: 'Средне', hard: 'Сложно' },
@@ -1242,9 +1317,31 @@ const TRAVEL_UI = {
     boardTotal: n => n + ' on board',
     boardAdded: name => 'Added to board: ' + name,
     boardRemoved: 'Removed from board',
+    quizButton: 'Quiz',
+    quizEyebrow: 'Route quiz',
+    quizTitle: 'What pulls you in?',
+    quizIntro: 'Answer three questions and the atlas will suggest where to start.',
+    quizResultTitle: 'Your starting route',
+    quizResultEmpty: 'Pick at least one option to get a hint.',
+    quizSaved: 'Quiz saved',
+    quizQuestions: [
+      { id: 'kind', title: 'What pulls you in most?', choices: [
+        { value: 'natural', label: 'Nature', result: 'Start with natural wonders: mountains, waterfalls, islands, and reserves.' },
+        { value: 'human', label: 'Architecture', result: 'Open more human-made wonders: cities, temples, palaces, and ancient complexes.' },
+        { value: 'mixed', label: 'Mixed', result: 'Places where nature and history work together will fit you best.' }
+      ] },
+      { id: 'pace', title: 'What travel pace?', choices: [
+        { value: 'easy', label: 'Comfortable', result: 'Prioritize places with easier access and clear logistics.' },
+        { value: 'adventure', label: 'Adventure', result: 'Add remote and extreme places where the journey is part of the experience.' }
+      ] },
+      { id: 'mood', title: 'What do you want to feel?', choices: [
+        { value: 'iconic', label: 'Iconic wow', result: 'Look for UNESCO, iconic, and 7 wonders labels first.' },
+        { value: 'quiet', label: 'Hidden find', result: 'Check atlas candidates near your route: they can reveal rare places outside standard lists.' }
+      ] }
+    ],
     status: { dream: 'Dream', planning: 'Planning', going: 'Going', visited: 'Visited' },
     verdictTitle: 'Worth the trip?',
-    verdictNote: 'Personal scoring comes with the quiz. For now this uses place type, labels, and logistics.',
+    verdictNote: 'Personal scoring uses quiz answers, place type, labels, and logistics.',
     metrics: { season: 'Best time', time: 'Time needed', access: 'Access', family: 'With kids', safety: 'Risks' },
     badges: { must_see: 'Must see', worth_detour: 'Worth a detour', hidden_gem: 'Hidden gem', hard_adventure: 'Hard adventure', overrated: 'Debatable' },
     access: { easy: 'Easy', moderate: 'Moderate', hard: 'Hard' },
@@ -1335,7 +1432,12 @@ function applyI18n() {
   const boardTab = document.querySelector('[data-sidebar-tab="board"]'); if (boardTab) boardTab.textContent = travelUi().boardTitle;
   const footerAtlas = document.getElementById('footerMyAtlasLabel'); if (footerAtlas) footerAtlas.textContent = t.myAtlas;
   const footerBoard = document.getElementById('footerBoardLabel'); if (footerBoard) footerBoard.textContent = currentLang === 'ru' ? 'Доска' : 'Board';
-  setButtonText(document.querySelector('button[onclick="randomLocation()"]'), t.surprise); setButtonText(document.querySelector('button[onclick="copyShareLink()"]'), t.share);
+  setButtonText(document.querySelector('button[onclick="randomLocation()"]'), t.surprise); setButtonText(document.querySelector('button[onclick="copyShareLink()"]'), t.share); setButtonText(document.querySelector('button[onclick="openTravelQuiz()"]'), travelUi().quizButton);
+  const quizOpen = document.getElementById('quizOpenButton'); const quizOpenLabel = quizOpen?.querySelector('span:last-child'); if (quizOpenLabel) quizOpenLabel.textContent = travelUi().quizButton;
+  const quizEyebrow = document.getElementById('quizEyebrow'); if (quizEyebrow) quizEyebrow.textContent = travelUi().quizEyebrow;
+  const quizTitle = document.getElementById('quizTitle'); if (quizTitle) quizTitle.textContent = travelUi().quizTitle;
+  const quizIntro = document.getElementById('quizIntro'); if (quizIntro) quizIntro.textContent = travelUi().quizIntro;
+  if (typeof renderTravelQuiz === 'function') renderTravelQuiz();
   const myAtlas = document.getElementById('myAtlasTitle') || document.querySelector('.progress-track')?.closest('.border-b')?.querySelector('.pill'); if (myAtlas) myAtlas.textContent = t.myAtlas; const visitedLabel = document.getElementById('visitedWordLabel') || document.getElementById('visitedTotal')?.nextSibling; if (visitedLabel) visitedLabel.textContent = ' ' + t.visitedWord;
   const resetBtn = document.getElementById('resetVisited'); if (resetBtn) resetBtn.textContent = t.reset; const clearBtn = document.getElementById('clearFilters'); if (clearBtn) clearBtn.textContent = t.reset;
   const visiblePill = document.getElementById('visibleCount')?.parentElement; if (visiblePill) visiblePill.innerHTML = '<span id="visibleCount">' + (document.getElementById('visibleCount')?.textContent || '0') + '</span> ' + escapeHtml(t.of) + ' <span id="totalCount">' + (document.getElementById('totalCount')?.textContent || '0') + '</span>';
@@ -1465,6 +1567,57 @@ function visitKey(loc) { return loc.en || loc.name; }
 function isVisited(loc) { return visited.has(visitKey(loc)); }
 function boardStatus(loc) { return board.get(visitKey(loc)) || ''; }
 function persistBoard() { localStorage.setItem(BOARD_KEY, JSON.stringify(Object.fromEntries(board))); }
+const QUIZ_KEY = 'world-wonders:quiz-v1';
+let quizAnswers = readJsonStorage(QUIZ_KEY, null, {});
+function persistQuiz() { localStorage.setItem(QUIZ_KEY, JSON.stringify(quizAnswers)); }
+function quizResultLines() {
+  const t = travelUi();
+  return (t.quizQuestions || []).map(question => {
+    const selected = question.choices.find(choice => choice.value === quizAnswers[question.id]);
+    return selected?.result;
+  }).filter(Boolean);
+}
+function renderTravelQuiz() {
+  const t = travelUi();
+  const box = document.getElementById('quizQuestions');
+  const result = document.getElementById('quizResult');
+  if (!box || !result) return;
+  box.innerHTML = (t.quizQuestions || []).map(question =>
+    '<section><div class="section-title mb-2">' + escapeHtml(question.title) + '</div>' +
+    '<div class="grid grid-cols-1 gap-2" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">' +
+    question.choices.map(choice =>
+      '<button type="button" class="quiz-choice' + (quizAnswers[question.id] === choice.value ? ' active' : '') + '" data-quiz-question="' + escapeHtml(question.id) + '" data-quiz-value="' + escapeHtml(choice.value) + '">' + escapeHtml(choice.label) + '</button>'
+    ).join('') +
+    '</div></section>'
+  ).join('');
+  const lines = quizResultLines();
+  result.classList.toggle('hidden', !lines.length);
+  result.innerHTML = lines.length
+    ? '<div class="pill mb-2" style="color: var(--accent);">' + escapeHtml(t.quizResultTitle) + '</div><ul class="facts-list">' + lines.map(line => '<li>' + escapeHtml(line) + '</li>').join('') + '</ul>'
+    : '<p class="text-xs" style="color: var(--ink-mute);">' + escapeHtml(t.quizResultEmpty) + '</p>';
+}
+function openTravelQuiz() {
+  const modal = document.getElementById('quizModal');
+  const card = modal?.querySelector('.quiz-modal-card');
+  if (!modal || !card) return;
+  renderTravelQuiz();
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('scale-95'); }, 10);
+}
+function closeTravelQuiz() {
+  const modal = document.getElementById('quizModal');
+  const card = modal?.querySelector('.quiz-modal-card');
+  if (!modal || !card) return;
+  modal.classList.add('opacity-0');
+  card.classList.add('scale-95');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    if (document.getElementById('galleryModal')?.classList.contains('hidden')) document.body.style.overflow = '';
+  }, 180);
+}
+window.openTravelQuiz = openTravelQuiz;
+window.closeTravelQuiz = closeTravelQuiz;
 function setBoardStatus(loc, status, options = {}) {
   const key = visitKey(loc);
   if (!status || board.get(key) === status) {
@@ -15339,9 +15492,9 @@ const OVERPASS_TEXT = {
     data: 'Кандидат',
     curated: 'Не основная база: предложение из открытых источников',
     cardLoading: 'Собираю карточку...',
-    cardUnavailable: 'Кандидат ещё не прошёл редакционный отбор. Откройте источник, если хотите проверить детали.',
+    cardUnavailable: 'Краткое описание пока собирается из открытых источников. Это место показано как возможное пополнение атласа.',
     candidateVerdict: 'Кандидат в атлас',
-    candidateNote: 'Это предложение, не часть curated-коллекции.',
+    candidateNote: 'Открытый кандидат: изучите место и решите, стоит ли добавить его в маршрут.',
     types: {
       peak: 'Вершина', volcano: 'Вулкан', waterfall: 'Водопад', cave_entrance: 'Пещера',
       glacier: 'Ледник', geyser: 'Гейзер', hot_spring: 'Горячий источник', arch: 'Арка',
@@ -15371,9 +15524,9 @@ const OVERPASS_TEXT = {
     data: 'Candidate',
     curated: 'Not in the main atlas: suggested from open sources',
     cardLoading: 'Building card...',
-    cardUnavailable: 'This candidate has not passed editorial review yet. Open the source to verify details.',
+    cardUnavailable: 'A short description is being assembled from open sources. This place is shown as a possible atlas addition.',
     candidateVerdict: 'Atlas candidate',
-    candidateNote: 'A suggestion, not part of the curated collection.',
+    candidateNote: 'Open candidate: review it and decide whether it belongs in your route.',
     types: {
       peak: 'Peak', volcano: 'Volcano', waterfall: 'Waterfall', cave_entrance: 'Cave',
       glacier: 'Glacier', geyser: 'Geyser', hot_spring: 'Hot spring', arch: 'Natural arch',
@@ -15730,16 +15883,27 @@ async function fetchOverpassCard(item) {
     return card;
   }
 }
+function overpassCandidateDescription(item) {
+  const name = overpassItemName(item);
+  const type = overpassItemType(item).toLowerCase();
+  const hasHeritage = Number(item.heritageCount || 0) > 0;
+  if (currentLang === 'ru') {
+    const heritage = hasHeritage ? ' У объекта есть наследственный или охранный статус в открытых данных.' : '';
+    return name + ' отмечен в Wikidata как ' + type + '. Это возможная точка для маршрута и кандидат в будущую коллекцию атласа.' + heritage;
+  }
+  const heritage = hasHeritage ? ' Open data also marks it with heritage or protected status.' : '';
+  return name + ' is listed in Wikidata as a ' + type + '. It is a possible route stop and a candidate for the future atlas collection.' + heritage;
+}
 function overpassCardHtml(item, card, loading = false) {
   const t = overpassText();
   const name = escapeHtml(overpassItemName(item));
   const type = escapeHtml(overpassItemType(item));
   const source = escapeHtml(card?.page || overpassSourceUrl(item));
   const image = card?.image || item.wikidataImage || '';
-  const desc = card?.extract || (loading ? t.cardLoading : t.cardUnavailable);
+  const desc = card?.extract || (loading ? t.cardLoading : overpassCandidateDescription(item) || t.cardUnavailable);
   const media = image
     ? '<img src="' + escapeHtml(image) + '" alt="' + name + '" loading="lazy">'
-    : '<span style="font-size: 24px;">' + overpassItemEmoji(item) + '</span>';
+    : '<div class="overpass-card-placeholder"><span style="font-size: 28px;">' + overpassItemEmoji(item) + '</span></div>';
   return '<div class="overpass-card">' +
     '<div class="overpass-card-media">' + media + '</div>' +
     '<div class="overpass-card-body">' +
@@ -16629,8 +16793,14 @@ function setupSidebarLayout() {
   filterButton.setAttribute('aria-expanded', 'false');
   filterButton.setAttribute('aria-controls', 'advancedFilters');
   filterButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18"/><path d="M6 12h12"/><path d="M10 19h4"/></svg><span id="filterButtonLabel">Фильтры</span>';
+  const quizButton = document.createElement('button');
+  quizButton.id = 'quizOpenButton';
+  quizButton.type = 'button';
+  quizButton.className = 'sidebar-filter-btn';
+  quizButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h6"/><path d="M12 8v6"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/></svg><span>' + escapeHtml(travelUi().quizButton) + '</span>';
+  quizButton.addEventListener('click', openTravelQuiz);
   quickFilters.className = 'atlas-quick-filters flex gap-2';
-  filterRow.append(filterButton, quickFilters);
+  filterRow.append(filterButton, quizButton, quickFilters);
 
   const advanced = document.createElement('div');
   advanced.id = 'advancedFilters';
@@ -16642,7 +16812,7 @@ function setupSidebarLayout() {
   advancedLabel.style.color = 'var(--accent)';
   advancedLabel.textContent = oldSummary?.textContent?.trim() || 'Точные фильтры';
   const selectGrid = oldAdvanced.querySelector('.grid');
-  actionRow.className = 'grid grid-cols-3 gap-2 mt-3';
+  actionRow.className = 'grid grid-cols-2 gap-2 mt-3';
   clearButton.className = 'btn-ghost text-xs py-2 px-2 rounded-lg flex items-center justify-center';
   actionRow.prepend(clearButton);
   advanced.append(advancedLabel, selectGrid, actionRow);
@@ -16801,6 +16971,18 @@ document.getElementById('quickFilters').addEventListener('click', (event) => {
   }
   renderAndSync();
 });
+document.getElementById('quizModal')?.addEventListener('click', event => {
+  if (event.target.id === 'quizModal') {
+    closeTravelQuiz();
+    return;
+  }
+  const button = event.target.closest('[data-quiz-question]');
+  if (!button) return;
+  quizAnswers = { ...quizAnswers, [button.dataset.quizQuestion]: button.dataset.quizValue };
+  persistQuiz();
+  renderTravelQuiz();
+  toast(travelUi().quizSaved);
+});
 document.querySelectorAll('[data-sidebar-tab]').forEach(button => {
   button.addEventListener('click', () => setSidebarTab(button.dataset.sidebarTab));
 });
@@ -16854,7 +17036,7 @@ document.getElementById('resetVisited').addEventListener('click', () => {
 
 // Клавиатура
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeSidebarPopovers(); closeGallery(); }
+  if (e.key === 'Escape') { closeSidebarPopovers(); closeGallery(); closeTravelQuiz(); }
   if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); randomLocation(); }
   if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
     e.preventDefault();
