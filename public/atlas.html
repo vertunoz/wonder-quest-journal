@@ -824,8 +824,8 @@
   .overpass-marker {
     width: 28px; height: 28px; border-radius: 999px;
     display: grid; place-items: center;
-    border: 2px solid #1E6F9F;
-    background: color-mix(in oklab, var(--bg) 88%, #1E6F9F);
+    border: 2px solid var(--accent);
+    background: color-mix(in oklab, var(--bg) 82%, var(--accent));
     color: var(--ink); font-size: 13px;
     box-shadow: 0 8px 20px rgba(0,0,0,.24);
   }
@@ -991,7 +991,7 @@
       <button id="overpassToggle" type="button" class="overpass-toggle" aria-pressed="false">
         <span class="overpass-toggle-main">
           <span class="overpass-dot" aria-hidden="true"></span>
-          <span id="overpassToggleLabel">Ещё места рядом</span>
+          <span id="overpassToggleLabel">Кандидаты в атлас</span>
         </span>
         <span id="overpassCount">0</span>
       </button>
@@ -999,7 +999,7 @@
       <div id="overpassProgress" class="overpass-progress hidden" aria-hidden="true">
         <div class="overpass-progress-bar"></div>
       </div>
-      <button id="overpassRefresh" type="button" class="overpass-refresh hidden">Обновить рядом</button>
+      <button id="overpassRefresh" type="button" class="overpass-refresh hidden">Обновить кандидатов</button>
     </div>
 
     <div id="osmDataAttribution" class="map-control osm-data-attribution hidden">
@@ -15232,8 +15232,8 @@ function initMap() {
 }
 
 const OVERPASS_MIN_ZOOM = 10;
-const OVERPASS_RESULT_LIMIT = 30;
-const OVERPASS_RAW_LIMIT = 50;
+const OVERPASS_RESULT_LIMIT = 10;
+const OVERPASS_RAW_LIMIT = 40;
 const OVERPASS_TIMEOUT_MS = 12000;
 const OVERPASS_CARD_TIMEOUT_MS = 4500;
 const OVERPASS_IMAGE_TIMEOUT_MS = 4500;
@@ -15323,23 +15323,25 @@ const WIKIDATA_MEANINGFUL_CLASS_RE = /\b(tourist attraction|world heritage|unesc
 const WIKIDATA_SETTLEMENT_CLASS_RE = /\b(village|municipality|human settlement|town|city|commune|administrative territorial entity|district|neighborhood|ward|county|locality|hamlet|quarter|suburb|settlement)\b/i;
 const OVERPASS_TEXT = {
   ru: {
-    toggle: 'Ещё места рядом',
+    toggle: 'Кандидаты в атлас',
     off: 'Выключен',
     zoom: 'Приблизьте карту до города или места',
-    preparing: sec => 'Готовлю поиск... ' + sec + 'с',
+    preparing: sec => 'Ищу кандидатов... ' + sec + 'с',
     loading: sec => 'Запрашиваю Wikidata... ' + sec + 'с',
     slow: sec => 'Источник отвечает медленно... ' + sec + 'с',
-    empty: 'Дополнительных мест здесь не найдено',
-    loaded: n => 'Найдено рядом: ' + n,
-    stale: 'Карта сдвинута — обновите поиск',
-    refresh: 'Обновить рядом',
+    empty: 'Кандидатов для атласа здесь не найдено',
+    loaded: n => 'Кандидатов: ' + n,
+    stale: 'Карта сдвинута — обновите кандидатов',
+    refresh: 'Обновить кандидатов',
     error: 'Wikidata временно недоступна',
     source: 'Открыть источник',
-    live: 'nearby places',
-    data: 'Данные Wikidata',
-    curated: 'Основная база не меняется',
+    live: 'atlas candidates',
+    data: 'Кандидат',
+    curated: 'Не основная база: предложение из открытых источников',
     cardLoading: 'Собираю карточку...',
-    cardUnavailable: 'Краткая карточка пока недоступна. Можно открыть источник.',
+    cardUnavailable: 'Кандидат ещё не прошёл редакционный отбор. Откройте источник, если хотите проверить детали.',
+    candidateVerdict: 'Кандидат в атлас',
+    candidateNote: 'Это предложение, не часть curated-коллекции.',
     types: {
       peak: 'Вершина', volcano: 'Вулкан', waterfall: 'Водопад', cave_entrance: 'Пещера',
       glacier: 'Ледник', geyser: 'Гейзер', hot_spring: 'Горячий источник', arch: 'Арка',
@@ -15353,23 +15355,25 @@ const OVERPASS_TEXT = {
     }
   },
   en: {
-    toggle: 'Nearby places',
+    toggle: 'Atlas candidates',
     off: 'Off',
     zoom: 'Zoom in to a city or place',
-    preparing: sec => 'Preparing search... ' + sec + 's',
+    preparing: sec => 'Finding candidates... ' + sec + 's',
     loading: sec => 'Querying Wikidata... ' + sec + 's',
     slow: sec => 'Source is responding slowly... ' + sec + 's',
-    empty: 'No additional places found here',
-    loaded: n => 'Nearby places found: ' + n,
-    stale: 'Map moved — refresh nearby search',
-    refresh: 'Refresh nearby',
+    empty: 'No atlas candidates found here',
+    loaded: n => 'Candidates: ' + n,
+    stale: 'Map moved — refresh candidates',
+    refresh: 'Refresh candidates',
     error: 'Wikidata is temporarily unavailable',
     source: 'Open source',
-    live: 'nearby places',
-    data: 'Wikidata data',
-    curated: 'Curated atlas stays unchanged',
+    live: 'atlas candidates',
+    data: 'Candidate',
+    curated: 'Not in the main atlas: suggested from open sources',
     cardLoading: 'Building card...',
-    cardUnavailable: 'A preview card is not available yet. You can open the source.',
+    cardUnavailable: 'This candidate has not passed editorial review yet. Open the source to verify details.',
+    candidateVerdict: 'Atlas candidate',
+    candidateNote: 'A suggestion, not part of the curated collection.',
     types: {
       peak: 'Peak', volcano: 'Volcano', waterfall: 'Waterfall', cave_entrance: 'Cave',
       glacier: 'Glacier', geyser: 'Geyser', hot_spring: 'Hot spring', arch: 'Natural arch',
@@ -15739,9 +15743,10 @@ function overpassCardHtml(item, card, loading = false) {
   return '<div class="overpass-card">' +
     '<div class="overpass-card-media">' + media + '</div>' +
     '<div class="overpass-card-body">' +
-    '<div class="pill" style="color:#1E6F9F; margin-bottom: 7px;">Wikidata · ' + type + '</div>' +
+    '<div class="pill" style="color:var(--accent); margin-bottom: 7px;">' + escapeHtml(t.candidateVerdict) + ' · ' + type + '</div>' +
     '<h3 class="overpass-card-title">' + name + '</h3>' +
     '<p class="overpass-card-desc">' + escapeHtml(desc) + '</p>' +
+    '<p style="font-size:10px; line-height:1.45; color:var(--ink-mute); margin:0 0 10px;">' + escapeHtml(t.candidateNote) + '</p>' +
     '<a class="overpass-card-source" href="' + source + '" target="_blank" rel="noopener">' + escapeHtml(t.source) + '</a>' +
     '</div></div>';
 }
