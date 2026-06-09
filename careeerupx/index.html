@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конкурентная карта · Платформы поиска работы · США и Европа · May 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10151C;
+  --surface:#171F29;
+  --surface-2:#1F2A37;
+  --surface-3:#27343F;
+  --line:rgba(255,255,255,.085);
+  --line-strong:rgba(255,255,255,.16);
+  --text:#E9ECF0;
+  --dim:#9DA9B5;
+  --faint:#67737F;
+
+  /* semantic key: the analytical backbone of the report */
+  --commercial:#FF8A4C;   /* commercial job boards */
+  --commercial-soft:rgba(255,138,76,.14);
+  --state:#4FA8D8;        /* state / institutional marketplaces */
+  --state-soft:rgba(79,168,216,.14);
+  --network:#A98BE0;      /* professional network / social */
+  --network-soft:rgba(169,139,224,.14);
+
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+
+  --maxw:1080px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -8%,rgba(255,138,76,.10),transparent 60%),
+    radial-gradient(800px 520px at 92% 4%,rgba(79,168,216,.10),transparent 60%);
+}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+
+/* ---------- HERO ---------- */
+.hero{padding:88px 0 56px}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:34px;
+}
+.eyebrow b{color:var(--commercial);font-weight:500}
+.eyebrow .dot{width:4px;height:4px;border-radius:50%;background:var(--faint)}
+h1.title{
+  font-family:var(--serif);font-weight:340;font-size:clamp(33px,5.6vw,62px);
+  line-height:1.04;letter-spacing:-.015em;max-width:18ch;
+}
+h1.title .strike{
+  position:relative;color:var(--dim);font-style:italic;
+}
+h1.title .strike::after{
+  content:"";position:absolute;left:-2px;right:-2px;top:54%;height:2px;
+  background:var(--commercial);transform:scaleX(0);transform-origin:left;
+  animation:strike 1s .5s cubic-bezier(.65,0,.35,1) forwards;
+}
+@keyframes strike{to{transform:scaleX(1)}}
+h1.title em{font-style:normal;color:var(--commercial)}
+.lede{
+  margin-top:26px;max-width:62ch;color:var(--dim);font-size:clamp(15px,1.8vw,18px);
+}
+.lede b{color:var(--text);font-weight:600}
+
+/* verdict chips */
+.verdicts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:42px}
+.verdict{
+  border:1px solid var(--line);border-radius:14px;padding:16px 16px 15px;background:var(--surface);
+  position:relative;overflow:hidden;
+}
+.verdict::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+.verdict.s-commercial::before{background:var(--commercial)}
+.verdict.s-state::before{background:var(--state)}
+.verdict .geo{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.verdict .who{font-family:var(--serif);font-size:21px;margin-top:6px;font-weight:420}
+.verdict .tag{font-size:11.5px;color:var(--dim);margin-top:3px}
+@media(max-width:760px){.verdicts{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- KEY / LEGEND ---------- */
+.key{
+  display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin:54px 0 0;
+  padding:16px 20px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02);
+}
+.key .klabel{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.key .kitem{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--dim)}
+.swatch{width:13px;height:13px;border-radius:4px;flex:none}
+.swatch.commercial{background:var(--commercial)}
+.swatch.state{background:var(--state)}
+.swatch.network{background:var(--network)}
+
+/* ---------- SECTIONS ---------- */
+section{padding:64px 0}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+.sec-num{font-family:var(--mono);font-size:13px;color:var(--commercial);letter-spacing:.1em}
+h2{font-family:var(--serif);font-weight:380;font-size:clamp(26px,3.6vw,40px);letter-spacing:-.01em;line-height:1.08}
+.sec-sub{color:var(--dim);max-width:64ch;margin-top:14px;font-size:15.5px}
+
+/* ---------- MYTH CARD ---------- */
+.myth{margin-top:30px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--surface)}
+.myth-top{padding:26px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(169,139,224,.10),transparent)}
+.myth-top .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--network);border:1px solid var(--network);border-radius:999px;padding:4px 11px;margin-bottom:14px}
+.myth-top .claim{font-family:var(--serif);font-size:clamp(19px,2.4vw,27px);font-style:italic;color:var(--dim);font-weight:360;line-height:1.25}
+.myth-top .verdict-line{margin-top:14px;font-size:15px;color:var(--text)}
+.myth-top .verdict-line b{color:var(--commercial)}
+.myth-cols{display:grid;grid-template-columns:1fr 1fr}
+.myth-col{padding:24px 28px}
+.myth-col+.myth-col{border-left:1px solid var(--line)}
+.myth-col h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;color:var(--faint)}
+.myth-col.wrong h4{color:var(--network)}
+.myth-col.right h4{color:var(--commercial)}
+.myth-col p{font-size:14.5px;color:var(--dim);margin-bottom:10px}
+.myth-col p b{color:var(--text);font-weight:600}
+.li-real{font-size:13.5px;color:var(--dim);padding:8px 0;border-top:1px solid var(--line);display:flex;gap:10px}
+.li-real .n{font-family:var(--mono);color:var(--network);font-size:12px;flex:none;min-width:54px}
+@media(max-width:720px){.myth-cols{grid-template-columns:1fr}.myth-col+.myth-col{border-left:none;border-top:1px solid var(--line)}}
+
+/* linkedin stat strip */
+.li-stats{display:flex;flex-wrap:wrap;gap:10px;padding:18px 28px;border-top:1px solid var(--line);background:var(--network-soft)}
+.li-stat{flex:1;min-width:130px}
+.li-stat .v{font-family:var(--mono);font-size:21px;color:var(--text)}
+.li-stat .v small{font-size:13px;color:var(--network)}
+.li-stat .l{font-size:11.5px;color:var(--dim);margin-top:2px}
+
+/* ---------- REGION SWITCHER ---------- */
+.switcher-wrap{position:sticky;top:0;z-index:30;margin:0 -24px;padding:12px 24px;
+  background:rgba(16,21,28,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.switcher{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.switcher::-webkit-scrollbar{display:none}
+.tab{
+  flex:none;border:1px solid var(--line);background:var(--surface);color:var(--dim);
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;padding:9px 16px;border-radius:999px;cursor:pointer;
+  transition:.18s;white-space:nowrap;display:flex;align-items:center;gap:8px;
+}
+.tab:hover{border-color:var(--line-strong);color:var(--text)}
+.tab.active{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600}
+.tab .flag{font-size:14px}
+
+/* ---------- REGION PANEL ---------- */
+.panel{display:none;animation:fade .4s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel-head{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between;margin:30px 0 22px}
+.panel-head .ph-l{max-width:60ch}
+.panel-title{font-family:var(--serif);font-size:clamp(24px,3vw,34px);font-weight:380}
+.panel-desc{color:var(--dim);margin-top:10px;font-size:15px}
+.leader-call{
+  border:1px solid var(--line);border-radius:14px;padding:14px 18px;background:var(--surface);
+  min-width:210px;position:relative;overflow:hidden;
+}
+.leader-call::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+.leader-call.s-commercial::before{background:var(--commercial)}
+.leader-call.s-state::before{background:var(--state)}
+.leader-call .lk{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.leader-call .lv{font-family:var(--serif);font-size:24px;margin-top:4px}
+.leader-call .ls{font-size:12px;color:var(--dim);margin-top:2px}
+
+/* chart */
+.chart{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:22px 24px 8px;margin-top:4px}
+.chart-cap{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.bar-row{margin-bottom:18px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:7px}
+.bar-name{font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:9px}
+.bar-name .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;color:var(--bg);font-weight:600}
+.bar-val{font-family:var(--mono);font-size:14px;color:var(--text)}
+.bar-val small{color:var(--faint);font-size:11px}
+.bar-track{height:11px;border-radius:7px;background:rgba(255,255,255,.05);overflow:hidden;position:relative}
+.bar-fill{height:100%;width:0;border-radius:7px;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+.bar-fill.indet{background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 7px,rgba(255,255,255,.05) 7px 14px)}
+.bar-note{font-size:11.5px;color:var(--faint);margin-top:5px}
+
+/* platform cards / accordion */
+.cards{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+.card{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;transition:.2s}
+.card:hover{border-color:var(--line-strong)}
+.card.open{border-color:var(--line-strong);background:var(--surface-2)}
+.card-head{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+.card-rank{font-family:var(--mono);font-size:13px;color:var(--faint);min-width:26px}
+.card-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.card-main{flex:1;min-width:0}
+.card-name{font-size:16px;font-weight:600}
+.card-type{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:1px}
+.card-metric{font-family:var(--mono);font-size:15px;text-align:right;white-space:nowrap}
+.card-metric small{display:block;font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+.chev{transition:.25s;color:var(--faint);flex:none}
+.card.open .chev{transform:rotate(180deg);color:var(--text)}
+.card-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.card-inner{padding:2px 18px 20px 58px}
+.card-inner p{font-size:14px;color:var(--dim);margin-bottom:14px}
+.stat-grid{display:flex;flex-wrap:wrap;gap:18px 26px;padding-top:14px;border-top:1px solid var(--line)}
+.stat{min-width:90px}
+.stat .sv{font-family:var(--mono);font-size:17px;color:var(--text)}
+.stat .sl{font-size:11px;color:var(--faint);margin-top:1px}
+.conf{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:11.5px;font-family:var(--mono);color:var(--dim);letter-spacing:.04em}
+.conf .led{width:8px;height:8px;border-radius:50%}
+.conf.high .led{background:#5BD08C;box-shadow:0 0 8px #5BD08C}
+.conf.mid .led{background:#E8C150;box-shadow:0 0 8px #E8C150}
+.conf.low .led{background:#E08A5B;box-shadow:0 0 8px #E08A5B}
+
+/* donut (UK) */
+.donut-wrap{display:flex;gap:34px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:26px 28px;margin-top:18px}
+.donut{width:200px;height:200px;border-radius:50%;flex:none;position:relative;
+  -webkit-mask:radial-gradient(circle 56px at center,transparent 98%,#000 100%);
+          mask:radial-gradient(circle 56px at center,transparent 98%,#000 100%)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.donut-center .dc-v{font-family:var(--mono);font-size:26px;color:var(--commercial)}
+.donut-center .dc-l{font-size:10.5px;color:var(--faint);max-width:90px;line-height:1.3;margin-top:2px}
+.legend{flex:1;min-width:230px;display:flex;flex-direction:column;gap:9px}
+.leg-row{display:flex;align-items:center;gap:11px;font-size:13.5px}
+.leg-sw{width:12px;height:12px;border-radius:3px;flex:none}
+.leg-name{flex:1}
+.leg-val{font-family:var(--mono);color:var(--text)}
+
+.panel-foot{font-size:13.5px;color:var(--faint);margin-top:24px;padding-left:14px;border-left:2px solid var(--line)}
+
+/* ---------- TIMELINE ---------- */
+.tl{margin-top:34px;position:relative}
+.tl-track{position:absolute;left:0;right:0;top:23px;height:2px;background:var(--line)}
+.tl-track .tl-prog{height:100%;width:0;background:linear-gradient(90deg,var(--state),var(--commercial));transition:width 1.4s ease}
+.tl-points{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+.tl-pt{cursor:pointer;text-align:left}
+.tl-node{width:16px;height:16px;border-radius:50%;background:var(--surface-3);border:2px solid var(--faint);margin-bottom:18px;transition:.2s}
+.tl-pt:hover .tl-node,.tl-pt.active .tl-node{border-color:var(--commercial);background:var(--commercial);box-shadow:0 0 0 6px var(--commercial-soft)}
+.tl-yr{font-family:var(--mono);font-size:20px;color:var(--text)}
+.tl-mini{font-size:12px;color:var(--faint);margin-top:3px}
+.tl-detail{margin-top:26px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:22px 24px;min-height:80px}
+.tl-detail h4{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:12px}
+.tl-detail .ev{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;color:var(--dim)}
+.tl-detail .ev:first-of-type{border-top:none}
+.tl-detail .ev .mk{color:var(--commercial);font-family:var(--mono);flex:none}
+@media(max-width:680px){.tl-yr{font-size:16px}.tl-mini{display:none}}
+
+/* ---------- METHOD / CONFIDENCE ---------- */
+.acc{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-top:12px;overflow:hidden}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;cursor:pointer;font-weight:600;font-size:16px}
+.acc.open{background:var(--surface-2)}
+.acc .chev{color:var(--faint)}
+.acc.open .chev{transform:rotate(180deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.acc-inner{padding:0 22px 22px;color:var(--dim);font-size:14.5px}
+.acc-inner p{margin-bottom:12px}
+.acc-inner b{color:var(--text)}
+
+.cmatrix{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.cm-row{display:flex;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.cm-row .led{width:9px;height:9px;border-radius:50%;flex:none}
+.cm-row.high .led{background:#5BD08C}
+.cm-row.mid .led{background:#E8C150}
+.cm-row.low .led{background:#E08A5B}
+.cm-claim{flex:1;color:var(--text)}
+.cm-lvl{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+
+/* sources */
+.src-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.src{border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface)}
+.src h5{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--commercial);margin-bottom:9px}
+.src p{font-size:13px;color:var(--dim)}
+@media(max-width:720px){.src-grid{grid-template-columns:1fr}}
+
+/* final */
+.final{margin:30px 0 0;border:1px solid var(--line-strong);border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,138,76,.10),rgba(79,168,216,.08));padding:44px 38px}
+.final .fl{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:18px}
+.final .ft{font-family:var(--serif);font-size:clamp(22px,3vw,33px);font-weight:360;line-height:1.3}
+.final .ft b{color:var(--commercial);font-weight:440}
+.final .ft .st{color:var(--state);font-weight:440;font-style:normal}
+.final .ft .nw{color:var(--network);font-weight:440;font-style:normal}
+
+footer{padding:50px 0 70px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);margin-top:60px}
+footer .mono{font-size:11px;letter-spacing:.1em}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .bar-fill{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== HERO ===================== -->
+<header class="wrap hero">
+  <div class="eyebrow">
+    <span>Конкурентная карта рынка</span><span class="dot"></span>
+    <span>США + Европа</span><span class="dot"></span>
+    <b>Similarweb · May 2026</b>
+  </div>
+  <h1 class="title">«<span class="strike">LinkedIn — лидер поиска работы во всех регионах</span>» — <em>не подтверждается.</em></h1>
+  <p class="lede">Если разделить два рынка — <b>профессиональную сеть для нетворкинга и sourcing</b> и собственно <b>job board, куда приходят искать и откликаться на вакансии</b>, — картина меняется. В прямом job-search контуре лидируют другие игроки, а в континентальной Европе job search часто контролируют государственные биржи труда.</p>
+
+  <div class="verdicts" id="verdicts"></div>
+</header>
+
+<!-- ===================== KEY ===================== -->
+<div class="wrap">
+  <div class="key">
+    <span class="klabel">Тип платформы</span>
+    <span class="kitem"><span class="swatch commercial"></span> Коммерческий job board</span>
+    <span class="kitem"><span class="swatch state"></span> Государственная биржа труда</span>
+    <span class="kitem"><span class="swatch network"></span> Профессиональная сеть / гибрид</span>
+  </div>
+</div>
+
+<!-- ===================== MYTH ===================== -->
+<section class="wrap" id="myth">
+  <div class="sec-head"><span class="sec-num">00</span><h2>Почему LinkedIn ≠ доля job-board рынка</h2></div>
+  <p class="sec-sub">LinkedIn остаётся одной из сильнейших платформ рекрутинга вообще. Но именно поэтому его нельзя механически считать «долей рынка вакансий» по общему трафику linkedin.com.</p>
+
+  <div class="myth">
+    <div class="myth-top">
+      <span class="badge">Гипотеза</span>
+      <div class="claim">«LinkedIn — абсолютный лидер рынка поиска вакансий во всех регионах»</div>
+      <div class="verdict-line">Вердикт: <b>не подтверждается</b> при корректном разделении сети и job board.</div>
+    </div>
+    <div class="myth-cols">
+      <div class="myth-col wrong">
+        <h4>Что меряют ошибочно</h4>
+        <p>Берут <b>весь трафик linkedin.com</b> и записывают его в «долю рынка вакансий».</p>
+        <p>Но Similarweb относит linkedin.com к категории <b>Social Media Networks</b> — а не к чистой Jobs &amp; Employment.</p>
+        <p>Бóльшая часть использования — это лента, нетворкинг, messaging, brand/marketing и sales, а не прямой job search.</p>
+      </div>
+      <div class="myth-col right">
+        <h4>Что есть на самом деле</h4>
+        <p>LinkedIn силён как <b>рекрутинговая экосистема</b>: его выручка — это не только Talent Solutions, но и Marketing, Premium и Sales Solutions.</p>
+        <p>Поэтому он <b>лидер профессионального графа и sourcing</b>, но не «clean-play job board».</p>
+        <div class="li-real"><span class="n">FY26</span><span>Рост выручки LinkedIn по кварталам: <b style="color:var(--text)">+10% / +11% / +12%</b> (Q1/Q2/Q3) — экосистема растёт, но это ≠ доминирование в прямом job-search трафике.</span></div>
+      </div>
+    </div>
+    <div class="li-stats">
+      <div class="li-stat"><div class="v">1<small> млрд</small></div><div class="l">участников LinkedIn</div></div>
+      <div class="li-stat"><div class="v">Social<small> Media</small></div><div class="l">категория Similarweb для linkedin.com</div></div>
+      <div class="li-stat"><div class="v">4<small> линии</small></div><div class="l">Talent · Marketing · Premium · Sales</div></div>
+      <div class="li-stat"><div class="v">+12%<small> YoY</small></div><div class="l">выручка FY26 Q3</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REGION SWITCHER ===================== -->
+<div class="switcher-wrap">
+  <div class="wrap" style="padding:0 24px">
+    <div class="switcher" id="switcher"></div>
+  </div>
+</div>
+
+<section class="wrap" id="regions" style="padding-top:14px">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Атлас по рынкам</h2></div>
+  <p class="sec-sub">Переключайте рынки. Кликните по любой платформе, чтобы развернуть детали: вторичные метрики, нишу и уровень уверенности.</p>
+  <div id="panels"></div>
+</section>
+
+<!-- ===================== TIMELINE ===================== -->
+<section class="wrap" id="timeline">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Сдвиг рынка 2023–2026</h2></div>
+  <p class="sec-sub">По официальным отчётам Recruit, Microsoft и ZipRecruiter и публичным Similarweb-срезам за май 2026. Кликните по году.</p>
+  <div class="tl">
+    <div class="tl-track"><div class="tl-prog" id="tlProg"></div></div>
+    <div class="tl-points" id="tlPoints"></div>
+    <div class="tl-detail" id="tlDetail"></div>
+  </div>
+</section>
+
+<!-- ===================== METHOD ===================== -->
+<section class="wrap" id="method">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Методология и уверенность</h2></div>
+  <p class="sec-sub">Базовый показатель — ежемесячные web visits из публичного Similarweb-среза за май 2026. Вторичные метрики — из официальных раскрытий платформ.</p>
+
+  <div class="acc" data-acc>
+    <div class="acc-head">Как считается «доля рынка» <span class="chev">▾</span></div>
+    <div class="acc-body"><div class="acc-inner">
+      <p>Под «долей рынка» понимается доля в <b>очищенной корзине consumer-facing job-search destinations</b>. Из корзины сознательно исключены HRIS/payroll/employee-порталы (UltiPro, Dayforce, Workforcenow), employer career-микросайты и training/government-administration сервисы, если они не являются прямым рынком вакансий.</p>
+      <p>Для страновых доменов (totaljobs.com, stepstone.de, francetravail.fr, arbeitsagentur.de, hellowork.com, jobs.nhs.uk, cv-library.co.uk) берётся прямой трафик домена. Для глобальных доменов, где Similarweb не показывает отдельно country total, используется оценка <b>global total visits × country traffic share</b> — так рассчитаны Indeed US и Indeed UK.</p>
+      <p>Вторичные метрики (активные вакансии, работодатели, профили, выручка) — это <b>контекст</b>, а не база для долей: компании публикуют их в разных единицах измерения.</p>
+    </div></div>
+  </div>
+
+  <div class="acc" data-acc>
+    <div class="acc-head">Матрица уверенности <span class="chev">▾</span></div>
+    <div class="acc-body"><div class="acc-inner">
+      <div class="cmatrix">
+        <div class="cm-row high"><span class="led"></span><span class="cm-claim">LinkedIn — не clean-play job-board leader</span><span class="cm-lvl">Высокая</span></div>
+        <div class="cm-row high"><span class="led"></span><span class="cm-claim">Indeed №1 в США и Великобритании</span><span class="cm-lvl">Высокая</span></div>
+        <div class="cm-row high"><span class="led"></span><span class="cm-claim">Arbeitsagentur №1 в Германии · France Travail №1 во Франции</span><span class="cm-lvl">Высокая</span></div>
+        <div class="cm-row mid"><span class="led"></span><span class="cm-claim">Точные процентные доли в UK · US-корзина вне Indeed</span><span class="cm-lvl">Средняя</span></div>
+        <div class="cm-row low"><span class="led"></span><span class="cm-claim">Точные коммерческие доли Германии и Франции (Indeed DE/FR country traffic не раскрыт)</span><span class="cm-lvl">Пониженная</span></div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- ===================== SOURCES ===================== -->
+<section class="wrap" id="sources">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Источники и ограничения</h2></div>
+  <div class="src-grid">
+    <div class="src"><h5>Трафик</h5><p>Similarweb public traffic checker по доменам и category pages, май 2026.</p></div>
+    <div class="src"><h5>Платформы</h5><p>Официальные страницы Indeed, ZipRecruiter, Totaljobs, HelloWork, France Travail, StepStone.</p></div>
+    <div class="src"><h5>Корпоративные отчёты</h5><p>Microsoft / LinkedIn и Recruit Holdings — отделяют brand/network scale от прямого job-search usage.</p></div>
+  </div>
+  <p class="panel-foot" style="margin-top:22px">Главное ограничение — <b style="color:var(--text)">неполная совместимость метрик</b>: Similarweb даёт visits, компании публикуют профили / работодателей / live jobs / выручку, а LinkedIn монетизируется сразу через несколько продуктовых линий. Отчёт надёжнее читать не как «бухгалтерскую таблицу долей до десятых», а как строго аргументированную конкурентную карту.</p>
+</section>
+
+<!-- ===================== FINAL ===================== -->
+<section class="wrap" style="padding-top:10px">
+  <div class="final">
+    <div class="fl">Если свести всё к одной формуле</div>
+    <div class="ft"><span class="nw">LinkedIn</span> — лидер профессионального графа и sourcing. <b>Indeed</b> — лидер прямого job search в США и UK. <span class="st">Германию и Францию</span> контролируют прежде всего национальные государственные marketplaces, а не LinkedIn.</div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="mono">КОНКУРЕНТНАЯ КАРТА · ПЛАТФОРМЫ ПОИСКА РАБОТЫ · США И ЕВРОПА</div>
+  <div style="margin-top:8px">Данные: Similarweb (web visits, май 2026) и официальные раскрытия платформ. Метрики неоднородны по единицам измерения; проценты — оценки в очищенной корзине job-search. Интерактивная версия deep-research отчёта.</div>
+</footer>
+
+<script>
+/* ============ DATA ============ */
+const T = {commercial:'commercial', state:'state', network:'network'};
+const TYPE_LABEL = {commercial:'Коммерческий', state:'Гос. биржа', network:'Сеть / гибрид'};
+const COLOR = {commercial:'var(--commercial)', state:'var(--state)', network:'var(--network)'};
+
+const VERDICTS = [
+  {geo:'США',           who:'Indeed',         tag:'≈80%+ очищенной корзины', s:'commercial'},
+  {geo:'Великобритания',who:'Indeed',         tag:'≈63,8% трафика',          s:'commercial'},
+  {geo:'Германия',      who:'Arbeitsagentur', tag:'25,6 млн визитов/мес',     s:'state'},
+  {geo:'Франция',       who:'France Travail', tag:'28,5 млн визитов/мес',     s:'state'},
+];
+
+const REGIONS = [
+  {
+    id:'us', flag:'🇺🇸', tab:'США',
+    title:'США — Indeed доминирует',
+    desc:'В чистом job-board/search контуре Indeed лидирует с большим отрывом. Позиции №2–№5 — скорее кластер лидеров, чем точный порядок: публичный Similarweb здесь зашумлён HR/employee-порталами и career-микросайтами.',
+    leader:{label:'Лидер рынка', value:'Indeed', sub:'≈179,6 млн визитов из США / мес', s:'commercial'},
+    chartCap:['US visits, млн / мес — май 2026','масштаб показывает разрыв в порядок'],
+    bars:[
+      {name:'Indeed',        type:T.commercial, val:179.6, unit:'млн'},
+      {name:'GovernmentJobs', type:T.state,      val:12.6, unit:'млн'},
+      {name:'SimplyHired',   type:T.commercial, val:2.7,  unit:'млн'},
+      {name:'Snagajob',      type:T.commercial, val:2.0,  unit:'млн'},
+    ],
+    barNote:'ZipRecruiter раскрывает соискателей и выручку, но не чистые visits — поэтому он не в этом столбчатом срезе, см. карточку ниже.',
+    cards:[
+      {rank:'01', name:'Indeed', type:T.commercial, metric:'≈80%+', metricSub:'очищенной корзины',
+        desc:'Универсальный job search engine / board с наибольшим охватом. Оценка: 425 млн total visits × 42,26% US share ≈ 179,6 млн визитов из США в месяц — на порядок больше любого сопоставимого актива. Официально называет себя world\u2019s #1 job site.',
+        stats:[['635 млн','профилей соискателей'],['3,3 млн','работодателей'],['350+','ATS-интеграций']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'02', name:'ZipRecruiter', type:T.commercial, metric:'≈9–10%', metricSub:'US-корзины',
+        desc:'AI/matching-first marketplace, сильный SMB/SME-канал, удалённая дистрибуция вакансий на 100+ job sites. Чистые visits публично не раскрыты — доля оценена через гибридную корзину.',
+        stats:[['~20 млн','соискателей / мес'],['11 млн','вакансий в поиске / день'],['$449,0 млн','выручка FY2025'],['$107,5 млн','выручка Q1 2026']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'03', name:'GovernmentJobs', type:T.state, metric:'12,6 млн', metricSub:'US visits / мес',
+        desc:'Самый сильный вертикальный игрок в сегменте state/local government hiring. 12,8 млн визитов, из них 98,69% из США. Категория #6 в US Jobs & Employment.',
+        stats:[['#6','US Jobs & Employment'],['98,69%','трафика из США']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'04', name:'SimplyHired', type:T.commercial, metric:'2,7 млн', metricSub:'US visits / мес',
+        desc:'Лёгкий агрегатор вакансий; хорош в long-tail поиске и SEO-охвате. 3,3 млн визитов, 82,93% из США. Категория #34.',
+        stats:[['#34','US Jobs & Employment'],['82,93%','трафика из США']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'05', name:'Snagajob', type:T.commercial, metric:'2,0 млн', metricSub:'US visits / мес',
+        desc:'Ниша hourly / frontline / local work. 2,2 млн визитов, 91,76% из США. Категория #59.',
+        stats:[['#59','US Jobs & Employment'],['91,76%','трафика из США']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'—', name:'Monster', type:T.commercial, metric:'#87', metricSub:'category rank',
+        desc:'Сдвиг против «исторической памяти» рынка: бренд известен, но в конкурентном блоке Similarweb для Indeed monster.com фигурирует лишь на category rank #87 — далеко за пределами текущего top tier. По текущему цифровому спросу существенно уступает Indeed и ZipRecruiter.',
+        stats:[['#87','category rank']], conf:'mid', confTxt:'Средняя уверенность'},
+    ],
+    foot:'Glassdoor (jobs + reviews) с высокой вероятностью входит в кластер лидеров №2–№5, но его US country traffic в этой выгрузке не раскрыт прозрачно, поэтому жёсткая доля для него не используется.'
+  },
+  {
+    id:'uk', flag:'🇬🇧', tab:'Великобритания',
+    title:'Великобритания — самый «коммерческий» рынок',
+    desc:'Indeed — общий лидер, но Totaljobs остаётся сильнейшим локальным generalist-брендом. Это одна из самых надёжных страновых оценок исследования.',
+    leader:{label:'Лидер рынка', value:'Indeed', sub:'≈63,8% · ≈28,1 млн визитов/мес', s:'commercial'},
+    chartCap:['UK visits, млн / мес — май 2026',''],
+    bars:[
+      {name:'Indeed UK (оценка)', type:T.commercial, val:28.1, unit:'млн'},
+      {name:'Totaljobs',          type:T.commercial, val:4.9,  unit:'млн'},
+      {name:'Glassdoor.co.uk',    type:T.commercial, val:4.5,  unit:'млн'},
+      {name:'NHS Jobs',           type:T.state,      val:3.6,  unit:'млн'},
+      {name:'CV-Library',         type:T.commercial, val:3.0,  unit:'млн'},
+    ],
+    barNote:'Indeed UK ≈ 425 млн total visits × 6,62% UK share.',
+    donut:{
+      centerV:'63,8%', centerL:'Indeed UK',
+      slices:[
+        {name:'Indeed UK (оценка)', val:63.8, color:'var(--commercial)'},
+        {name:'Totaljobs',          val:11.1, color:'#FFB07A'},
+        {name:'Glassdoor.co.uk',    val:10.2, color:'#FFC9A3'},
+        {name:'NHS Jobs',           val:8.2,  color:'var(--state)'},
+        {name:'CV-Library',         val:6.8,  color:'#9FCFE8'},
+      ]
+    },
+    cards:[
+      {rank:'01', name:'Indeed', type:T.commercial, metric:'63,8%', metricSub:'доля корзины',
+        desc:'Общий лидер job-search в UK. Оценка ≈28,1 млн визитов/мес (425 млн × 6,62% UK share).',
+        stats:[['≈28,1 млн','визитов / мес'],['#1','UK Jobs & Employment']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'02', name:'Totaljobs', type:T.commercial, metric:'11,1%', metricSub:'доля корзины',
+        desc:'Сильнейший локальный generalist-бренд Великобритании.',
+        stats:[['~6 млн','соискателей / мес'],['~2 млн','откликов / мес'],['~120 тыс.','live job ads']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'03', name:'Glassdoor.co.uk', type:T.commercial, metric:'10,2%', metricSub:'доля корзины',
+        desc:'Гибрид jobs + employer reviews, крупный игрок в UK.',
+        stats:[['≈4,5 млн','визитов / мес']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'04', name:'NHS Jobs', type:T.state, metric:'8,2%', metricSub:'доля корзины',
+        desc:'Институциональный портал найма Национальной службы здравоохранения.',
+        stats:[['≈3,6 млн','визитов / мес']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'05', name:'CV-Library', type:T.commercial, metric:'6,8%', metricSub:'доля корзины',
+        desc:'Локальный generalist job board.',
+        stats:[['≈3,0 млн','визитов / мес'],['138 562','live vacancies']], conf:'mid', confTxt:'Средняя уверенность'},
+    ],
+    foot:'UK отличается от Германии и Франции тем, что здесь коммерческие generalist-платформы занимают большую долю job-search поведения.'
+  },
+  {
+    id:'de', flag:'🇩🇪', tab:'Германия',
+    title:'Германия — лидирует государство',
+    desc:'Общий лидер прямого поиска — госагентство Arbeitsagentur. Сильнейший локальный коммерческий бренд — StepStone. XING остаётся значимым jobs/pro-network гибридом, но не лидирует.',
+    leader:{label:'Лидер рынка', value:'Arbeitsagentur', sub:'25,6 млн визитов/мес · #1', s:'state'},
+    chartCap:['Germany visits, млн / мес — май 2026',''],
+    bars:[
+      {name:'Arbeitsagentur', type:T.state,      val:25.6, unit:'млн'},
+      {name:'StepStone',      type:T.commercial, val:11.2, unit:'млн'},
+      {name:'XING',           type:T.network,    val:9.1,  unit:'млн'},
+      {name:'Indeed',         type:T.commercial, val:null, unit:'', indet:true, tag:'#2'},
+    ],
+    barNote:'Indeed — #2 по category rank, но точный country traffic в бесплатном Similarweb-extract не раскрыт.',
+    cards:[
+      {rank:'01', name:'Arbeitsagentur', type:T.state, metric:'25,6 млн', metricSub:'визитов / мес',
+        desc:'Bundesagentur für Arbeit — государственная биржа труда, общий лидер прямого поиска работы. Категория #1 в Germany Jobs & Employment.',
+        stats:[['#1','Germany Jobs & Employment']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'02', name:'Indeed', type:T.commercial, metric:'#2', metricSub:'category rank',
+        desc:'Силён и в Германии, но точная country traffic-метрика в бесплатной выгрузке не раскрыта — фиксируется позиция, а не доля.',
+        stats:[['#2','по category rank']], conf:'low', confTxt:'Пониженная уверенность'},
+      {rank:'03', name:'StepStone', type:T.commercial, metric:'11,2 млн', metricSub:'визитов / мес',
+        desc:'Германия и DACH; сильнейший локальный коммерческий бренд. StepStone.de рекламирует 150 000+ current jobs.',
+        stats:[['11,2 млн','визитов / мес'],['150 000+','current jobs']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'04', name:'XING', type:T.network, metric:'9,1 млн', metricSub:'визитов / мес',
+        desc:'Значимый jobs / pro-network гибрид в DACH, но не лидирует в прямом job-search.',
+        stats:[['9,1 млн','визитов / мес']], conf:'mid', confTxt:'Средняя уверенность'},
+    ],
+    foot:'LinkedIn в публичной jobs-классификации Германии не является лидером.'
+  },
+  {
+    id:'fr', flag:'🇫🇷', tab:'Франция',
+    title:'Франция — лидирует государство',
+    desc:'Общий лидер — государственная France Travail. Сильнейший домашний коммерческий бренд — HelloWork. Рынок очень локализован, Similarweb-France дополнительно шумит из-за смежных госсервисов.',
+    leader:{label:'Лидер рынка', value:'France Travail', sub:'28,5 млн визитов/мес · #1', s:'state'},
+    chartCap:['France visits, млн / мес — май 2026',''],
+    bars:[
+      {name:'France Travail', type:T.state,      val:28.5, unit:'млн'},
+      {name:'HelloWork',      type:T.commercial, val:11.3, unit:'млн'},
+      {name:'Indeed',         type:T.commercial, val:null, unit:'', indet:true, tag:'#2'},
+    ],
+    barNote:'Indeed — #2 по category rank; отдельный country traffic в бесплатной выгрузке не раскрыт. Meteojob показывает 320 068 офферов (метрика офферов, не visits).',
+    cards:[
+      {rank:'01', name:'France Travail', type:T.state, metric:'28,5 млн', metricSub:'визитов / мес',
+        desc:'Государственная биржа труда, общий лидер прямого поиска работы. На витрине — 966 110 актуальных офферов.',
+        stats:[['28,5 млн','визитов / мес'],['966 110','офферов']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'02', name:'Indeed', type:T.commercial, metric:'#2', metricSub:'category rank',
+        desc:'Очень силён во Франции, но не единственный и не «абсолютный» лидер; точная country traffic-метрика не раскрыта отдельно.',
+        stats:[['#2','по category rank']], conf:'low', confTxt:'Пониженная уверенность'},
+      {rank:'03', name:'HelloWork', type:T.commercial, metric:'11,3 млн', metricSub:'визитов / мес',
+        desc:'Сильнейший локальный коммерческий бренд Франции.',
+        stats:[['11,3 млн','визитов / мес'],['883 913','offers'],['11 985','companies hiring']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'04', name:'Meteojob', type:T.commercial, metric:'320 068', metricSub:'офферов',
+        desc:'Одна из локальных ниш (наряду с Welcome to the Jungle). Метрика — офферы, не visits.',
+        stats:[['320 068','офферов']], conf:'low', confTxt:'Пониженная уверенность'},
+    ],
+    foot:'Для коммерческого слоя Франции порядок лучше читать качественно, а не как идеальную «чистую пятёрку».'
+  },
+  {
+    id:'eu', flag:'🇪🇺', tab:'Европа · обзор',
+    title:'Европа — фрагментирована и национальна',
+    desc:'Единый общеевропейский leaderboard уступает по аналитической ценности страновой разбивке: рынок национален по языку, регулированию и привычкам соискателей. У Indeed нет монополии, у LinkedIn — тем более.',
+    leader:{label:'Картина', value:'Гос. + локальные', sub:'2 из 3 экономик ведёт государство', s:'state'},
+    chartCap:['Ядро европейского job-search, млн визитов / мес — май 2026',''],
+    bars:[
+      {name:'France Travail 🇫🇷',     type:T.state,      val:28.5, unit:'млн'},
+      {name:'Indeed UK 🇬🇧 (оценка)',  type:T.commercial, val:28.1, unit:'млн'},
+      {name:'Arbeitsagentur 🇩🇪',      type:T.state,      val:25.6, unit:'млн'},
+      {name:'HelloWork 🇫🇷',           type:T.commercial, val:11.3, unit:'млн'},
+      {name:'StepStone 🇩🇪',           type:T.commercial, val:11.2, unit:'млн'},
+    ],
+    barNote:'Indeed: №1 в UK, №2 в Германии и Франции по публичным category rankings.',
+    cards:[
+      {rank:'01', name:'Indeed', type:T.commercial, metric:'№1 UK', metricSub:'№2 DE · №2 FR',
+        desc:'Панъевропейский игрок. №1 в UK (≈28,1 млн), №2 в Германии и Франции по публичным category rankings. Для DE/FR отдельный country traffic не раскрыт, поэтому фиксируется позиция.',
+        stats:[['≈28,1 млн','UK визитов / мес'],['#1 / #2 / #2','UK / DE / FR']], conf:'mid', confTxt:'Средняя уверенность'},
+      {rank:'02', name:'France Travail', type:T.state, metric:'28,5 млн', metricSub:'визитов / мес',
+        desc:'Государственная биржа труда Франции; общий лидер прямого поиска. 966 110 офферов на витрине.',
+        stats:[['28,5 млн','визитов / мес'],['966 110','офферов']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'03', name:'Arbeitsagentur', type:T.state, metric:'25,6 млн', metricSub:'визитов / мес',
+        desc:'Государственная биржа труда Германии; #1 в Germany Jobs & Employment.',
+        stats:[['25,6 млн','визитов / мес'],['#1','Germany J&E']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'04', name:'HelloWork', type:T.commercial, metric:'11,3 млн', metricSub:'визитов / мес',
+        desc:'Сильнейший локальный коммерческий бренд Франции.',
+        stats:[['11,3 млн','визитов / мес'],['883 913','offers']], conf:'high', confTxt:'Высокая уверенность'},
+      {rank:'05', name:'StepStone', type:T.commercial, metric:'11,2 млн', metricSub:'визитов / мес',
+        desc:'Сильнейший локальный коммерческий бренд Германии и DACH.',
+        stats:[['11,2 млн','визитов / мес'],['150 000+','current jobs']], conf:'high', confTxt:'Высокая уверенность'},
+    ],
+    foot:'В двух из трёх ключевых континентальных экономик общий job-search лидер — государственный marketplace; коммерческий слой остаётся локальным и национально фрагментированным.'
+  },
+];
+
+const TIMELINE = [
+  {year:'2023', mini:'Охлаждение найма', title:'Макроохлаждение давит на рынок',
+    events:[['', 'Замедление найма давит на HR-tech и job boards по всему циклу.']]},
+  {year:'2024', mini:'Большой, но циклический', title:'Рынок job advertising — крупный, но чувствительный',
+    events:[['', 'Recruit и SIA продолжают трактовать рынок job advertising как крупный, но чувствительный к экономическому циклу.']]},
+  {year:'2025', mini:'Разворот и 1 млрд', title:'Слабый рынок, но первые развороты',
+    events:[['Recruit', 'Ожидает ослабление hiring demand в США и Европе.'],['ZipRecruiter', 'Возврат к YoY росту выручки в Q4 2025 на всё ещё мягком рынке.'],['LinkedIn', 'Достигает 1 млрд участников.']]},
+  {year:'2026', mini:'Карта по Similarweb', title:'Similarweb May 2026 — расстановка сил',
+    events:[['США / UK', 'Indeed — №1 в обоих рынках.'],['Германия', 'Arbeitsagentur — №1.'],['Франция', 'France Travail — №1.'],['LinkedIn', 'Остаётся сильным recruiting channel, но не clean-play job board leader.']]},
+];
+
+/* ============ RENDER ============ */
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+
+// verdicts
+const vWrap=document.getElementById('verdicts');
+VERDICTS.forEach(v=>{
+  const c=el('div','verdict s-'+v.s);
+  c.innerHTML=`<div class="geo">${v.geo}</div><div class="who">${v.who}</div><div class="tag">${v.tag}</div>`;
+  vWrap.appendChild(c);
+});
+
+// switcher + panels
+const sw=document.getElementById('switcher');
+const panelsWrap=document.getElementById('panels');
+
+REGIONS.forEach((r,i)=>{
+  const tab=el('button','tab'+(i===0?' active':''));
+  tab.innerHTML=`<span class="flag">${r.flag}</span>${r.tab}`;
+  tab.onclick=()=>activate(r.id);
+  tab.dataset.id=r.id;
+  sw.appendChild(tab);
+
+  const p=el('div','panel'+(i===0?' active':''));
+  p.id='panel-'+r.id;
+  p.appendChild(buildPanel(r));
+  panelsWrap.appendChild(p);
+});
+
+function buildPanel(r){
+  const frag=document.createDocumentFragment();
+
+  // head
+  const head=el('div','panel-head');
+  head.innerHTML=`<div class="ph-l"><div class="panel-title">${r.title}</div><div class="panel-desc">${r.desc}</div></div>
+    <div class="leader-call s-${r.leader.s}"><div class="lk">${r.leader.label}</div><div class="lv">${r.leader.value}</div><div class="ls">${r.leader.sub}</div></div>`;
+  frag.appendChild(head);
+
+  // chart
+  const maxVal=Math.max(...r.bars.filter(b=>b.val!=null).map(b=>b.val));
+  const chart=el('div','chart');
+  chart.innerHTML=`<div class="chart-cap"><span>${r.chartCap[0]}</span><span>${r.chartCap[1]||''}</span></div>`;
+  r.bars.forEach(b=>{
+    const row=el('div','bar-row');
+    const pct=b.indet?100:(b.val/maxVal*100);
+    const pill=`<span class="pill" style="background:${COLOR[b.type]}">${b.tag||TYPE_LABEL[b.type].slice(0,4)}</span>`;
+    const valTxt=b.indet?`<span class="bar-val"><small>не раскрыт</small></span>`:`<span class="bar-val">${String(b.val).replace('.',',')}<small> ${b.unit}</small></span>`;
+    row.innerHTML=`<div class="bar-top"><span class="bar-name">${b.name} ${b.tag?`<span class="pill" style="background:${COLOR[b.type]}">${b.tag}</span>`:''}</span>${valTxt}</div>
+      <div class="bar-track"><div class="bar-fill ${b.indet?'indet':''}" data-w="${pct}" style="background:${b.indet?'':COLOR[b.type]}"></div></div>`;
+    chart.appendChild(row);
+  });
+  if(r.barNote) chart.appendChild(el('div','bar-note',r.barNote));
+  frag.appendChild(chart);
+
+  // donut (UK)
+  if(r.donut){
+    const dw=el('div','donut-wrap');
+    let acc=0; const segs=[];
+    r.donut.slices.forEach(s=>{const a=acc, b=acc+s.val; segs.push(`${s.color} ${a*3.6}deg ${b*3.6}deg`); acc=b;});
+    const legRows=r.donut.slices.map(s=>`<div class="leg-row"><span class="leg-sw" style="background:${s.color}"></span><span class="leg-name">${s.name}</span><span class="leg-val">${String(s.val).replace('.',',')}%</span></div>`).join('');
+    dw.innerHTML=`<div class="donut" style="background:conic-gradient(${segs.join(',')})"><div class="donut-center"><div class="dc-v">${r.donut.centerV}</div><div class="dc-l">${r.donut.centerL}</div></div></div>
+      <div class="legend"><div class="chart-cap" style="margin-bottom:4px">Доли трафика среди ТОП-5 · May 2026</div>${legRows}</div>`;
+    frag.appendChild(dw);
+  }
+
+  // cards
+  const cards=el('div','cards');
+  r.cards.forEach(c=>{
+    const card=el('div','card');
+    const stats=c.stats.map(s=>`<div class="stat"><div class="sv">${s[0]}</div><div class="sl">${s[1]}</div></div>`).join('');
+    card.innerHTML=`
+      <div class="card-head">
+        <span class="card-rank">${c.rank}</span>
+        <span class="card-dot" style="background:${COLOR[c.type]}"></span>
+        <div class="card-main"><div class="card-name">${c.name}</div><div class="card-type">${TYPE_LABEL[c.type]}</div></div>
+        <div class="card-metric">${c.metric}<small>${c.metricSub}</small></div>
+        <span class="chev">▾</span>
+      </div>
+      <div class="card-body"><div class="card-inner">
+        <p>${c.desc}</p>
+        <div class="stat-grid">${stats}</div>
+        <div class="conf ${c.conf}"><span class="led"></span>${c.confTxt}</div>
+      </div></div>`;
+    const headEl=card.querySelector('.card-head');
+    const body=card.querySelector('.card-body');
+    headEl.onclick=()=>{
+      const open=card.classList.toggle('open');
+      body.style.maxHeight=open?body.scrollHeight+40+'px':'0';
+    };
+    cards.appendChild(card);
+  });
+  frag.appendChild(cards);
+
+  if(r.foot) frag.appendChild(el('div','panel-foot',r.foot));
+  return frag;
+}
+
+function activate(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.id===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+id));
+  // animate bars in this panel
+  requestAnimationFrame(()=>animateBars(document.getElementById('panel-'+id)));
+}
+function animateBars(scope){
+  scope.querySelectorAll('.bar-fill').forEach(f=>{
+    f.style.width='0';
+    requestAnimationFrame(()=>{ f.style.width=f.dataset.w+'%'; });
+  });
+}
+
+/* ============ TIMELINE ============ */
+const tlPoints=document.getElementById('tlPoints');
+const tlDetail=document.getElementById('tlDetail');
+const tlProg=document.getElementById('tlProg');
+let tlActive=3;
+TIMELINE.forEach((t,i)=>{
+  const pt=el('div','tl-pt'+(i===tlActive?' active':''));
+  pt.innerHTML=`<div class="tl-node"></div><div class="tl-yr">${t.year}</div><div class="tl-mini">${t.mini}</div>`;
+  pt.onclick=()=>setTl(i);
+  tlPoints.appendChild(pt);
+});
+function setTl(i){
+  tlActive=i;
+  document.querySelectorAll('.tl-pt').forEach((p,idx)=>p.classList.toggle('active',idx===i));
+  const t=TIMELINE[i];
+  tlDetail.innerHTML=`<h4>${t.year} · ${t.title}</h4>`+t.events.map(e=>`<div class="ev">${e[0]?`<span class="mk">${e[0]}</span>`:'<span class="mk">·</span>'}<span>${e[1]}</span></div>`).join('');
+}
+setTl(3);
+
+/* ============ ACCORDIONS (method) ============ */
+document.querySelectorAll('[data-acc]').forEach(a=>{
+  const head=a.querySelector('.acc-head');
+  const body=a.querySelector('.acc-body');
+  head.onclick=()=>{
+    const open=a.classList.toggle('open');
+    body.style.maxHeight=open?body.scrollHeight+40+'px':'0';
+  };
+});
+
+/* ============ INTERSECTION: animate first panel + timeline progress ============ */
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      if(e.target.id==='regions') animateBars(document.querySelector('.panel.active'));
+      if(e.target.id==='timeline') tlProg.style.width='100%';
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.2});
+io.observe(document.getElementById('regions'));
+io.observe(document.getElementById('timeline'));
+</script>
+</body>
+</html>
